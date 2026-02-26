@@ -9,6 +9,13 @@ knowledge/
 # Output
 output/
 
+# Database
+*.db
+
+# User uploads & generated docs
+uploads/
+generated_docs/
+
 # Python
 __pycache__/
 *.pyc

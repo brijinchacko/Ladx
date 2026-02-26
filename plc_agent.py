@@ -2,196 +2,220 @@
 LADX - Core Agent Logic
 ================================
 This is the brain of LADX.
-It uses Claude as the AI engine and provides specialized tools
+It uses OpenRouter (free models) as the AI engine and provides specialized tools
 for PLC code generation, troubleshooting, and conversion.
 """
 
 import os
 import json
+import re
 import httpx
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-import anthropic
+from openai import OpenAI
 from config import (
-    ANTHROPIC_API_KEY, AI_MODEL, MAX_TOKENS,
+    OPENROUTER_API_KEY, OPENROUTER_BASE_URL, AI_MODEL, MAX_TOKENS,
     OUTPUT_DIR, TIA_BRIDGE_URL, PLATFORMS,
     get_system_prompt
 )
 
 # ===========================================
-# Initialize AI Client
+# Initialize OpenRouter Client (OpenAI-compatible)
 # ===========================================
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
+client = OpenAI(
+    base_url=OPENROUTER_BASE_URL,
+    api_key=OPENROUTER_API_KEY,
+)
 
 # ===========================================
-# Tool Definitions (what the AI can do)
+# Tool Definitions for OpenAI function calling format
 # ===========================================
 TOOLS = [
     {
-        "name": "generate_plc_code",
-        "description": "Generate complete, compilable PLC code from a natural language description. Supports Siemens SCL, Allen-Bradley Structured Text, and CODESYS.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "description": "Detailed description of what the PLC program should do"
+        "type": "function",
+        "function": {
+            "name": "generate_plc_code",
+            "description": "Generate complete, compilable PLC code from a natural language description. Supports Siemens SCL, Allen-Bradley Structured Text, and CODESYS.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of what the PLC program should do"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley", "codesys"],
+                        "description": "Target PLC platform"
+                    },
+                    "block_type": {
+                        "type": "string",
+                        "enum": ["FB", "FC", "OB", "AOI", "Program", "Function"],
+                        "description": "Type of PLC block to generate"
+                    },
+                    "block_name": {
+                        "type": "string",
+                        "description": "Name for the PLC block"
+                    }
                 },
-                "platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley", "codesys"],
-                    "description": "Target PLC platform"
-                },
-                "block_type": {
-                    "type": "string",
-                    "enum": ["FB", "FC", "OB", "AOI", "Program", "Function"],
-                    "description": "Type of PLC block to generate"
-                },
-                "block_name": {
-                    "type": "string",
-                    "description": "Name for the PLC block"
-                }
-            },
-            "required": ["description", "platform"]
+                "required": ["description", "platform"]
+            }
         }
     },
     {
-        "name": "troubleshoot_plc",
-        "description": "Diagnose PLC faults, interpret error codes, and provide step-by-step troubleshooting procedures.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "problem_description": {
-                    "type": "string",
-                    "description": "Description of the problem, error codes, LED status, symptoms"
+        "type": "function",
+        "function": {
+            "name": "troubleshoot_plc",
+            "description": "Diagnose PLC faults, interpret error codes, and provide step-by-step troubleshooting procedures.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "problem_description": {
+                        "type": "string",
+                        "description": "Description of the problem, error codes, LED status, symptoms"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley"],
+                        "description": "PLC platform"
+                    },
+                    "cpu_model": {
+                        "type": "string",
+                        "description": "Specific CPU model (e.g., S7-1500, 1756-L85E)"
+                    }
                 },
-                "platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley"],
-                    "description": "PLC platform"
-                },
-                "cpu_model": {
-                    "type": "string",
-                    "description": "Specific CPU model (e.g., S7-1500, 1756-L85E)"
-                }
-            },
-            "required": ["problem_description", "platform"]
+                "required": ["problem_description", "platform"]
+            }
         }
     },
     {
-        "name": "convert_plc_code",
-        "description": "Convert PLC code from one platform to another (e.g., Siemens to Allen-Bradley or vice versa).",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "source_code": {
-                    "type": "string",
-                    "description": "The original PLC code to convert"
+        "type": "function",
+        "function": {
+            "name": "convert_plc_code",
+            "description": "Convert PLC code from one platform to another (e.g., Siemens to Allen-Bradley or vice versa).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "source_code": {
+                        "type": "string",
+                        "description": "The original PLC code to convert"
+                    },
+                    "source_platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley", "codesys"],
+                        "description": "Original platform"
+                    },
+                    "target_platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley", "codesys"],
+                        "description": "Target platform to convert to"
+                    }
                 },
-                "source_platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley", "codesys"],
-                    "description": "Original platform"
-                },
-                "target_platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley", "codesys"],
-                    "description": "Target platform to convert to"
-                }
-            },
-            "required": ["source_code", "source_platform", "target_platform"]
+                "required": ["source_code", "source_platform", "target_platform"]
+            }
         }
     },
     {
-        "name": "explain_plc_code",
-        "description": "Analyze and explain existing PLC code - what it does, how it works, and suggest improvements.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "description": "The PLC code to analyze"
+        "type": "function",
+        "function": {
+            "name": "explain_plc_code",
+            "description": "Analyze and explain existing PLC code - what it does, how it works, and suggest improvements.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "The PLC code to analyze"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley", "codesys"],
+                        "description": "Which platform the code is for"
+                    }
                 },
-                "platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley", "codesys"],
-                    "description": "Which platform the code is for"
-                }
-            },
-            "required": ["code"]
+                "required": ["code"]
+            }
         }
     },
     {
-        "name": "generate_tag_list",
-        "description": "Generate a structured tag/variable list for a PLC project, ready for import.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "description": "Description of the system to generate tags for"
+        "type": "function",
+        "function": {
+            "name": "generate_tag_list",
+            "description": "Generate a structured tag/variable list for a PLC project, ready for import.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Description of the system to generate tags for"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley"],
+                        "description": "Target platform"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["csv", "json", "xml"],
+                        "description": "Output format for the tag list"
+                    }
                 },
-                "platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley"],
-                    "description": "Target platform"
-                },
-                "format": {
-                    "type": "string",
-                    "enum": ["csv", "json", "xml"],
-                    "description": "Output format for the tag list"
-                }
-            },
-            "required": ["description", "platform"]
+                "required": ["description", "platform"]
+            }
         }
     },
     {
-        "name": "save_code_to_file",
-        "description": "Save generated PLC code to a file in the output directory.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "filename": {
-                    "type": "string",
-                    "description": "Name for the output file (without path)"
+        "type": "function",
+        "function": {
+            "name": "save_code_to_file",
+            "description": "Save generated PLC code to a file in the output directory.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "type": "string",
+                        "description": "Name for the output file (without path)"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "The code content to save"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": ["siemens", "allen_bradley", "codesys"],
+                        "description": "Platform (determines file extension)"
+                    }
                 },
-                "content": {
-                    "type": "string",
-                    "description": "The code content to save"
-                },
-                "platform": {
-                    "type": "string",
-                    "enum": ["siemens", "allen_bradley", "codesys"],
-                    "description": "Platform (determines file extension)"
-                }
-            },
-            "required": ["filename", "content"]
+                "required": ["filename", "content"]
+            }
         }
     },
     {
-        "name": "send_to_tia_portal",
-        "description": "Send generated code to TIA Portal via the Windows bridge server. Requires the bridge to be running on your Windows PC.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "block_name": {
-                    "type": "string",
-                    "description": "Name of the block to create in TIA Portal"
+        "type": "function",
+        "function": {
+            "name": "send_to_tia_portal",
+            "description": "Send generated code to TIA Portal via the Windows bridge server. Requires the bridge to be running on your Windows PC.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "block_name": {
+                        "type": "string",
+                        "description": "Name of the block to create in TIA Portal"
+                    },
+                    "scl_code": {
+                        "type": "string",
+                        "description": "The SCL code to import"
+                    },
+                    "action": {
+                        "type": "string",
+                        "enum": ["import", "compile", "export"],
+                        "description": "Action to perform in TIA Portal"
+                    }
                 },
-                "scl_code": {
-                    "type": "string",
-                    "description": "The SCL code to import"
-                },
-                "action": {
-                    "type": "string",
-                    "enum": ["import", "compile", "export"],
-                    "description": "Action to perform in TIA Portal"
-                }
-            },
-            "required": ["block_name", "action"]
+                "required": ["block_name", "action"]
+            }
         }
     }
 ]
@@ -223,13 +247,13 @@ Requirements:
 
 Return ONLY the PLC code, no additional explanation."""
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=AI_MODEL,
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    code = response.content[0].text
+    code = response.choices[0].message.content
 
     # Auto-save to output directory
     ext = platform_info["file_ext"]
@@ -257,13 +281,13 @@ Provide your diagnosis in this exact structure:
 4. PREVENTION: (how to prevent this in the future)
 5. RELATED ISSUES: (other things to check while you're at it)"""
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=AI_MODEL,
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return response.content[0].text
+    return response.choices[0].message.content
 
 
 def handle_convert_plc_code(params: dict) -> str:
@@ -293,13 +317,13 @@ Return:
 - A conversion notes section listing all changes made
 - Any warnings about behavioral differences"""
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=AI_MODEL,
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    result = response.content[0].text
+    result = response.choices[0].message.content
 
     # Auto-save
     filename = f"converted_{datetime.now().strftime('%Y%m%d_%H%M%S')}{target['file_ext']}"
@@ -326,13 +350,13 @@ Provide:
 4. POTENTIAL ISSUES: Any bugs, inefficiencies, or safety concerns
 5. SUGGESTED IMPROVEMENTS: How to make this code better"""
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=AI_MODEL,
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return response.content[0].text
+    return response.choices[0].message.content
 
 
 def handle_generate_tag_list(params: dict) -> str:
@@ -356,13 +380,13 @@ Follow standard naming conventions:
 - Timers: T_xxx or TON_xxx
 - Counters: C_xxx or CTU_xxx"""
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=AI_MODEL,
         max_tokens=MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    result = response.content[0].text
+    result = response.choices[0].message.content
 
     # Save tag list
     ext = {"csv": ".csv", "json": ".json", "xml": ".xml"}.get(fmt, ".csv")
@@ -455,16 +479,23 @@ class PLCAgent:
     """
     The main LADX Agent.
     Handles conversation, tool use, and maintains chat history.
+    Uses OpenRouter with OpenAI-compatible API.
     """
 
     def __init__(self):
         self.conversation_history = []
         self.system_prompt = get_system_prompt()
+        self.model_override = None  # Set per-request to override AI_MODEL
+
+    @property
+    def active_model(self):
+        """Return the model to use: override if set, otherwise default."""
+        return self.model_override or AI_MODEL
 
     def chat(self, user_message: str) -> str:
         """
         Send a message to the agent and get a response.
-        Handles multi-turn tool use automatically.
+        Handles multi-turn tool use automatically via OpenAI function calling.
         """
         # Add user message to history
         self.conversation_history.append({
@@ -472,86 +503,126 @@ class PLCAgent:
             "content": user_message
         })
 
-        # Call Claude with tools
-        response = client.messages.create(
-            model=AI_MODEL,
-            max_tokens=MAX_TOKENS,
-            system=self.system_prompt,
-            tools=TOOLS,
-            messages=self.conversation_history
-        )
+        # Build messages with system prompt
+        messages = [
+            {"role": "system", "content": self.system_prompt}
+        ] + self.conversation_history
 
-        # Process the response (may involve multiple tool calls)
+        # Call OpenRouter with tools
+        try:
+            response = client.chat.completions.create(
+                model=self.active_model,
+                max_tokens=MAX_TOKENS,
+                messages=messages,
+                tools=TOOLS,
+                tool_choice="auto",
+                extra_headers={
+                    "HTTP-Referer": "https://ladx.dev",
+                    "X-Title": "LADX - PLC AI Agent"
+                }
+            )
+        except Exception as e:
+            # If tool calling fails (some free models don't support it),
+            # fall back to plain chat without tools
+            try:
+                response = client.chat.completions.create(
+                    model=self.active_model,
+                    max_tokens=MAX_TOKENS,
+                    messages=messages,
+                    extra_headers={
+                        "HTTP-Referer": "https://ladx.dev",
+                        "X-Title": "LADX - PLC AI Agent"
+                    }
+                )
+            except Exception as e2:
+                error_msg = f"Error calling AI: {str(e2)}"
+                self.conversation_history.pop()  # Remove failed user message
+                return error_msg
+
+        # Process the response (may involve tool calls)
         final_response = self._process_response(response)
-
         return final_response
 
     def _process_response(self, response) -> str:
-        """Process Claude's response, handling any tool calls."""
+        """Process OpenRouter response, handling any tool calls."""
         collected_text = []
+        message = response.choices[0].message
 
-        while response.stop_reason == "tool_use":
-            # Collect any text blocks
-            assistant_content = []
-            for block in response.content:
-                if block.type == "text":
-                    collected_text.append(block.text)
-                    assistant_content.append(block)
-                elif block.type == "tool_use":
-                    assistant_content.append(block)
+        # Loop for multi-turn tool use
+        while message.tool_calls:
+            # Collect any text content
+            if message.content:
+                collected_text.append(message.content)
 
-            # Add assistant message to history
+            # Add assistant message with tool calls to history
             self.conversation_history.append({
                 "role": "assistant",
-                "content": assistant_content
+                "content": message.content or "",
+                "tool_calls": [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    }
+                    for tc in message.tool_calls
+                ]
             })
 
             # Execute all tool calls
-            tool_results = []
-            for block in response.content:
-                if block.type == "tool_use":
-                    handler = TOOL_HANDLERS.get(block.name)
-                    if handler:
-                        try:
-                            result = handler(block.input)
-                        except Exception as e:
-                            result = f"Tool error: {str(e)}"
-                    else:
-                        result = f"Unknown tool: {block.name}"
+            for tc in message.tool_calls:
+                handler = TOOL_HANDLERS.get(tc.function.name)
+                if handler:
+                    try:
+                        args = json.loads(tc.function.arguments)
+                        result = handler(args)
+                    except Exception as e:
+                        result = f"Tool error: {str(e)}"
+                else:
+                    result = f"Unknown tool: {tc.function.name}"
 
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": result
-                    })
-
-            # Send tool results back to Claude
-            self.conversation_history.append({
-                "role": "user",
-                "content": tool_results
-            })
+                # Add tool result to history
+                self.conversation_history.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": result
+                })
 
             # Get next response
-            response = client.messages.create(
-                model=AI_MODEL,
-                max_tokens=MAX_TOKENS,
-                system=self.system_prompt,
-                tools=TOOLS,
-                messages=self.conversation_history
-            )
+            messages = [
+                {"role": "system", "content": self.system_prompt}
+            ] + self.conversation_history
+
+            try:
+                next_response = client.chat.completions.create(
+                    model=self.active_model,
+                    max_tokens=MAX_TOKENS,
+                    messages=messages,
+                    tools=TOOLS,
+                    tool_choice="auto",
+                    extra_headers={
+                        "HTTP-Referer": "https://ladx.dev",
+                        "X-Title": "LADX - PLC AI Agent"
+                    }
+                )
+                message = next_response.choices[0].message
+            except Exception:
+                # If follow-up fails, break out of loop
+                break
 
         # Collect final text
-        for block in response.content:
-            if block.type == "text":
-                collected_text.append(block.text)
+        if message.content:
+            collected_text.append(message.content)
 
         # Add final assistant message to history
         self.conversation_history.append({
             "role": "assistant",
-            "content": response.content
+            "content": message.content or ""
         })
 
-        return "\n".join(collected_text)
+        return "\n".join(collected_text) if collected_text else "I received your message but couldn't generate a response. Please try again."
 
     def reset(self):
         """Clear conversation history."""
@@ -570,6 +641,8 @@ def main():
     """Run the agent in terminal/CLI mode."""
     print("=" * 60)
     print("  LADX - Command Line Interface")
+    print(f"  Model: {AI_MODEL}")
+    print(f"  Provider: OpenRouter")
     print("  Type 'quit' to exit, 'reset' to clear history")
     print("=" * 60)
 

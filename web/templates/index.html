@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LADX - Your AI Partner for PLC Programming</title>
-    <link rel="icon" type="image/svg+xml" href="/static/ladx-logo.svg">
+    <link rel="icon" type="image/png" href="/static/LADX-icon.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -14,8 +14,9 @@
             --bg-tertiary: #242734;
             --text-primary: #e4e6ef;
             --text-secondary: #9ca0b0;
-            --accent: #4f8ff7;
-            --accent-hover: #3a7ae8;
+            --accent: #3fbfb7;
+            --accent-hover: #33a89f;
+            --accent-glow: rgba(63, 191, 183, 0.15);
             --success: #34d399;
             --warning: #fbbf24;
             --danger: #f87171;
@@ -32,11 +33,163 @@
             flex-direction: column;
         }
 
+        /* ========== AUTH SCREEN ========== */
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        .auth-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 16px;
+        }
+
+        .auth-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+
+        .auth-form { display: flex; flex-direction: column; gap: 12px; }
+
+        .auth-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .auth-input:focus { border-color: var(--accent); }
+        .auth-input::placeholder { color: var(--text-secondary); }
+
+        .auth-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+
+        .auth-btn:hover { background: var(--accent-hover); }
+        .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .auth-toggle {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .auth-toggle a {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .auth-error {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: var(--danger);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .auth-success {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: var(--success);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .auth-link {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .auth-link:hover { text-decoration: underline; }
+
+        .forgot-link {
+            text-align: right;
+            margin-top: -4px;
+        }
+
+        .confirm-banner {
+            background: rgba(251, 191, 36, 0.1);
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 8px 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--warning);
+        }
+
+        .confirm-banner.active { display: flex; }
+
+        .confirm-banner button {
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            color: var(--warning);
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .confirm-banner button:hover { background: rgba(251, 191, 36, 0.3); }
+
+        /* ========== APP LAYOUT ========== */
+        .app-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .app-container.active {
+            display: flex;
+        }
+
         /* Header */
         .header {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -49,127 +202,283 @@
             gap: 12px;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .logo { display: flex; align-items: center; gap: 10px; }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-        }
+        .logo-icon { height: 32px; width: auto; flex-shrink: 0; }
 
-        .logo-text-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: #ffffff;
-        }
-
-        .logo-subtitle {
-            font-size: 8px;
+        .tier-badge {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-free { background: rgba(156, 160, 176, 0.15); color: var(--text-secondary); }
+        .tier-pro { background: rgba(63, 191, 183, 0.15); color: var(--accent); }
+        .tier-enterprise { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+
+        .usage-info {
+            font-size: 11px;
             color: var(--text-secondary);
-            margin-top: -1px;
         }
 
-        .welcome-logo {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 8px;
-        }
-
-        .status-badge {
-            background: rgba(52, 211, 153, 0.15);
-            color: var(--success);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .header-right { display: flex; gap: 8px; }
+        .header-right { display: flex; gap: 8px; align-items: center; }
 
         .header-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             color: var(--text-secondary);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
-        .header-btn:hover {
-            background: var(--border);
-            color: var(--text-primary);
+        .header-btn:hover { background: var(--border); color: var(--text-primary); }
+
+        .user-menu {
+            position: relative;
+            display: inline-block;
         }
+
+        .user-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-width: 180px;
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .user-dropdown.show { display: block; }
+
+        .user-dropdown-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-dropdown-item:last-child { border-bottom: none; }
+        .user-dropdown-item:hover { background: var(--bg-tertiary); }
+        .user-dropdown-item.danger { color: var(--danger); }
 
         /* Main Layout */
-        .main-layout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-        /* Sidebar */
+        /* Sidebar - Chat History */
         .sidebar {
-            width: 260px;
+            width: 250px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
-            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
             flex-shrink: 0;
-            overflow-y: auto;
+            transition: width 0.25s ease, opacity 0.25s ease;
+            overflow: hidden;
+            position: relative;
         }
 
-        .sidebar-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .sidebar.collapsed {
+            width: 0;
+            border-right: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-toggle-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             color: var(--text-secondary);
-            margin: 8px 0 4px 0;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex-shrink: 0;
         }
 
-        .quick-action {
+        .sidebar-toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+        .sidebar-user-area {
+            margin-top: auto;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-user-btn {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 12px;
+            width: 100%;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             border-radius: 8px;
+            padding: 8px 12px;
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-primary);
             font-size: 13px;
         }
 
-        .quick-action:hover {
-            border-color: var(--accent);
-            background: rgba(79, 143, 247, 0.08);
+        .sidebar-user-btn:hover { border-color: var(--accent); }
+
+        .sidebar-user-avatar {
+            background: var(--accent);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .quick-action .icon { font-size: 18px; }
+        .sidebar-user-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sidebar-user-dots {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Sidebar user dropdown (bottom-left) */
+        .sidebar-user-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 12px;
+            right: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            z-index: 200;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .sidebar-user-dropdown.show { display: block; }
+
+        .sidebar-user-dropdown-item {
+            padding: 11px 16px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-user-dropdown-item:last-child { border-bottom: none; }
+        .sidebar-user-dropdown-item:hover { background: var(--bg-tertiary); }
+        .sidebar-user-dropdown-item.danger { color: var(--danger); }
+
+        .sidebar-user-dropdown-icon {
+            font-size: 15px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .new-chat-btn:hover { background: var(--accent-hover); }
+
+        .sidebar-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            padding: 12px 12px 6px;
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 8px;
+        }
+
+        .conversation-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .conversation-item.active { background: var(--accent-glow); color: var(--accent); }
+
+        .sidebar-section {
+            padding: 8px 12px;
+            border-top: 1px solid var(--border);
+        }
 
         .platform-select {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
             width: 100%;
             cursor: pointer;
         }
@@ -177,25 +486,20 @@
         .platform-select option { background: var(--bg-secondary); }
 
         /* Chat Area */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .message {
             max-width: 85%;
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: 12px;
             line-height: 1.6;
             font-size: 14px;
@@ -246,7 +550,7 @@
             align-self: flex-start;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: 12px;
             display: none;
         }
@@ -254,9 +558,8 @@
         .typing-indicator.active { display: flex; gap: 4px; align-items: center; }
 
         .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--text-secondary);
+            width: 8px; height: 8px;
+            background: var(--accent);
             border-radius: 50%;
             animation: bounce 1.4s ease-in-out infinite;
         }
@@ -269,19 +572,68 @@
             30% { transform: translateY(-6px); }
         }
 
+        /* Welcome Screen */
+        .welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            color: var(--text-secondary);
+        }
+
+        .welcome-logo { height: 80px; width: auto; margin-bottom: 4px; }
+        .welcome h2 { color: var(--text-primary); font-size: 20px; }
+        .welcome p { font-size: 13px; max-width: 500px; text-align: center; }
+
+        .example-prompts {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            max-width: 600px; justify-content: center; margin-top: 8px;
+        }
+
+        .example-prompt {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-prompt:hover { border-color: var(--accent); color: var(--text-primary); }
+
+        /* Quick Actions (inside chat) */
+        .quick-actions {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            padding: 0 20px 8px;
+        }
+
+        .quick-action-chip {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: 14px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action-chip:hover { border-color: var(--accent); color: var(--text-primary); }
+        .quick-action-chip.locked { opacity: 0.4; cursor: not-allowed; }
+
         /* Input Area */
         .input-area {
-            padding: 16px 24px;
+            padding: 12px 20px;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
         }
 
-        .input-wrapper {
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
-        }
+        .input-wrapper { display: flex; gap: 8px; align-items: flex-end; }
 
         .input-field {
             flex: 1;
@@ -300,7 +652,6 @@
         }
 
         .input-field:focus { border-color: var(--accent); }
-
         .input-field::placeholder { color: var(--text-secondary); }
 
         .send-btn {
@@ -319,307 +670,2120 @@
         .send-btn:hover { background: var(--accent-hover); }
         .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Welcome Screen */
-        .welcome {
+        /* ========== DASHBOARD ========== */
+        .dashboard-container {
             flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            display: none;
+        }
+
+        .dashboard-container.active { display: block; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .dash-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .dash-card-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dash-card-title svg { width: 16px; height: 16px; }
+
+        .dash-full { grid-column: 1 / -1; }
+
+        /* Profile Card */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .profile-meta-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .profile-meta-item span {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+
+        /* Plan Card */
+        .plan-tier-name {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: capitalize;
+            margin-bottom: 6px;
+        }
+
+        .plan-tier-free { color: var(--text-secondary); }
+        .plan-tier-pro { color: var(--accent); }
+        .plan-tier-enterprise { color: var(--warning); }
+
+        .plan-features {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .plan-feature {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-feature .check { color: var(--success); }
+        .plan-feature .lock { color: var(--text-secondary); opacity: 0.4; }
+
+        .usage-bar-container {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .usage-bar-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .usage-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            overflow: hidden;
+        }
+
+        .usage-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--accent);
+            transition: width 0.4s ease;
+        }
+
+        .usage-bar-fill.warning { background: var(--warning); }
+        .usage-bar-fill.danger { background: var(--danger); }
+
+        .upgrade-btn {
+            margin-top: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .upgrade-btn:hover { background: var(--accent-hover); }
+
+        /* Skills Radar */
+        .radar-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
-            color: var(--text-secondary);
+            gap: 14px;
         }
 
-        .welcome h2 {
-            color: var(--text-primary);
-            font-size: 22px;
-        }
+        .radar-svg { max-width: 280px; width: 100%; }
 
-        .welcome p { font-size: 14px; max-width: 500px; text-align: center; }
-
-        .example-prompts {
+        .skill-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            max-width: 600px;
+            gap: 8px 16px;
             justify-content: center;
-            margin-top: 8px;
         }
 
-        .example-prompt {
+        .skill-legend-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .skill-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .assess-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px 14px;
+            color: var(--accent);
+            padding: 8px 16px;
             border-radius: 8px;
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .example-prompt:hover {
-            border-color: var(--accent);
+        .assess-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+
+        /* Projects Table */
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .projects-table th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .projects-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
             color: var(--text-primary);
         }
 
-        /* File saved notification */
-        .file-saved {
-            display: inline-flex;
+        .projects-table tr:last-child td { border-bottom: none; }
+        .projects-table tr:hover td { background: var(--bg-tertiary); }
+
+        .project-platform {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Skill Assessment Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .skill-slider-group {
+            margin-bottom: 16px;
+        }
+
+        .skill-slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .skill-slider-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .skill-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            outline: none;
+        }
+
+        .skill-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-save {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+
+        .modal-save:hover { background: var(--accent-hover); }
+
+        .modal-cancel {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .modal-cancel:hover { background: var(--border); }
+
+        /* Nav Tabs in sidebar */
+        .sidebar-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav-btn:hover { color: var(--text-primary); }
+        .sidebar-nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* ========== PER-PROJECT DASHBOARD ========== */
+        .proj-dash-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .proj-dash-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .proj-dash-platform {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .proj-dash-platform.siemens { background: rgba(0,161,198,0.15); color: #00a1c6; }
+        .proj-dash-platform.allen_bradley { background: rgba(230,57,63,0.15); color: #e6393f; }
+        .proj-dash-platform.codesys { background: rgba(124,58,237,0.15); color: #7c3aed; }
+
+        .proj-dash-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .proj-stat-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .proj-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .proj-stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .proj-dash-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        .proj-dash-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .proj-dash-desc textarea {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            padding: 10px;
+            resize: vertical;
+            min-height: 60px;
+            outline: none;
+        }
+
+        .proj-dash-desc textarea:focus { border-color: var(--accent); }
+
+        .proj-dash-doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .proj-dash-doc-name {
+            color: var(--text-primary);
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .proj-dash-doc-name:hover { color: var(--accent); }
+
+        .proj-dash-doc-size {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin: 0 12px;
+        }
+
+        .proj-dash-doc-del {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .proj-dash-doc-del:hover { background: rgba(231,76,60,0.1); }
+
+        .proj-dash-activity-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .proj-dash-activity-item:last-child { border-bottom: none; }
+
+        .proj-dash-activity-role {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .proj-dash-activity-role.user { color: var(--accent); }
+        .proj-dash-activity-role.assistant { color: var(--warning); }
+
+        .proj-dash-activity-preview {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .proj-dash-activity-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .proj-dash-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        /* ========== MODEL SELECTOR (inside input area) ========== */
+        .model-selector-wrap {
+            display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(52, 211, 153, 0.1);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            color: var(--success);
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 4px 0 0;
+        }
+
+        .model-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .model-select:focus { border-color: var(--accent); }
+
+        .model-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* ========== CHAT ATTACH BTN ========== */
+        .chat-attach-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .chat-attach-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ========== STAGE PIPELINE ========== */
+        .stage-pipeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 20px 0 24px;
+            position: relative;
+        }
+
+        .stage-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stage-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 3px solid var(--border);
+            background: var(--bg-secondary);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .stage-circle.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(63,191,183,0.4);
+            animation: stagePulse 2s ease-in-out infinite;
+        }
+
+        .stage-circle.completed {
+            border-color: var(--success);
+            background: var(--success);
+            color: #fff;
+        }
+
+        .stage-circle.pending {
+            opacity: 0.4;
+        }
+
+        @keyframes stagePulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(63,191,183,0.3); }
+            50% { box-shadow: 0 0 20px rgba(63,191,183,0.6); }
+        }
+
+        .stage-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .stage-label.active { color: var(--accent); }
+        .stage-label.completed { color: var(--success); }
+
+        .stage-connector {
+            flex: 1;
+            height: 3px;
+            background: var(--border);
+            margin: 0 -8px;
+            margin-bottom: 24px;
+            z-index: 0;
+        }
+
+        .stage-connector.done { background: var(--success); }
+
+        /* Stage detail panel */
+        .stage-detail {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stage-detail-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stage-detail-subtitle {
             font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .stage-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .stage-action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .stage-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .stage-action-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .stage-action-btn.primary:hover { background: var(--accent-hover); }
+
+        .stage-action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .stage-nav-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .advance-btn {
+            background: var(--success);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .advance-btn:hover { filter: brightness(1.1); }
+        .advance-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .acknowledge-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 8px 18px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .acknowledge-btn:hover { background: var(--accent); color: #fff; }
+        .stage-circle.current-pulse {
+            box-shadow: 0 0 0 4px var(--accent-glow);
+            animation: pulseBorder 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseBorder {
+            0%, 100% { box-shadow: 0 0 0 4px var(--accent-glow); }
+            50% { box-shadow: 0 0 0 8px transparent; }
+        }
+
+        /* Hardware info grid */
+        .hw-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .hw-item {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .hw-item-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hw-item-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+
+        /* Gen doc list */
+        .gen-doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .gen-doc-title { color: var(--text-primary); font-weight: 500; }
+
+        .gen-doc-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .gen-doc-badge.planning { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .gen-doc-badge.execution { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .gen-doc-badge.testing { background: rgba(168,85,247,0.15); color: #a855f7; }
+
+        .gen-doc-view {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .gen-doc-view:hover { background: var(--accent); color: #fff; }
+
+        /* Progress overlay during generation */
+        .gen-progress {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+
+        .gen-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Document preview modal */
+        .doc-preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .doc-preview-overlay.active { display: flex; }
+
+        .doc-preview-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .doc-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .doc-preview-header h3 { margin: 0; font-size: 16px; color: var(--text-primary); }
+
+        .doc-preview-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .doc-preview-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ========== PROFILE & SETTINGS VIEWS ========== */
+        .profile-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .profile-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .profile-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .profile-form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .profile-form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .profile-form-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .profile-form-input:focus { border-color: var(--accent); }
+        .profile-form-input::placeholder { color: var(--text-secondary); }
+        .profile-save-btn {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+        .profile-save-btn:hover { background: var(--accent-hover); }
+        .profile-logo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .profile-logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .plan-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        .plan-card.current { border-color: var(--accent); }
+        .plan-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .plan-card-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .plan-card-features {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .settings-item-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .settings-toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .settings-toggle.active { background: var(--accent); border-color: var(--accent); }
+        .settings-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+        .settings-toggle.active::after { transform: translateX(20px); }
+        .settings-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .gen-doc-download {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: background 0.2s;
+        }
+        .gen-doc-download:hover { background: var(--accent-hover); }
+
+        /* ========== LIGHT MODE ========== */
+        body.light-mode {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f0f2;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6b6b80;
+            --accent: #2d9d8f;
+            --accent-hover: #258a7e;
+            --accent-glow: rgba(45, 157, 143, 0.12);
+            --success: #22a06b;
+            --warning: #cf8600;
+            --danger: #de350b;
+            --border: #e0e0e8;
+            --code-bg: #f4f4f8;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .theme-toggle:hover { background: var(--border); color: var(--text-primary); }
+
+        /* ========== NEW PROJECT MODAL ========== */
+        .project-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-modal-overlay.active { display: flex; }
+
+        .project-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .project-modal h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .project-modal p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .form-select option { background: var(--bg-secondary); }
+
+        .form-textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        /* ========== PROJECT OVERVIEW BAR ========== */
+        .project-overview {
+            display: none;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .project-overview.active { display: block; }
+
+        .overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .overview-header:hover { background: var(--bg-tertiary); }
+
+        .overview-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .overview-project-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .overview-platform-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .overview-version {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .overview-toggle-icon {
+            color: var(--text-secondary);
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .overview-body {
+            display: none;
+            padding: 0 20px 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .overview-body.expanded { display: block; }
+
+        .overview-meta {
+            display: flex;
+            gap: 20px;
+            padding: 12px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .overview-meta strong { color: var(--text-primary); }
+
+        .overview-desc {
+            margin-top: 8px;
+        }
+
+        .overview-desc textarea {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 48px;
+            resize: vertical;
+            outline: none;
+        }
+
+        .overview-desc textarea:focus { border-color: var(--accent); }
+
+        .overview-desc-actions {
+            display: flex;
+            gap: 8px;
             margin-top: 6px;
         }
+
+        .overview-desc-actions button {
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-save-desc {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+
+        .btn-save-desc:hover { background: var(--accent-hover); }
+
+        .btn-cancel-desc {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Documents section */
+        .overview-docs {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .overview-docs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .overview-docs-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .upload-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover { border-color: var(--accent); }
+
+        .doc-list { display: flex; flex-direction: column; gap: 4px; }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .doc-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .doc-item-left:hover { color: var(--accent); }
+
+        .doc-icon { color: var(--text-secondary); }
+
+        .doc-size { color: var(--text-secondary); font-size: 11px; }
+
+        .doc-delete {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .doc-delete:hover { color: var(--danger); background: rgba(248,113,113,0.1); }
+
+        .no-docs {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px 0;
+        }
+
+        /* Sidebar project items */
+        .conv-item-meta {
+            display: flex;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .conv-platform-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        .conv-platform-dot.siemens { background: #00a1c6; }
+        .conv-platform-dot.allen_bradley { background: #e6393f; }
+        .conv-platform-dot.codesys { background: #7c3aed; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { display: none; }
             .message { max-width: 95%; }
+            .dashboard-grid { grid-template-columns: 1fr; padding: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <div class="logo">
-                <svg class="logo-icon" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="bgGrad" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#0a0e1a"/>
-                            <stop offset="100%" stop-color="#111827"/>
-                        </linearGradient>
-                        <linearGradient id="circuitGrad" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#6366f1"/>
-                            <stop offset="50%" stop-color="#3b82f6"/>
-                            <stop offset="100%" stop-color="#06b6d4"/>
-                        </linearGradient>
-                        <linearGradient id="glowGrad" x1="60" y1="60" x2="140" y2="140" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#818cf8" stop-opacity="0.3"/>
-                            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
-                        </linearGradient>
-                    </defs>
-                    <!-- Dark circle background -->
-                    <circle cx="100" cy="100" r="96" fill="url(#bgGrad)"/>
-                    <circle cx="100" cy="100" r="95" stroke="#1e293b" stroke-width="2" fill="none"/>
-                    <!-- Outer ring -->
-                    <circle cx="100" cy="100" r="90" stroke="url(#circuitGrad)" stroke-width="1.5" fill="none" opacity="0.5"/>
-                    <!-- Inner glow -->
-                    <circle cx="100" cy="100" r="70" fill="url(#glowGrad)"/>
-                    <!-- Circuit board traces -->
-                    <g stroke="url(#circuitGrad)" stroke-width="1.2" opacity="0.4">
-                        <!-- Horizontal traces -->
-                        <line x1="20" y1="55" x2="55" y2="55"/>
-                        <line x1="145" y1="55" x2="180" y2="55"/>
-                        <line x1="20" y1="145" x2="55" y2="145"/>
-                        <line x1="145" y1="145" x2="180" y2="145"/>
-                        <!-- Vertical traces -->
-                        <line x1="55" y1="20" x2="55" y2="55"/>
-                        <line x1="145" y1="20" x2="145" y2="55"/>
-                        <line x1="55" y1="145" x2="55" y2="180"/>
-                        <line x1="145" y1="145" x2="145" y2="180"/>
-                        <!-- Diagonal traces -->
-                        <line x1="35" y1="35" x2="55" y2="55"/>
-                        <line x1="165" y1="35" x2="145" y2="55"/>
-                        <line x1="35" y1="165" x2="55" y2="145"/>
-                        <line x1="165" y1="165" x2="145" y2="145"/>
-                    </g>
-                    <!-- Circuit nodes -->
-                    <g fill="url(#circuitGrad)" opacity="0.6">
-                        <circle cx="55" cy="55" r="3"/>
-                        <circle cx="145" cy="55" r="3"/>
-                        <circle cx="55" cy="145" r="3"/>
-                        <circle cx="145" cy="145" r="3"/>
-                        <circle cx="100" cy="35" r="2"/>
-                        <circle cx="100" cy="165" r="2"/>
-                        <circle cx="35" cy="100" r="2"/>
-                        <circle cx="165" cy="100" r="2"/>
-                    </g>
-                    <!-- Glowing center nodes -->
-                    <circle cx="55" cy="55" r="1.5" fill="#818cf8" opacity="0.8"/>
-                    <circle cx="145" cy="55" r="1.5" fill="#3b82f6" opacity="0.8"/>
-                    <circle cx="55" cy="145" r="1.5" fill="#3b82f6" opacity="0.8"/>
-                    <circle cx="145" cy="145" r="1.5" fill="#06b6d4" opacity="0.8"/>
-                    <!-- LADX text -->
-                    <text x="100" y="108" text-anchor="middle" fill="white" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="42" font-weight="800" letter-spacing="6">LADX</text>
-                    <!-- BUILT FOR PLC subtitle -->
-                    <text x="100" y="130" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" letter-spacing="4">BUILT FOR PLC</text>
-                </svg>
-                <div class="logo-text-group">
-                    <div class="logo-text">LADX</div>
-                    <div class="logo-subtitle">Built for PLC</div>
+    <!-- ========== AUTH SCREEN ========== -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <img class="auth-logo" src="/static/LADX-logo.png" alt="LADX">
+            <div class="auth-title" id="authTitle">Welcome Back</div>
+            <div class="auth-subtitle">Your AI Partner for PLC Programming</div>
+
+            <div class="auth-error" id="authError"></div>
+            <div class="auth-success" id="authSuccess"></div>
+
+            <!-- Login / Register Form -->
+            <form class="auth-form" id="authForm" onsubmit="handleAuth(event)">
+                <input class="auth-input" id="authFullName" type="text"
+                       placeholder="Full Name" style="display: none;" required>
+                <input class="auth-input" id="authUsername" type="text"
+                       placeholder="Username" style="display: none;">
+                <input class="auth-input" id="authEmail" type="email"
+                       placeholder="Email" required>
+                <input class="auth-input" id="authPassword" type="password"
+                       placeholder="Password" required>
+                <div class="forgot-link" id="forgotLink">
+                    <a class="auth-link" onclick="showForgotPassword()">Forgot password?</a>
                 </div>
+                <button class="auth-btn" type="submit" id="authBtn">Sign In</button>
+            </form>
+
+            <!-- Forgot Password Form (hidden by default) -->
+            <form class="auth-form" id="forgotForm" style="display: none;" onsubmit="handleForgotPassword(event)">
+                <input class="auth-input" id="forgotEmail" type="email"
+                       placeholder="Enter your email" required>
+                <button class="auth-btn" type="submit" id="forgotBtn">Send Reset Link</button>
+            </form>
+
+            <!-- Reset Password Form (shown via URL token) -->
+            <form class="auth-form" id="resetForm" style="display: none;" onsubmit="handleResetPassword(event)">
+                <input class="auth-input" id="resetPassword" type="password"
+                       placeholder="New password (min 6 characters)" required>
+                <input class="auth-input" id="resetPasswordConfirm" type="password"
+                       placeholder="Confirm new password" required>
+                <button class="auth-btn" type="submit" id="resetBtn">Reset Password</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="authToggleText">Don't have an account?</span>
+                <a onclick="toggleAuthMode()" id="authToggleLink">Sign Up</a>
             </div>
-            <div class="status-badge">Online</div>
-        </div>
-        <div class="header-right">
-            <button class="header-btn" onclick="exportChat()">Export Chat</button>
-            <button class="header-btn" onclick="resetChat()">New Chat</button>
         </div>
     </div>
 
-    <!-- Main Layout -->
-    <div class="main-layout">
+    <!-- ========== MAIN APP ========== -->
+    <div class="app-container" id="appContainer">
 
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-title">Platform</div>
-            <select class="platform-select" id="platformSelect">
-                <option value="siemens">Siemens TIA Portal (SCL)</option>
-                <option value="allen_bradley">Allen-Bradley (Studio 5000)</option>
-                <option value="codesys">CODESYS (IEC 61131-3)</option>
-            </select>
-
-            <div class="sidebar-title">Quick Actions</div>
-
-            <div class="quick-action" onclick="quickAction('generate')">
-                <span class="icon">⚡</span>
-                <span>Generate Code</span>
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar">&#9776;</button>
+                <div class="logo">
+                    <img class="logo-icon" src="/static/LADX-logo.png" alt="LADX">
+                </div>
+                <span class="tier-badge tier-free" id="tierBadge">Free</span>
+                <span class="usage-info" id="usageInfo"></span>
             </div>
-            <div class="quick-action" onclick="quickAction('troubleshoot')">
-                <span class="icon">🔍</span>
-                <span>Troubleshoot Fault</span>
-            </div>
-            <div class="quick-action" onclick="quickAction('convert')">
-                <span class="icon">🔄</span>
-                <span>Convert Code</span>
-            </div>
-            <div class="quick-action" onclick="quickAction('explain')">
-                <span class="icon">📖</span>
-                <span>Explain Code</span>
-            </div>
-            <div class="quick-action" onclick="quickAction('taglist')">
-                <span class="icon">📋</span>
-                <span>Generate Tag List</span>
-            </div>
-            <div class="quick-action" onclick="quickAction('document')">
-                <span class="icon">📄</span>
-                <span>Document Project</span>
-            </div>
-
-            <div class="sidebar-title">TIA Portal Bridge</div>
-            <div class="quick-action" onclick="checkBridge()" id="bridgeStatus">
-                <span class="icon">🔌</span>
-                <span>Check Connection</span>
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">&#9790;</button>
+                <button class="header-btn" onclick="exportChat()" id="exportBtn">Export</button>
             </div>
         </div>
 
-        <!-- Chat Area -->
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages">
-                <!-- Welcome screen -->
-                <div class="welcome" id="welcomeScreen">
-                    <svg class="welcome-logo" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="bgGrad2" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#0a0e1a"/>
-                                <stop offset="100%" stop-color="#111827"/>
-                            </linearGradient>
-                            <linearGradient id="circuitGrad2" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#6366f1"/>
-                                <stop offset="50%" stop-color="#3b82f6"/>
-                                <stop offset="100%" stop-color="#06b6d4"/>
-                            </linearGradient>
-                            <linearGradient id="glowGrad2" x1="60" y1="60" x2="140" y2="140" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#818cf8" stop-opacity="0.3"/>
-                                <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
-                            </linearGradient>
-                        </defs>
-                        <circle cx="100" cy="100" r="96" fill="url(#bgGrad2)"/>
-                        <circle cx="100" cy="100" r="95" stroke="#1e293b" stroke-width="2" fill="none"/>
-                        <circle cx="100" cy="100" r="90" stroke="url(#circuitGrad2)" stroke-width="1.5" fill="none" opacity="0.5"/>
-                        <circle cx="100" cy="100" r="70" fill="url(#glowGrad2)"/>
-                        <g stroke="url(#circuitGrad2)" stroke-width="1.2" opacity="0.4">
-                            <line x1="20" y1="55" x2="55" y2="55"/><line x1="145" y1="55" x2="180" y2="55"/>
-                            <line x1="20" y1="145" x2="55" y2="145"/><line x1="145" y1="145" x2="180" y2="145"/>
-                            <line x1="55" y1="20" x2="55" y2="55"/><line x1="145" y1="20" x2="145" y2="55"/>
-                            <line x1="55" y1="145" x2="55" y2="180"/><line x1="145" y1="145" x2="145" y2="180"/>
-                            <line x1="35" y1="35" x2="55" y2="55"/><line x1="165" y1="35" x2="145" y2="55"/>
-                            <line x1="35" y1="165" x2="55" y2="145"/><line x1="165" y1="165" x2="145" y2="145"/>
-                        </g>
-                        <g fill="url(#circuitGrad2)" opacity="0.6">
-                            <circle cx="55" cy="55" r="3"/><circle cx="145" cy="55" r="3"/>
-                            <circle cx="55" cy="145" r="3"/><circle cx="145" cy="145" r="3"/>
-                            <circle cx="100" cy="35" r="2"/><circle cx="100" cy="165" r="2"/>
-                            <circle cx="35" cy="100" r="2"/><circle cx="165" cy="100" r="2"/>
-                        </g>
-                        <circle cx="55" cy="55" r="1.5" fill="#818cf8" opacity="0.8"/>
-                        <circle cx="145" cy="55" r="1.5" fill="#3b82f6" opacity="0.8"/>
-                        <circle cx="55" cy="145" r="1.5" fill="#3b82f6" opacity="0.8"/>
-                        <circle cx="145" cy="145" r="1.5" fill="#06b6d4" opacity="0.8"/>
-                        <text x="100" y="108" text-anchor="middle" fill="white" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="42" font-weight="800" letter-spacing="6">LADX</text>
-                        <text x="100" y="130" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" letter-spacing="4">BUILT FOR PLC</text>
-                    </svg>
-                    <h2>LADX</h2>
-                    <p>Your AI partner for PLC programming — Siemens TIA Portal, Allen-Bradley Studio 5000, and CODESYS.</p>
-                    <div class="example-prompts">
-                        <div class="example-prompt" onclick="useExample(this)">
-                            Create a motor starter FB with overload protection
-                        </div>
-                        <div class="example-prompt" onclick="useExample(this)">
-                            S7-1500 showing 'Module not accessible' error
-                        </div>
-                        <div class="example-prompt" onclick="useExample(this)">
-                            Convert this Siemens SCL to Allen-Bradley ST
-                        </div>
-                        <div class="example-prompt" onclick="useExample(this)">
-                            Generate a PID control loop for tank level
-                        </div>
-                        <div class="example-prompt" onclick="useExample(this)">
-                            Create a 3-step batch sequence with ISA-88
-                        </div>
-                        <div class="example-prompt" onclick="useExample(this)">
-                            Generate tag list for a packaging line
-                        </div>
+        <!-- Email Confirmation Banner -->
+        <div class="confirm-banner" id="confirmBanner">
+            <span>Please confirm your email address. Check your inbox for a confirmation link.</span>
+            <button onclick="resendConfirmation()">Resend Email</button>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+
+            <!-- Sidebar - Chat History -->
+            <div class="sidebar">
+                <div class="sidebar-nav">
+                    <button class="sidebar-nav-btn active" id="navChat" onclick="switchView('chat')">Chat</button>
+                    <button class="sidebar-nav-btn" id="navDashboard" onclick="switchView('dashboard')">Dashboard</button>
+                </div>
+                <div class="sidebar-header">
+                    <button class="new-chat-btn" onclick="openNewProjectModal()">+ New Project</button>
+                </div>
+                <div class="sidebar-title">Projects</div>
+                <div class="conversation-list" id="conversationList">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- User area (bottom of sidebar) -->
+                <div class="sidebar-user-area">
+                    <div class="sidebar-user-btn" onclick="toggleSidebarMenu()" id="sidebarUserBtn">
+                        <div class="sidebar-user-avatar" id="sidebarUserAvatar">B</div>
+                        <span class="sidebar-user-name" id="sidebarUserName">User</span>
+                        <span class="sidebar-user-dots">&#8230;</span>
+                    </div>
+                    <div class="sidebar-user-dropdown" id="sidebarUserDropdown">
+                        <div class="sidebar-user-dropdown-item" id="sidebarUserEmail" style="font-size:11px;color:var(--text-secondary);cursor:default;">user@email.com</div>
+                        <div class="sidebar-user-dropdown-item" onclick="switchView('profile'); toggleSidebarMenu();">Profile</div>
+                        <div class="sidebar-user-dropdown-item" onclick="switchView('settings'); toggleSidebarMenu();">Settings</div>
+                        <div class="sidebar-user-dropdown-item" onclick="toggleSidebarMenu();">Language</div>
+                        <div class="sidebar-user-dropdown-item" onclick="toggleSidebarMenu();">Get Help</div>
+                        <div class="sidebar-user-dropdown-item" onclick="switchView('profile'); toggleSidebarMenu();">Plans</div>
+                        <div class="sidebar-user-dropdown-item danger" onclick="logout();">Sign Out</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Typing indicator -->
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <span style="margin-left: 8px; font-size: 13px; color: var(--text-secondary);">
-                    LADX is thinking...
-                </span>
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <!-- Project Overview Bar -->
+                <div class="project-overview" id="projectOverview">
+                    <div class="overview-header" onclick="toggleOverview()">
+                        <div class="overview-header-left">
+                            <span class="overview-project-title" id="ovTitle">Project</span>
+                            <span class="overview-platform-badge" id="ovPlatform">Siemens</span>
+                            <span class="overview-version" id="ovVersion"></span>
+                        </div>
+                        <span class="overview-toggle-icon" id="ovToggleIcon">&#9660;</span>
+                    </div>
+                    <div class="overview-body" id="overviewBody">
+                        <div class="overview-meta">
+                            <span>Created: <strong id="ovCreated">-</strong></span>
+                            <span>Messages: <strong id="ovMsgCount">0</strong></span>
+                        </div>
+                        <div class="overview-desc">
+                            <textarea id="ovDescription" placeholder="Add project notes or overview..."></textarea>
+                            <div class="overview-desc-actions">
+                                <button class="btn-save-desc" onclick="saveProjectDescription()">Save</button>
+                            </div>
+                        </div>
+                        <div class="overview-docs">
+                            <div class="overview-docs-header">
+                                <span class="overview-docs-title">Documents</span>
+                                <button class="upload-btn" onclick="document.getElementById('fileUpload').click()">+ Upload</button>
+                                <input type="file" id="fileUpload" style="display:none" onchange="uploadDocument(this)" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.xml,.json">
+                            </div>
+                            <div class="doc-list" id="docList">
+                                <div class="no-docs">No documents uploaded yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome screen -->
+                    <div class="welcome" id="welcomeScreen">
+                        <img class="welcome-logo" src="/static/LADX-logo.png" alt="LADX">
+                        <h2 id="welcomeGreeting">Hello, how can I help you?</h2>
+                        <p>Your AI partner for Siemens PLC programming — TIA Portal, SCL, and automation.</p>
+                        <div class="example-prompts">
+                            <div class="example-prompt" onclick="useExample(this)">Create a motor starter FB with overload protection in SCL</div>
+                            <div class="example-prompt" onclick="useExample(this)">S7-1500 showing 'Module not accessible' error — troubleshoot</div>
+                            <div class="example-prompt" onclick="useExample(this)">Generate a PID control loop for tank level in TIA Portal</div>
+                            <div class="example-prompt" onclick="useExample(this)">Explain PROFINET IO device configuration for S7-1200</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions" id="quickActions">
+                    <span class="quick-action-chip" onclick="quickAction('generate')">Generate Code</span>
+                    <span class="quick-action-chip" onclick="quickAction('troubleshoot')">Troubleshoot</span>
+                    <span class="quick-action-chip" onclick="quickAction('convert')" id="convertChip">Convert Code</span>
+                    <span class="quick-action-chip" onclick="quickAction('explain')">Explain Code</span>
+                    <span class="quick-action-chip" onclick="quickAction('taglist')">Tag List</span>
+                </div>
+
+                <!-- Typing indicator -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    <span style="margin-left: 8px; font-size: 13px; color: var(--accent);">LADX is thinking...</span>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <button class="chat-attach-btn" title="Attach document" onclick="document.getElementById('chatFileUpload').click()">+</button>
+                        <input type="file" id="chatFileUpload" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.stl,.xml,.json" onchange="uploadDocument(this)">
+                        <textarea class="input-field" id="userInput"
+                                  placeholder="Describe what you need... (Shift+Enter for new line)"
+                                  rows="1" onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+                    </div>
+                    <div class="model-selector-wrap">
+                        <span class="model-label">Model:</span>
+                        <select class="model-select" id="modelSelect">
+                            <option value="openrouter/auto">Auto (Free)</option>
+                            <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+                            <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B</option>
+                            <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <!-- Input Area -->
-            <div class="input-area">
-                <div class="input-wrapper">
-                    <textarea
-                        class="input-field"
-                        id="userInput"
-                        placeholder="Describe what you need... (Shift+Enter for new line)"
-                        rows="1"
-                        onkeydown="handleKeydown(event)"
-                        oninput="autoResize(this)"
-                    ></textarea>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                        Send
-                    </button>
+            <!-- ========== DASHBOARD VIEW (Per-Project) ========== -->
+            <div class="dashboard-container" id="dashboardContainer">
+                <div id="projDashContent">
+                    <div class="proj-dash-empty" id="projDashEmpty">
+                        Select a project to view its dashboard.
+                    </div>
                 </div>
+            </div>
+
+            <!-- ========== PROFILE VIEW ========== -->
+            <div class="dashboard-container" id="profileContainer">
+                <div id="profileContent"></div>
+            </div>
+
+            <!-- ========== SETTINGS VIEW ========== -->
+            <div class="dashboard-container" id="settingsContainer">
+                <div id="settingsContent"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- New Project Modal (Siemens) -->
+    <div class="project-modal-overlay" id="newProjectModal">
+        <div class="project-modal" style="max-width: 520px;">
+            <h3>New Siemens PLC Project</h3>
+            <p>Configure your hardware and project settings</p>
+            <form onsubmit="submitNewProject(event)">
+                <div class="form-group">
+                    <label class="form-label">Project Name *</label>
+                    <input class="form-input" id="npName" type="text" placeholder="e.g. Motor Control System" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CPU Model *</label>
+                    <select class="form-select" id="npCPU" required onchange="updateCPUVariants()">
+                        <option value="S7-1200">SIMATIC S7-1200</option>
+                        <option value="S7-1500" selected>SIMATIC S7-1500</option>
+                        <option value="S7-1500F">SIMATIC S7-1500F (Fail-safe)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CPU Variant</label>
+                    <select class="form-select" id="npVariant">
+                        <option value="">Select variant...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">TIA Portal Version *</label>
+                    <select class="form-select" id="npTIA" required>
+                        <option value="V17">V17</option>
+                        <option value="V18" selected>V18</option>
+                        <option value="V19">V19</option>
+                        <option value="V20">V20</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Network Type</label>
+                    <select class="form-select" id="npNetwork">
+                        <option value="PROFINET" selected>PROFINET</option>
+                        <option value="PROFIBUS">PROFIBUS</option>
+                        <option value="MPI">MPI</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="npSafety"> Safety (F-CPU) Required
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Project Description</label>
+                    <textarea class="form-textarea" id="npDescription" rows="3" placeholder="Describe the automation system, process, and requirements..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-cancel" onclick="closeNewProjectModal()">Cancel</button>
+                    <button type="submit" class="modal-save" id="npSubmitBtn">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+    <div class="doc-preview-overlay" id="docPreviewModal">
+        <div class="doc-preview-card">
+            <div class="doc-preview-header">
+                <h3 id="docPreviewTitle">Document</h3>
+                <button class="doc-preview-close" onclick="closeDocPreview()">&times;</button>
+            </div>
+            <div class="doc-preview-body" id="docPreviewBody"></div>
+        </div>
+    </div>
+
+    <!-- Skill Assessment Modal -->
+    <div class="modal-overlay" id="skillModal">
+        <div class="modal-card">
+            <div class="modal-title">PLC Skills Assessment</div>
+            <div class="modal-subtitle">Rate your proficiency in each area (0 = Beginner, 5 = Expert)</div>
+            <div id="skillSliders"></div>
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeSkillModal()">Cancel</button>
+                <button class="modal-save" onclick="saveSkills()">Save Skills</button>
             </div>
         </div>
     </div>
 
     <script>
+        // ===========================================
+        // State
+        // ===========================================
+        let authToken = localStorage.getItem('ladx_token');
+        let currentUser = JSON.parse(localStorage.getItem('ladx_user') || 'null');
+        let currentConversationId = null;
+        let currentProject = null; // { id, title, platform, software_version, description, documents }
+        let isWaiting = false;
+        let isLoginMode = true;
+
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const typingIndicator = document.getElementById('typingIndicator');
         const welcomeScreen = document.getElementById('welcomeScreen');
-        const platformSelect = document.getElementById('platformSelect');
 
-        let isWaiting = false;
+        // ===========================================
+        // Auth Functions
+        // ===========================================
+        function authHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            };
+        }
 
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').textContent = isLoginMode ? 'Welcome Back' : 'Create Account';
+            document.getElementById('authBtn').textContent = isLoginMode ? 'Sign In' : 'Sign Up';
+            document.getElementById('authToggleText').textContent = isLoginMode ? "Don't have an account?" : 'Already have an account?';
+            document.getElementById('authToggleLink').textContent = isLoginMode ? 'Sign Up' : 'Sign In';
+            document.getElementById('authFullName').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('authFullName').required = !isLoginMode;
+            document.getElementById('authUsername').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('forgotLink').style.display = isLoginMode ? 'block' : 'none';
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+            // Show main form, hide forgot/reset
+            document.getElementById('authForm').style.display = 'flex';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'none';
+        }
+
+        function showForgotPassword() {
+            document.getElementById('authTitle').textContent = 'Reset Password';
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'flex';
+            document.getElementById('resetForm').style.display = 'none';
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+            document.getElementById('authToggleText').textContent = 'Remember your password?';
+            document.getElementById('authToggleLink').textContent = 'Sign In';
+        }
+
+        function showResetPassword() {
+            document.getElementById('authTitle').textContent = 'Set New Password';
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'flex';
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+            document.getElementById('authToggleText').textContent = 'Remember your password?';
+            document.getElementById('authToggleLink').textContent = 'Sign In';
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const username = document.getElementById('authUsername').value;
+            const fullName = document.getElementById('authFullName').value;
+            const errorEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+            const btn = document.getElementById('authBtn');
+
+            btn.disabled = true;
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            // Validate name on signup
+            if (!isLoginMode && !fullName.trim()) {
+                errorEl.textContent = 'Full name is required';
+                errorEl.style.display = 'block';
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const url = isLoginMode ? '/api/auth/login' : '/api/auth/register';
+                const body = isLoginMode
+                    ? { email, password }
+                    : { email, password, username: username || email.split('@')[0], full_name: fullName.trim() };
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Authentication failed');
+                }
+
+                // Save auth state
+                authToken = data.token;
+                currentUser = data.user;
+                currentUser.email_confirmed = data.email_confirmed;
+                localStorage.setItem('ladx_token', authToken);
+                localStorage.setItem('ladx_user', JSON.stringify(currentUser));
+
+                showApp();
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            const errorEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+            const btn = document.getElementById('forgotBtn');
+
+            btn.disabled = true;
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await res.json();
+                successEl.textContent = data.message || 'If an account exists with that email, a reset link has been sent.';
+                successEl.style.display = 'block';
+            } catch (err) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+        }
+
+        async function handleResetPassword(e) {
+            e.preventDefault();
+            const password = document.getElementById('resetPassword').value;
+            const confirm = document.getElementById('resetPasswordConfirm').value;
+            const errorEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+            const btn = document.getElementById('resetBtn');
+
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            if (password !== confirm) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorEl.textContent = 'Password must be at least 6 characters';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+
+            try {
+                const token = new URLSearchParams(window.location.search).get('reset_token');
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Reset failed');
+                }
+
+                successEl.textContent = data.message || 'Password reset successful! You can now sign in.';
+                successEl.style.display = 'block';
+
+                // After 2 seconds, switch back to login
+                setTimeout(() => {
+                    window.history.replaceState({}, '', '/');
+                    isLoginMode = true;
+                    toggleAuthMode();
+                    toggleAuthMode(); // Toggle twice to reset to login state
+                }, 2000);
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+        }
+
+        async function resendConfirmation() {
+            try {
+                const res = await fetch('/api/auth/resend-confirmation', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                });
+                const data = await res.json();
+                const banner = document.getElementById('confirmBanner');
+                banner.querySelector('span').textContent = data.message || 'Confirmation email sent! Check your inbox.';
+            } catch (e) {}
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            currentConversationId = null;
+            localStorage.removeItem('ladx_token');
+            localStorage.removeItem('ladx_user');
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('appContainer').classList.remove('active');
+            document.getElementById('confirmBanner').classList.remove('active');
+        }
+
+        // ===========================================
+        // App Init
+        // ===========================================
+        async function showApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+
+            // Set user info
+            if (currentUser) {
+                const displayName = currentUser.full_name || currentUser.username || currentUser.email.split('@')[0];
+                const initials = displayName.charAt(0).toUpperCase();
+
+                // Update sidebar user area
+                document.getElementById('sidebarUserAvatar').textContent = initials;
+                document.getElementById('sidebarUserName').textContent = displayName;
+                document.getElementById('sidebarUserEmail').textContent = currentUser.email;
+
+                // Welcome greeting
+                document.getElementById('welcomeGreeting').textContent = `Hello ${displayName}, how can I help you?`;
+
+                updateTierBadge(currentUser.tier);
+
+                // Show email confirmation banner if not confirmed
+                if (currentUser.email_confirmed === false) {
+                    document.getElementById('confirmBanner').classList.add('active');
+                } else {
+                    document.getElementById('confirmBanner').classList.remove('active');
+                }
+            }
+
+            // Load conversations
+            await loadConversations();
+            await loadUsage();
+            userInput.focus();
+        }
+
+        function updateTierBadge(tier) {
+            const badge = document.getElementById('tierBadge');
+            badge.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+            badge.className = `tier-badge tier-${tier}`;
+
+            // Feature gating
+            const convertChip = document.getElementById('convertChip');
+            const exportBtn = document.getElementById('exportBtn');
+            if (tier === 'free') {
+                convertChip.classList.add('locked');
+                convertChip.title = 'Upgrade to Pro to convert code';
+                exportBtn.style.display = 'none';
+            } else {
+                convertChip.classList.remove('locked');
+                convertChip.title = '';
+                exportBtn.style.display = '';
+            }
+        }
+
+        async function loadUsage() {
+            try {
+                const res = await fetch('/api/auth/profile', { headers: authHeaders() });
+                if (res.status === 401) { logout(); return; }
+                const data = await res.json();
+                const usage = data.usage;
+                if (usage.limit) {
+                    document.getElementById('usageInfo').textContent = `${usage.used}/${usage.limit} messages today`;
+                } else {
+                    document.getElementById('usageInfo').textContent = 'Unlimited';
+                }
+
+                // Update email_confirmed status
+                if (data.email_confirmed !== undefined) {
+                    currentUser.email_confirmed = data.email_confirmed;
+                    localStorage.setItem('ladx_user', JSON.stringify(currentUser));
+                    if (data.email_confirmed) {
+                        document.getElementById('confirmBanner').classList.remove('active');
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // ===========================================
+        // Conversation Management
+        // ===========================================
+        async function loadConversations() {
+            try {
+                const res = await fetch('/api/conversations', { headers: authHeaders() });
+                if (res.status === 401) { logout(); return; }
+                const convos = await res.json();
+                const list = document.getElementById('conversationList');
+                list.innerHTML = '';
+
+                const stageColors = { planning: '#3b82f6', execution: '#f59e0b', testing: '#a855f7', completed: '#34d399' };
+                const stageIcons = { planning: '&#9679;', execution: '&#9881;', testing: '&#9745;', completed: '&#10003;' };
+
+                convos.forEach(c => {
+                    const el = document.createElement('div');
+                    el.className = 'conversation-item' + (c.id === currentConversationId ? ' active' : '');
+                    el.dataset.id = c.id;
+                    const color = stageColors[c.current_stage] || '#9ca0b0';
+                    const icon = stageIcons[c.current_stage] || '&#9679;';
+                    el.innerHTML = `<span class="conv-platform-dot" style="color:${color}">${icon}</span>${c.title}`;
+                    el.onclick = () => { loadConversation(c.id); switchView('dashboard'); };
+                    list.appendChild(el);
+                });
+            } catch (e) {}
+        }
+
+        async function loadConversation(id) {
+            try {
+                const res = await fetch(`/api/conversations/${id}`, { headers: authHeaders() });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                currentConversationId = id;
+                currentProject = {
+                    id: data.id,
+                    title: data.title,
+                    platform: data.platform,
+                    software_version: data.software_version,
+                    description: data.description,
+                    current_stage: data.current_stage,
+                    cpu_model: data.cpu_model,
+                    cpu_variant: data.cpu_variant,
+                    network_type: data.network_type,
+                    safety_required: data.safety_required,
+                    io_modules: data.io_modules || [],
+                    architecture_notes: data.architecture_notes,
+                    documents: data.documents || [],
+                    created_at: data.created_at,
+                    message_count: data.messages.length,
+                };
+
+                // Update project overview bar
+                updateProjectOverview();
+
+                // Clear chat area
+                chatMessages.innerHTML = '';
+                if (welcomeScreen && welcomeScreen.parentNode === chatMessages) {
+                    chatMessages.appendChild(welcomeScreen);
+                    welcomeScreen.style.display = 'none';
+                }
+
+                // Load messages
+                data.messages.forEach(msg => {
+                    addMessage(msg.content, msg.role);
+                });
+
+                // Highlight in sidebar
+                document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.conversation-item').forEach(el => {
+                    if (el.dataset.id == id) el.classList.add('active');
+                });
+            } catch (e) {
+                console.error('Load conversation error:', e);
+            }
+        }
+
+        async function newConversation() {
+            currentConversationId = null;
+            currentProject = null;
+
+            // Hide project overview
+            document.getElementById('projectOverview').classList.remove('active');
+
+            // Reset chat area
+            chatMessages.innerHTML = '';
+            if (welcomeScreen) {
+                chatMessages.appendChild(welcomeScreen);
+                welcomeScreen.style.display = 'flex';
+            }
+
+            // Remove active state from sidebar items
+            document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+            userInput.focus();
+        }
+
+        // ===========================================
+        // Chat Functions
+        // ===========================================
         function handleKeydown(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -639,13 +2803,8 @@
             msg.className = `message message-${role}`;
 
             if (role === 'assistant') {
-                // Format code blocks
-                text = text.replace(/```(\w*)\n?([\s\S]*?)```/g,
-                    '<pre><code>$2</code></pre>');
-                // Format inline code
-                text = text.replace(/`([^`]+)`/g,
-                    '<code style="background:var(--code-bg);padding:2px 6px;border-radius:3px;">$1</code>');
-                // Format bold
+                text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+                text = text.replace(/`([^`]+)`/g, '<code style="background:var(--code-bg);padding:2px 6px;border-radius:3px;">$1</code>');
                 text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 msg.innerHTML = text;
             } else {
@@ -660,7 +2819,7 @@
             const text = userInput.value.trim();
             if (!text || isWaiting) return;
 
-            const platform = platformSelect.value;
+            const platform = currentProject ? currentProject.platform : 'siemens';
 
             addMessage(text, 'user');
             userInput.value = '';
@@ -668,30 +2827,54 @@
 
             isWaiting = true;
             sendBtn.disabled = true;
+            sendBtn.textContent = 'Queue';
             typingIndicator.classList.add('active');
 
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders(),
                     body: JSON.stringify({
                         message: text,
-                        platform: platform
-                    })
+                        platform: platform,
+                        conversation_id: currentConversationId,
+                        model: document.getElementById('modelSelect').value,
+                    }),
                 });
+
+                if (response.status === 401) { logout(); return; }
 
                 const data = await response.json();
 
-                if (data.error) {
+                if (response.status === 429) {
+                    addMessage(`Daily limit reached (${data.rate_limit.limit} messages). Upgrade your plan for more.`, 'system');
+                } else if (data.error) {
                     addMessage(`Error: ${data.error}`, 'system');
                 } else {
                     addMessage(data.response, 'assistant');
 
+                    // Update conversation ID (for new conversations)
+                    if (data.conversation_id) {
+                        currentConversationId = data.conversation_id;
+                        await loadConversations();
+                    }
+
+                    // Update usage display
+                    if (data.usage) {
+                        const u = data.usage;
+                        if (u.limit) {
+                            document.getElementById('usageInfo').textContent = `${u.used}/${u.limit} messages today`;
+                        }
+                    }
+
                     if (data.files_saved && data.files_saved.length > 0) {
-                        const fileMsg = data.files_saved
-                            .map(f => `📁 Saved: ${f}`)
-                            .join('\n');
+                        const fileMsg = data.files_saved.map(f => `Saved: ${f}`).join('\n');
                         addMessage(fileMsg, 'system');
+                    }
+
+                    // Sync: refresh dashboard data in background when chat updates
+                    if (currentConversationId) {
+                        refreshDashboardBackground();
                     }
                 }
             } catch (error) {
@@ -700,7 +2883,23 @@
 
             isWaiting = false;
             sendBtn.disabled = false;
+            sendBtn.textContent = 'Send';
             typingIndicator.classList.remove('active');
+        }
+
+        // Background refresh of dashboard data (called after each chat message)
+        async function refreshDashboardBackground() {
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/dashboard`, { headers: authHeaders() });
+                if (res.ok) {
+                    dashboardData = await res.json();
+                    // If user is viewing dashboard, re-render
+                    if (currentView === 'dashboard') {
+                        const container = document.getElementById('projDashContent');
+                        renderProjectDashboard(dashboardData, container);
+                    }
+                }
+            } catch (e) { /* silent background refresh */ }
         }
 
         function useExample(el) {
@@ -709,63 +2908,36 @@
         }
 
         function quickAction(action) {
+            // Check feature gating
+            if (action === 'convert' && currentUser && currentUser.tier === 'free') {
+                addMessage('Code conversion requires a Pro or Enterprise plan. Upgrade to unlock this feature.', 'system');
+                return;
+            }
+
             const prompts = {
                 generate: 'Generate a Function Block for: [describe your requirements]',
-                troubleshoot: 'I have this PLC error: [describe the problem, error code, LED status]',
-                convert: 'Convert this code from Siemens SCL to Allen-Bradley ST:\n\n[paste your code here]',
-                explain: 'Explain what this PLC code does:\n\n[paste your code here]',
+                troubleshoot: 'I have this PLC error: [describe the problem]',
+                convert: 'Convert this code from Siemens SCL to Allen-Bradley ST:\n\n[paste code here]',
+                explain: 'Explain what this PLC code does:\n\n[paste code here]',
                 taglist: 'Generate a tag list for: [describe your system]',
-                document: 'Document this PLC project: [describe the system or paste code]'
             };
             userInput.value = prompts[action] || '';
             userInput.focus();
             autoResize(userInput);
         }
 
-        async function checkBridge() {
-            const btn = document.getElementById('bridgeStatus');
-            btn.querySelector('span:last-child').textContent = 'Checking...';
-
-            try {
-                const response = await fetch('/api/bridge-status');
-                const data = await response.json();
-
-                if (data.connected) {
-                    btn.querySelector('.icon').textContent = '✅';
-                    btn.querySelector('span:last-child').textContent = 'TIA Portal Connected';
-                } else {
-                    btn.querySelector('.icon').textContent = '❌';
-                    btn.querySelector('span:last-child').textContent = 'Bridge Not Found';
-                }
-            } catch {
-                btn.querySelector('.icon').textContent = '❌';
-                btn.querySelector('span:last-child').textContent = 'Bridge Offline';
-            }
-        }
-
-        function resetChat() {
-            fetch('/api/reset', { method: 'POST' });
-            chatMessages.innerHTML = '';
-            if (welcomeScreen) {
-                chatMessages.appendChild(welcomeScreen);
-                welcomeScreen.style.display = 'flex';
-            }
-        }
-
         function exportChat() {
+            if (currentUser && currentUser.tier === 'free') {
+                addMessage('Chat export requires a Pro or Enterprise plan.', 'system');
+                return;
+            }
             const messages = chatMessages.querySelectorAll('.message');
-            let text = 'LADX - Chat Export\n';
-            text += '='.repeat(50) + '\n\n';
-
+            let text = 'LADX - Chat Export\n' + '='.repeat(50) + '\n\n';
             messages.forEach(msg => {
-                if (msg.classList.contains('message-user')) {
-                    text += 'USER:\n' + msg.textContent + '\n\n';
-                } else if (msg.classList.contains('message-assistant')) {
-                    text += 'LADX:\n' + msg.textContent + '\n\n';
-                }
+                if (msg.classList.contains('message-user')) text += 'USER:\n' + msg.textContent + '\n\n';
+                else if (msg.classList.contains('message-assistant')) text += 'LADX:\n' + msg.textContent + '\n\n';
                 text += '-'.repeat(50) + '\n\n';
             });
-
             const blob = new Blob([text], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -773,8 +2945,1169 @@
             a.click();
         }
 
-        // Focus input on load
-        userInput.focus();
+        // ===========================================
+        // User Menu (Sidebar bottom)
+        // ===========================================
+        function toggleSidebarMenu() {
+            document.getElementById('sidebarUserDropdown').classList.toggle('show');
+        }
+
+        function showUpgrade() {
+            switchView('profile');
+        }
+
+        function openSettingsPanel() {
+            switchView('settings');
+        }
+
+        // Close sidebar menu on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.sidebar-user-area')) {
+                document.getElementById('sidebarUserDropdown').classList.remove('show');
+            }
+        });
+
+        // ===========================================
+        // Sidebar Toggle (Collapse/Expand)
+        // ===========================================
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // ===========================================
+        // Theme Toggle
+        // ===========================================
+        function updateLogos(isLight) {
+            const lightSrc = '/static/LADX-logo.png';
+            const darkSrc = '/static/LADX-logo-dark.png';
+            const src = isLight ? darkSrc : lightSrc;
+            document.querySelectorAll('.logo-icon, .welcome-logo, .auth-logo').forEach(img => img.src = src);
+        }
+
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            localStorage.setItem('ladx_theme', isLight ? 'light' : 'dark');
+            document.getElementById('themeToggle').innerHTML = isLight ? '&#9728;' : '&#9790;';
+            updateLogos(isLight);
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('ladx_theme');
+            if (saved === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('themeToggle').innerHTML = '&#9728;';
+                updateLogos(true);
+            }
+        }
+
+        // ===========================================
+        // CPU Variant Mapping
+        // ===========================================
+        const CPU_VARIANTS = {
+            'S7-1200': ['CPU 1211C', 'CPU 1212C', 'CPU 1214C', 'CPU 1215C', 'CPU 1217C'],
+            'S7-1500': ['CPU 1511-1', 'CPU 1513-1', 'CPU 1515-2', 'CPU 1516-3 PN/DP', 'CPU 1517-3', 'CPU 1518-4'],
+            'S7-1500F': ['CPU 1511F-1', 'CPU 1513F-1', 'CPU 1515F-2', 'CPU 1516F-3 PN/DP', 'CPU 1518F-4'],
+        };
+
+        function updateCPUVariants() {
+            const cpu = document.getElementById('npCPU').value;
+            const sel = document.getElementById('npVariant');
+            sel.innerHTML = '<option value="">Select variant...</option>';
+            (CPU_VARIANTS[cpu] || []).forEach(v => {
+                sel.innerHTML += `<option value="${v}">${v}</option>`;
+            });
+        }
+
+        // ===========================================
+        // New Project Modal
+        // ===========================================
+        function openNewProjectModal() {
+            document.getElementById('npName').value = '';
+            document.getElementById('npCPU').value = 'S7-1500';
+            document.getElementById('npTIA').value = 'V18';
+            document.getElementById('npNetwork').value = 'PROFINET';
+            document.getElementById('npSafety').checked = false;
+            document.getElementById('npDescription').value = '';
+            updateCPUVariants();
+            document.getElementById('newProjectModal').classList.add('active');
+            document.getElementById('npName').focus();
+        }
+
+        function closeNewProjectModal() {
+            document.getElementById('newProjectModal').classList.remove('active');
+        }
+
+        async function submitNewProject(e) {
+            e.preventDefault();
+            const btn = document.getElementById('npSubmitBtn');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/conversations', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        title: document.getElementById('npName').value.trim(),
+                        cpu_model: document.getElementById('npCPU').value,
+                        cpu_variant: document.getElementById('npVariant').value || null,
+                        software_version: document.getElementById('npTIA').value,
+                        network_type: document.getElementById('npNetwork').value,
+                        safety_required: document.getElementById('npSafety').checked,
+                        description: document.getElementById('npDescription').value.trim() || null,
+                    }),
+                });
+
+                if (res.status === 401) { logout(); return; }
+                if (res.status === 403) {
+                    const data = await res.json();
+                    alert(data.detail || 'Project limit reached');
+                    btn.disabled = false;
+                    return;
+                }
+
+                const data = await res.json();
+                closeNewProjectModal();
+                await loadConversations();
+                currentConversationId = data.id;
+                await loadConversation(data.id);
+                switchView('dashboard');  // Go to dashboard, not chat
+            } catch (err) {
+                console.error('Create project error:', err);
+            }
+            btn.disabled = false;
+        }
+
+        // ===========================================
+        // Project Overview (Chat bar)
+        // ===========================================
+        function updateProjectOverview() {
+            if (!currentProject) {
+                document.getElementById('projectOverview').classList.remove('active');
+                return;
+            }
+            const p = currentProject;
+            document.getElementById('projectOverview').classList.add('active');
+            document.getElementById('ovTitle').textContent = p.title;
+            document.getElementById('ovPlatform').textContent = 'Siemens ' + (p.cpu_model || 'S7-1500');
+            document.getElementById('ovVersion').textContent = 'TIA Portal ' + (p.software_version || '');
+            document.getElementById('ovCreated').textContent = p.created_at ? new Date(p.created_at).toLocaleDateString() : '-';
+            document.getElementById('ovMsgCount').textContent = p.message_count || 0;
+            document.getElementById('ovDescription').value = p.description || '';
+            renderDocList(p.documents || []);
+        }
+
+        function toggleOverview() {
+            const body = document.getElementById('overviewBody');
+            const icon = document.getElementById('ovToggleIcon');
+            body.classList.toggle('expanded');
+            icon.innerHTML = body.classList.contains('expanded') ? '&#9650;' : '&#9660;';
+        }
+
+        async function saveProjectDescription() {
+            if (!currentConversationId) return;
+            const desc = document.getElementById('ovDescription').value;
+            try {
+                await fetch(`/api/conversations/${currentConversationId}`, {
+                    method: 'PUT',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ description: desc }),
+                });
+                if (currentProject) currentProject.description = desc;
+            } catch (e) {
+                console.error('Save description error:', e);
+            }
+        }
+
+        // ===========================================
+        // Document Upload
+        // ===========================================
+        async function uploadDocument(input) {
+            if (!input.files.length || !currentConversationId) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/documents`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData,
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(data.detail || 'Upload failed');
+                    input.value = '';
+                    return;
+                }
+                const doc = await res.json();
+                if (currentProject) {
+                    currentProject.documents.push(doc);
+                    renderDocList(currentProject.documents);
+                }
+                // Refresh dashboard if currently showing it
+                if (currentView === 'dashboard') loadDashboard();
+            } catch (e) {
+                console.error('Upload error:', e);
+            }
+            input.value = '';
+        }
+
+        function renderDocList(docs) {
+            const el = document.getElementById('docList');
+            if (!el) return;
+            if (!docs.length) {
+                el.innerHTML = '<div class="no-docs">No documents uploaded yet.</div>';
+                return;
+            }
+            el.innerHTML = docs.map(d => {
+                const sizeKB = d.file_size ? (d.file_size / 1024).toFixed(1) + ' KB' : '';
+                const icon = { pdf: '&#128196;', png: '&#128248;', jpg: '&#128248;', jpeg: '&#128248;', gif: '&#128248;', txt: '&#128220;', csv: '&#128202;' }[d.file_type] || '&#128196;';
+                return `<div class="doc-item">
+                    <div class="doc-item-left" onclick="downloadDoc(${d.id})">
+                        <span class="doc-icon">${icon}</span>
+                        <span>${d.filename}</span>
+                        <span class="doc-size">${sizeKB}</span>
+                    </div>
+                    <button class="doc-delete" onclick="deleteDoc(${d.id})" title="Delete">&times;</button>
+                </div>`;
+            }).join('');
+        }
+
+        async function downloadDoc(docId) {
+            if (!currentConversationId) return;
+            window.open(`/api/conversations/${currentConversationId}/documents/${docId}/download`, '_blank');
+        }
+
+        async function deleteDoc(docId) {
+            if (!currentConversationId || !confirm('Delete this document?')) return;
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders(),
+                });
+                if (res.ok) {
+                    if (currentProject) {
+                        currentProject.documents = currentProject.documents.filter(d => d.id !== docId);
+                        renderDocList(currentProject.documents);
+                    }
+                    if (currentView === 'dashboard') loadDashboard();
+                }
+            } catch (e) {
+                console.error('Delete doc error:', e);
+            }
+        }
+
+        // ===========================================
+        // View Switching (Chat / Dashboard)
+        // ===========================================
+        let currentView = 'chat';
+
+        function switchView(view) {
+            currentView = view;
+            const chatEl = document.querySelector('.chat-container');
+            const dashEl = document.getElementById('dashboardContainer');
+            const profileEl = document.getElementById('profileContainer');
+            const settingsEl = document.getElementById('settingsContainer');
+            const navChat = document.getElementById('navChat');
+            const navDash = document.getElementById('navDashboard');
+
+            // Hide all views
+            chatEl.style.display = 'none';
+            dashEl.classList.remove('active');
+            profileEl.classList.remove('active');
+            settingsEl.classList.remove('active');
+            navChat.classList.remove('active');
+            navDash.classList.remove('active');
+
+            if (view === 'dashboard') {
+                dashEl.classList.add('active');
+                navDash.classList.add('active');
+                loadDashboard();
+            } else if (view === 'profile') {
+                profileEl.classList.add('active');
+                loadProfilePage();
+            } else if (view === 'settings') {
+                settingsEl.classList.add('active');
+                loadSettingsPage();
+            } else {
+                chatEl.style.display = 'flex';
+                navChat.classList.add('active');
+            }
+        }
+
+        // ===========================================
+        // Per-Project Dashboard (Stage Pipeline)
+        // ===========================================
+
+        let dashboardData = null;  // cached dashboard response
+
+        async function loadDashboard() {
+            const container = document.getElementById('projDashContent');
+            if (!currentConversationId) {
+                container.innerHTML = '<div class="proj-dash-empty">Select a project to view its dashboard.</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/dashboard`, { headers: authHeaders() });
+                if (res.status === 401) { logout(); return; }
+                if (!res.ok) { container.innerHTML = '<div class="proj-dash-empty">Failed to load dashboard.</div>'; return; }
+                dashboardData = await res.json();
+                renderProjectDashboard(dashboardData, container);
+            } catch (e) {
+                console.error('Dashboard load error:', e);
+                container.innerHTML = '<div class="proj-dash-empty">Error loading dashboard.</div>';
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        const STAGE_ICONS = { planning: '&#128203;', execution: '&#9881;', testing: '&#128270;', completed: '&#10004;' };
+        const STAGE_NAMES = { planning: 'Planning', execution: 'Execution', testing: 'Testing', completed: 'Completed' };
+
+        function renderProjectDashboard(data, container) {
+            const p = data.project;
+            const s = data.stats;
+            const stages = data.stages || [];
+            const genDocs = data.generated_docs || {};
+            const uploadedDocs = data.uploaded_documents || [];
+
+            let html = '';
+
+            // ---- Header ----
+            html += `<div class="proj-dash-header">
+                <h2>${p.title}</h2>
+                <span class="proj-dash-platform siemens">Siemens ${p.cpu_model || 'S7-1500'}</span>
+                <span style="font-size:12px;color:var(--text-secondary);">TIA Portal ${p.software_version || ''}</span>
+            </div>`;
+
+            // ---- Stage Pipeline (clickable for manual navigation) ----
+            html += '<div class="stage-pipeline">';
+            stages.forEach((st, i) => {
+                const statusClass = st.status;  // active, completed, pending
+                const isCurrent = (st.stage_name === p.current_stage);
+                html += `<div class="stage-node" onclick="navigateToStage('${st.stage_name}')" style="cursor:pointer;" title="Go to ${STAGE_NAMES[st.stage_name]}">
+                    <div class="stage-circle ${statusClass} ${isCurrent ? 'current-pulse' : ''}">${STAGE_ICONS[st.stage_name] || ''}</div>
+                    <div class="stage-label ${statusClass}">${STAGE_NAMES[st.stage_name] || st.stage_name}</div>
+                </div>`;
+                if (i < stages.length - 1) {
+                    const connDone = (st.status === 'completed') ? 'done' : '';
+                    html += `<div class="stage-connector ${connDone}"></div>`;
+                }
+            });
+            html += '</div>';
+
+            // ---- Hardware Architecture Card ----
+            html += `<div class="stage-detail">
+                <div class="stage-detail-title">Hardware Architecture</div>
+                <div class="stage-detail-subtitle">Siemens SIMATIC Configuration</div>
+                <div class="hw-grid">
+                    <div class="hw-item"><div class="hw-item-label">CPU Model</div><div class="hw-item-value">${p.cpu_model || 'Not set'}</div></div>
+                    <div class="hw-item"><div class="hw-item-label">CPU Variant</div><div class="hw-item-value">${p.cpu_variant || 'Not set'}</div></div>
+                    <div class="hw-item"><div class="hw-item-label">TIA Portal</div><div class="hw-item-value">${p.software_version || 'Not set'}</div></div>
+                    <div class="hw-item"><div class="hw-item-label">Network</div><div class="hw-item-value">${p.network_type || 'Not set'}</div></div>
+                    <div class="hw-item"><div class="hw-item-label">Safety</div><div class="hw-item-value">${p.safety_required ? 'Required (F-CPU)' : 'Standard'}</div></div>
+                    <div class="hw-item"><div class="hw-item-label">IO Modules</div><div class="hw-item-value">${(p.io_modules && p.io_modules.length) ? p.io_modules.join(', ') : 'None configured'}</div></div>
+                </div>
+                ${p.architecture_notes ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;"><strong>Notes:</strong> ${p.architecture_notes}</div>` : ''}
+            </div>`;
+
+            // ---- Current Stage Detail Panel ----
+            html += renderStageDetail(p, genDocs);
+
+            // ---- Stats ----
+            html += `<div class="proj-dash-stats">
+                <div class="proj-stat-card"><div class="proj-stat-value">${s.total_messages}</div><div class="proj-stat-label">Messages</div></div>
+                <div class="proj-stat-card"><div class="proj-stat-value">${s.code_blocks || 0}</div><div class="proj-stat-label">Code Blocks</div></div>
+                <div class="proj-stat-card"><div class="proj-stat-value">${s.document_count}</div><div class="proj-stat-label">Documents</div></div>
+                <div class="proj-stat-card"><div class="proj-stat-value">${formatBytes(s.total_doc_size)}</div><div class="proj-stat-label">Storage</div></div>
+            </div>`;
+
+            // ---- Generated Documents ----
+            const allGenDocs = Object.entries(genDocs);
+            if (allGenDocs.length > 0) {
+                html += `<div class="proj-dash-section">
+                    <div class="proj-dash-section-title">Generated Documents</div>`;
+                allGenDocs.forEach(([stage, docs]) => {
+                    docs.forEach(d => {
+                        html += `<div class="gen-doc-item">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="gen-doc-badge ${stage}">${STAGE_NAMES[stage] || stage}</span>
+                                <span class="gen-doc-title">${d.title}</span>
+                            </div>
+                            <div style="display:flex;gap:4px;">
+                                <button class="gen-doc-view" onclick="viewGeneratedDoc(${d.id})">View</button>
+                                ${d.has_docx ? `<button class="gen-doc-download" onclick="downloadGeneratedDoc(${d.id})">Download .docx</button>` : ''}
+                            </div>
+                        </div>`;
+                    });
+                });
+                html += '</div>';
+            }
+
+            // ---- Uploaded Documents ----
+            html += `<div class="proj-dash-section">
+                <div class="proj-dash-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+                    Uploaded Files
+                    <button onclick="document.getElementById('dashFileUpload').click()" style="background:var(--accent);border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;">+ Upload</button>
+                </div>
+                <input type="file" id="dashFileUpload" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.stl,.xml,.json,.scl" onchange="uploadFromDash(this)">`;
+            if (uploadedDocs.length) {
+                uploadedDocs.forEach(d => {
+                    html += `<div class="gen-doc-item">
+                        <span class="gen-doc-title" style="cursor:pointer" onclick="downloadDoc(${d.id})">${d.filename}</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <span style="font-size:11px;color:var(--text-secondary)">${formatBytes(d.file_size)}</span>
+                            <button class="gen-doc-view" onclick="deleteDashDoc(${d.id})" style="color:var(--danger);border-color:var(--danger);">&times;</button>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html += '<div style="color:var(--text-secondary);font-size:13px;padding:8px 0;">No files uploaded yet.</div>';
+            }
+            html += '</div>';
+
+            // ---- Description ----
+            html += `<div class="proj-dash-section proj-dash-desc">
+                <div class="proj-dash-section-title">Project Description</div>
+                <textarea id="projDashDesc" placeholder="Add project description...">${p.description || ''}</textarea>
+                <div style="margin-top:8px;text-align:right;">
+                    <button onclick="saveProjDashDesc()" style="background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">Save</button>
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        // ---- Stage Detail: actions per stage ----
+        function renderStageDetail(project, genDocs) {
+            const stage = project.current_stage || 'planning';
+            let html = '<div class="stage-detail">';
+
+            if (stage === 'planning') {
+                html += `<div class="stage-detail-title">&#128203; Project Planning</div>
+                    <div class="stage-detail-subtitle">Define requirements, generate FDS and IO List</div>
+                    <div class="stage-actions">
+                        <button class="stage-action-btn primary" onclick="generateDocument('FDS')">Generate FDS</button>
+                        <button class="stage-action-btn" onclick="document.getElementById('fdsUploadInput').click()">Upload Existing FDS</button>
+                        <input type="file" id="fdsUploadInput" style="display:none" accept=".pdf,.txt,.csv,.json,.xml" onchange="uploadFDS(this)">
+                        <button class="stage-action-btn primary" onclick="generateDocument('IO_LIST')" ${project.has_fds ? '' : 'disabled title="Generate or upload FDS first"'}>Generate IO List</button>
+                    </div>`;
+                html += `<div class="stage-nav-bar">
+                    <button class="acknowledge-btn" onclick="acknowledgeStage('planning')">Acknowledge Planning Complete</button>
+                    <button class="advance-btn" onclick="advanceStage()">Advance to Execution &rarr;</button>
+                </div>`;
+
+            } else if (stage === 'execution') {
+                html += `<div class="stage-detail-title">&#9881; Project Execution</div>
+                    <div class="stage-detail-subtitle">Generate PLC code from your FDS and IO List</div>
+                    <div id="execProgressArea"></div>
+                    <div class="stage-actions">
+                        <button class="stage-action-btn primary" onclick="generateDocument('PLC_CODE')">Generate PLC Code (SCL)</button>
+                    </div>`;
+                html += `<div class="stage-nav-bar">
+                    <button class="acknowledge-btn" onclick="acknowledgeStage('execution')">Acknowledge Execution Complete</button>
+                    <button class="advance-btn" onclick="advanceStage()">Advance to Testing &rarr;</button>
+                </div>`;
+
+            } else if (stage === 'testing') {
+                html += `<div class="stage-detail-title">&#128270; Testing &amp; Validation</div>
+                    <div class="stage-detail-subtitle">Generate FAT and SAT documents</div>
+                    <div class="stage-actions">
+                        <button class="stage-action-btn primary" onclick="generateDocument('FAT')">Generate FAT</button>
+                        <button class="stage-action-btn primary" onclick="generateDocument('SAT')">Generate SAT</button>
+                    </div>`;
+                html += `<div class="stage-nav-bar">
+                    <button class="acknowledge-btn" onclick="acknowledgeStage('testing')">Acknowledge Testing Complete</button>
+                    <button class="advance-btn" onclick="advanceStage()">Mark Project Complete &check;</button>
+                </div>`;
+
+            } else if (stage === 'completed') {
+                html += `<div class="stage-detail-title">&#10004; Project Completed</div>
+                    <div class="stage-detail-subtitle">All documents are available below</div>
+                    <div style="color:var(--success);font-size:14px;margin-top:8px;">This project has been completed successfully. All generated documents are accessible above.</div>`;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // ---- Generate a document (FDS, IO_LIST, PLC_CODE, FAT, SAT) ----
+        async function generateDocument(docType) {
+            if (!currentConversationId) return;
+
+            // Show spinner in the dashboard
+            const container = document.getElementById('projDashContent');
+            const spinner = document.createElement('div');
+            spinner.className = 'gen-progress';
+            spinner.id = 'genSpinner';
+            spinner.innerHTML = `<div class="gen-spinner"></div><div>Generating ${docType.replace('_', ' ')}... This may take a moment.</div>`;
+            container.prepend(spinner);
+
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/generate/${docType}`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ prompt: null }),
+                });
+
+                const sp = document.getElementById('genSpinner');
+                if (sp) sp.remove();
+
+                if (res.status === 401) { logout(); return; }
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Generation failed');
+                    return;
+                }
+
+                const data = await res.json();
+                // Show the generated document in preview modal
+                viewGeneratedDocContent(data.title, data.content);
+
+                // Reload dashboard to reflect changes
+                await loadDashboard();
+            } catch (e) {
+                const sp = document.getElementById('genSpinner');
+                if (sp) sp.remove();
+                console.error('Generate error:', e);
+                alert('Document generation failed. Check console for details.');
+            }
+        }
+
+        // ---- View a previously generated document ----
+        async function viewGeneratedDoc(docId) {
+            if (!currentConversationId) return;
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/generated/${docId}`, { headers: authHeaders() });
+                if (!res.ok) { alert('Could not load document'); return; }
+                const data = await res.json();
+                viewGeneratedDocContent(data.title, data.content);
+            } catch (e) {
+                console.error('View doc error:', e);
+            }
+        }
+
+        function viewGeneratedDocContent(title, content) {
+            document.getElementById('docPreviewTitle').textContent = title;
+            // Simple markdown-like rendering
+            const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const rendered = escaped
+                .replace(/^### (.+)$/gm, '<h4 style="margin:12px 0 4px;color:var(--accent)">$1</h4>')
+                .replace(/^## (.+)$/gm, '<h3 style="margin:16px 0 6px;color:var(--text-primary)">$1</h3>')
+                .replace(/^# (.+)$/gm, '<h2 style="margin:20px 0 8px;color:var(--text-primary)">$1</h2>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:12px;margin:8px 0;">$2</pre>')
+                .replace(/\|(.+)/g, (match) => `<div style="font-family:monospace;font-size:11px;white-space:pre;">${match}</div>`)
+                .replace(/\n/g, '<br>');
+            document.getElementById('docPreviewBody').innerHTML = rendered;
+            document.getElementById('docPreviewModal').classList.add('active');
+        }
+
+        function closeDocPreview() {
+            document.getElementById('docPreviewModal').classList.remove('active');
+        }
+
+        // ---- Advance to next stage ----
+        async function advanceStage() {
+            if (!currentConversationId) return;
+            if (!confirm('Advance to the next project stage?')) return;
+
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/stage/advance`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                });
+                if (res.status === 401) { logout(); return; }
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Cannot advance stage');
+                    return;
+                }
+                const data = await res.json();
+                if (currentProject) currentProject.current_stage = data.current_stage;
+                await loadDashboard();
+                await loadConversations();  // Refresh sidebar stage indicators
+            } catch (e) {
+                console.error('Advance stage error:', e);
+            }
+        }
+
+        // ---- Upload existing FDS ----
+        async function uploadFDS(input) {
+            if (!input.files.length || !currentConversationId) return;
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            const container = document.getElementById('projDashContent');
+            const spinner = document.createElement('div');
+            spinner.className = 'gen-progress';
+            spinner.id = 'genSpinner';
+            spinner.innerHTML = '<div class="gen-spinner"></div><div>Uploading FDS...</div>';
+            container.prepend(spinner);
+
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/upload-fds`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData,
+                });
+                const sp = document.getElementById('genSpinner');
+                if (sp) sp.remove();
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Upload failed');
+                } else {
+                    await loadDashboard();
+                }
+            } catch (e) {
+                const sp = document.getElementById('genSpinner');
+                if (sp) sp.remove();
+                console.error('Upload FDS error:', e);
+            }
+            input.value = '';
+        }
+
+        // ---- Dashboard helper functions ----
+        async function saveProjDashDesc() {
+            if (!currentConversationId) return;
+            const desc = document.getElementById('projDashDesc').value;
+            try {
+                await fetch(`/api/conversations/${currentConversationId}`, {
+                    method: 'PUT',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ description: desc }),
+                });
+                if (currentProject) currentProject.description = desc;
+            } catch (e) {
+                console.error('Save description error:', e);
+            }
+        }
+
+        async function uploadFromDash(input) {
+            if (!input.files.length || !currentConversationId) return;
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/documents`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData,
+                });
+                if (!res.ok) { const d = await res.json(); alert(d.detail || 'Upload failed'); }
+                else { loadDashboard(); }
+            } catch (e) { console.error('Upload error:', e); }
+            input.value = '';
+        }
+
+        async function deleteDashDoc(docId) {
+            if (!currentConversationId || !confirm('Delete this document?')) return;
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders(),
+                });
+                if (res.ok) loadDashboard();
+            } catch (e) { console.error('Delete doc error:', e); }
+        }
+
+        // ===========================================
+        // Download Generated .docx Document
+        // ===========================================
+        async function downloadGeneratedDoc(docId) {
+            if (!currentConversationId) return;
+            try {
+                const res = await fetch(`/api/conversations/${currentConversationId}/generated/${docId}/download`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Download not available');
+                    return;
+                }
+                const blob = await res.blob();
+                const contentDisposition = res.headers.get('Content-Disposition') || '';
+                let filename = 'document.docx';
+                const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (match) filename = match[1];
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(a.href);
+            } catch (e) {
+                console.error('Download error:', e);
+                alert('Download failed.');
+            }
+        }
+
+        // ===========================================
+        // Manual Stage Navigation
+        // ===========================================
+        async function navigateToStage(stageName) {
+            if (!currentConversationId || !dashboardData) return;
+            const current = dashboardData.project.current_stage;
+            if (stageName === current) return; // already there
+
+            const stageOrder = ['planning', 'execution', 'testing', 'completed'];
+            const currentIdx = stageOrder.indexOf(current);
+            const targetIdx = stageOrder.indexOf(stageName);
+
+            if (targetIdx > currentIdx) {
+                if (!confirm(`Advance to ${STAGE_NAMES[stageName]}? Make sure you have completed all tasks in the current stage.`)) return;
+                // Advance multiple stages if needed
+                for (let i = currentIdx; i < targetIdx; i++) {
+                    try {
+                        const res = await fetch(`/api/conversations/${currentConversationId}/stage/advance`, {
+                            method: 'POST',
+                            headers: authHeaders(),
+                        });
+                        if (!res.ok) {
+                            const err = await res.json();
+                            alert(err.detail || 'Cannot advance stage');
+                            break;
+                        }
+                    } catch (e) { break; }
+                }
+                await loadDashboard();
+                await loadConversations();
+            } else {
+                // Going backwards - just view that stage detail (no actual stage change)
+                alert(`You are currently in "${STAGE_NAMES[current]}". You can only advance forward in the stage pipeline.`);
+            }
+        }
+
+        async function acknowledgeStage(stageName) {
+            if (!currentConversationId) return;
+            if (!confirm(`Acknowledge "${STAGE_NAMES[stageName]}" as complete and advance to the next stage?`)) return;
+            await advanceStage();
+        }
+
+        // ===========================================
+        // Profile Page
+        // ===========================================
+        async function loadProfilePage() {
+            const container = document.getElementById('profileContent');
+            container.innerHTML = '<div class="proj-dash-empty">Loading profile...</div>';
+
+            try {
+                const res = await fetch('/api/auth/profile', { headers: authHeaders() });
+                if (res.status === 401) { logout(); return; }
+                if (!res.ok) { container.innerHTML = '<div class="proj-dash-empty">Failed to load profile.</div>'; return; }
+                const data = await res.json();
+                renderProfilePage(data, container);
+            } catch (e) {
+                container.innerHTML = '<div class="proj-dash-empty">Error loading profile.</div>';
+            }
+        }
+
+        function renderProfilePage(data, container) {
+            let html = '';
+
+            // ---- Personal Information ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Personal Information</div>
+                <div class="profile-form-grid">
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Full Name</label>
+                        <input class="profile-form-input" id="profFullName" type="text" value="${data.full_name || ''}" placeholder="Your full name">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Username</label>
+                        <input class="profile-form-input" id="profUsername" type="text" value="${data.username || ''}" placeholder="Username">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Email</label>
+                        <input class="profile-form-input" type="text" value="${data.email || ''}" disabled style="opacity:0.6">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Phone</label>
+                        <input class="profile-form-input" id="profPhone" type="text" value="${data.phone || ''}" placeholder="+1 (555) 000-0000">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Job Title</label>
+                        <input class="profile-form-input" id="profJobTitle" type="text" value="${data.job_title || ''}" placeholder="e.g. PLC Engineer">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Member Since</label>
+                        <input class="profile-form-input" type="text" value="${new Date(data.created_at).toLocaleDateString()}" disabled style="opacity:0.6">
+                    </div>
+                </div>
+                <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+            </div>`;
+
+            // ---- Company Information ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Company Information</div>
+                <div class="profile-form-grid">
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Company Name</label>
+                        <input class="profile-form-input" id="profCompany" type="text" value="${data.company || ''}" placeholder="Your company name">
+                    </div>
+                    <div class="profile-form-group">
+                        <label class="profile-form-label">Company Logo</label>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="profile-logo-preview" id="profLogoPreview" onclick="document.getElementById('profLogoInput').click()">
+                                ${data.company_logo ? `<img src="${data.company_logo}" alt="Logo">` : 'Upload'}
+                            </div>
+                            <input type="file" id="profLogoInput" style="display:none" accept=".png,.jpg,.jpeg,.svg" onchange="previewLogo(this)">
+                            <span style="font-size:11px;color:var(--text-secondary)">PNG, JPG, or SVG</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+            </div>`;
+
+            // ---- Plans ----
+            const currentTier = data.tier || 'free';
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Your Plan</div>
+                <div class="plans-grid">
+                    <div class="plan-card ${currentTier === 'free' ? 'current' : ''}">
+                        <div class="plan-card-name">Free</div>
+                        <div class="plan-card-price">$0</div>
+                        <div class="plan-card-features">
+                            10 messages/day<br>
+                            3 active projects<br>
+                            Basic document generation<br>
+                            Community support
+                        </div>
+                        ${currentTier === 'free' ? '<div style="margin-top:10px;color:var(--accent);font-size:12px;font-weight:600;">Current Plan</div>' : ''}
+                    </div>
+                    <div class="plan-card ${currentTier === 'pro' ? 'current' : ''}">
+                        <div class="plan-card-name">Pro</div>
+                        <div class="plan-card-price">$29/mo</div>
+                        <div class="plan-card-features">
+                            100 messages/day<br>
+                            Unlimited projects<br>
+                            Advanced AI models<br>
+                            Code conversion<br>
+                            Priority support
+                        </div>
+                        ${currentTier === 'pro' ? '<div style="margin-top:10px;color:var(--accent);font-size:12px;font-weight:600;">Current Plan</div>' : '<button class="profile-save-btn" style="margin-top:10px;padding:8px 16px;font-size:12px;" onclick="alert(\'Contact support@ladx.ai to upgrade\')">Upgrade</button>'}
+                    </div>
+                    <div class="plan-card ${currentTier === 'enterprise' ? 'current' : ''}">
+                        <div class="plan-card-name">Enterprise</div>
+                        <div class="plan-card-price">Custom</div>
+                        <div class="plan-card-features">
+                            Unlimited messages<br>
+                            Unlimited projects<br>
+                            All AI models<br>
+                            Custom integrations<br>
+                            Dedicated support
+                        </div>
+                        ${currentTier === 'enterprise' ? '<div style="margin-top:10px;color:var(--accent);font-size:12px;font-weight:600;">Current Plan</div>' : '<button class="profile-save-btn" style="margin-top:10px;padding:8px 16px;font-size:12px;" onclick="alert(\'Contact sales@ladx.ai for Enterprise pricing\')">Contact Sales</button>'}
+                    </div>
+                </div>
+            </div>`;
+
+            // ---- Usage ----
+            if (data.usage) {
+                const u = data.usage;
+                html += `<div class="profile-section">
+                    <div class="profile-section-title">Usage Today</div>
+                    <div style="display:flex;gap:24px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:var(--accent);">${u.used}</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Messages Used</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:var(--text-primary);">${u.limit}</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Daily Limit</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:var(--success);">${u.remaining}</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Remaining</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function saveProfile() {
+            const body = {
+                full_name: document.getElementById('profFullName').value.trim(),
+                username: document.getElementById('profUsername').value.trim(),
+                company: document.getElementById('profCompany').value.trim(),
+                phone: document.getElementById('profPhone').value.trim(),
+                job_title: document.getElementById('profJobTitle').value.trim(),
+            };
+
+            try {
+                const res = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: authHeaders(),
+                    body: JSON.stringify(body),
+                });
+                if (res.status === 401) { logout(); return; }
+                if (res.ok) {
+                    // Update local user data
+                    if (currentUser) {
+                        currentUser.full_name = body.full_name;
+                        currentUser.username = body.username;
+                        localStorage.setItem('ladx_user', JSON.stringify(currentUser));
+                        // Update sidebar
+                        const displayName = body.full_name || body.username || currentUser.email.split('@')[0];
+                        document.getElementById('sidebarUserAvatar').textContent = displayName.charAt(0).toUpperCase();
+                        document.getElementById('sidebarUserName').textContent = displayName;
+                        document.getElementById('welcomeGreeting').textContent = `Hello ${displayName}, how can I help you?`;
+                    }
+                    alert('Profile saved successfully!');
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || 'Save failed');
+                }
+            } catch (e) {
+                console.error('Save profile error:', e);
+                alert('Failed to save profile.');
+            }
+        }
+
+        function previewLogo(input) {
+            if (!input.files.length) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('profLogoPreview').innerHTML = `<img src="${e.target.result}" alt="Logo">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ===========================================
+        // Settings Page
+        // ===========================================
+        function loadSettingsPage() {
+            const container = document.getElementById('settingsContent');
+
+            // Read current settings from localStorage
+            const autoSave = localStorage.getItem('ladx_autosave') !== 'false';
+            const notifications = localStorage.getItem('ladx_notifications') !== 'false';
+            const codeHighlight = localStorage.getItem('ladx_code_highlight') !== 'false';
+            const defaultModel = localStorage.getItem('ladx_default_model') || 'openai/gpt-4o';
+            const defaultCPU = localStorage.getItem('ladx_default_cpu') || 'S7-1500';
+            const defaultTIA = localStorage.getItem('ladx_default_tia') || 'V18';
+
+            let html = '';
+
+            // ---- Appearance ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Appearance</div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Theme</div>
+                        <div class="settings-item-desc">Switch between dark and light mode</div>
+                    </div>
+                    <select class="settings-select" onchange="setThemeSetting(this.value)">
+                        <option value="dark" ${!document.body.classList.contains('light-mode') ? 'selected' : ''}>Dark</option>
+                        <option value="light" ${document.body.classList.contains('light-mode') ? 'selected' : ''}>Light</option>
+                    </select>
+                </div>
+            </div>`;
+
+            // ---- AI & Models ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">AI Configuration</div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Default AI Model</div>
+                        <div class="settings-item-desc">Used for new conversations</div>
+                    </div>
+                    <select class="settings-select" id="settDefaultModel" onchange="saveSetting('ladx_default_model', this.value)">
+                        <option value="openai/gpt-4o" ${defaultModel === 'openai/gpt-4o' ? 'selected' : ''}>GPT-4o</option>
+                        <option value="anthropic/claude-3.5-sonnet" ${defaultModel === 'anthropic/claude-3.5-sonnet' ? 'selected' : ''}>Claude 3.5 Sonnet</option>
+                        <option value="google/gemini-pro-1.5" ${defaultModel === 'google/gemini-pro-1.5' ? 'selected' : ''}>Gemini Pro 1.5</option>
+                        <option value="meta-llama/llama-3.1-405b-instruct" ${defaultModel === 'meta-llama/llama-3.1-405b-instruct' ? 'selected' : ''}>Llama 3.1 405B</option>
+                    </select>
+                </div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Code Syntax Highlighting</div>
+                        <div class="settings-item-desc">Highlight PLC code blocks in chat</div>
+                    </div>
+                    <div class="settings-toggle ${codeHighlight ? 'active' : ''}" onclick="toggleSetting(this, 'ladx_code_highlight')"></div>
+                </div>
+            </div>`;
+
+            // ---- Project Defaults ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Project Defaults</div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Default CPU Model</div>
+                        <div class="settings-item-desc">Pre-selected when creating new projects</div>
+                    </div>
+                    <select class="settings-select" onchange="saveSetting('ladx_default_cpu', this.value)">
+                        <option value="S7-1200" ${defaultCPU === 'S7-1200' ? 'selected' : ''}>SIMATIC S7-1200</option>
+                        <option value="S7-1500" ${defaultCPU === 'S7-1500' ? 'selected' : ''}>SIMATIC S7-1500</option>
+                        <option value="S7-1500F" ${defaultCPU === 'S7-1500F' ? 'selected' : ''}>SIMATIC S7-1500F</option>
+                    </select>
+                </div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Default TIA Portal Version</div>
+                        <div class="settings-item-desc">Pre-selected when creating new projects</div>
+                    </div>
+                    <select class="settings-select" onchange="saveSetting('ladx_default_tia', this.value)">
+                        <option value="V17" ${defaultTIA === 'V17' ? 'selected' : ''}>V17</option>
+                        <option value="V18" ${defaultTIA === 'V18' ? 'selected' : ''}>V18</option>
+                        <option value="V19" ${defaultTIA === 'V19' ? 'selected' : ''}>V19</option>
+                        <option value="V20" ${defaultTIA === 'V20' ? 'selected' : ''}>V20</option>
+                    </select>
+                </div>
+            </div>`;
+
+            // ---- Notifications ----
+            html += `<div class="profile-section">
+                <div class="profile-section-title">Notifications</div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Auto-save Conversations</div>
+                        <div class="settings-item-desc">Automatically save chat history</div>
+                    </div>
+                    <div class="settings-toggle ${autoSave ? 'active' : ''}" onclick="toggleSetting(this, 'ladx_autosave')"></div>
+                </div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Desktop Notifications</div>
+                        <div class="settings-item-desc">Get notified when document generation completes</div>
+                    </div>
+                    <div class="settings-toggle ${notifications ? 'active' : ''}" onclick="toggleSetting(this, 'ladx_notifications')"></div>
+                </div>
+            </div>`;
+
+            // ---- Danger Zone ----
+            html += `<div class="profile-section" style="border-color:var(--danger);">
+                <div class="profile-section-title" style="color:var(--danger);">Danger Zone</div>
+                <div class="settings-item">
+                    <div>
+                        <div class="settings-item-label">Delete All Projects</div>
+                        <div class="settings-item-desc">Permanently remove all projects and conversations</div>
+                    </div>
+                    <button style="background:var(--danger);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="alert('Contact support@ladx.ai to delete your account data.')">Delete All</button>
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function toggleSetting(el, key) {
+            el.classList.toggle('active');
+            const isActive = el.classList.contains('active');
+            localStorage.setItem(key, isActive);
+        }
+
+        function saveSetting(key, value) {
+            localStorage.setItem(key, value);
+        }
+
+        function setThemeSetting(value) {
+            if (value === 'light') {
+                document.body.classList.add('light-mode');
+                localStorage.setItem('ladx_theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('ladx_theme', 'dark');
+            }
+        }
+
+        // ===========================================
+        // Skill Assessment Modal
+        // ===========================================
+        function openSkillModal() {
+            const container = document.getElementById('skillSliders');
+            container.innerHTML = PLC_SKILLS.map((skill, i) => {
+                return `<div class="skill-slider-group">
+                    <div class="skill-slider-label">
+                        <span>${skill}</span>
+                        <span class="skill-slider-value" id="sv${i}">0.0</span>
+                    </div>
+                    <input type="range" class="skill-slider" min="0" max="5" step="0.5" value="0"
+                           data-skill="${skill}" id="ss${i}"
+                           oninput="document.getElementById('sv${i}').textContent = parseFloat(this.value).toFixed(1)">
+                </div>`;
+            }).join('');
+
+            // Pre-fill from existing data
+            loadExistingSkills();
+
+            document.getElementById('skillModal').classList.add('active');
+        }
+
+        async function loadExistingSkills() {
+            try {
+                const res = await fetch('/api/auth/dashboard', { headers: authHeaders() });
+                if (!res.ok) return;
+                const data = await res.json();
+                const skillMap = {};
+                data.skills.forEach(s => { skillMap[s.skill_name] = s.skill_level; });
+
+                PLC_SKILLS.forEach((skill, i) => {
+                    const val = skillMap[skill] || 0;
+                    const slider = document.getElementById('ss' + i);
+                    const display = document.getElementById('sv' + i);
+                    if (slider) { slider.value = val; }
+                    if (display) { display.textContent = val.toFixed(1); }
+                });
+            } catch (e) {}
+        }
+
+        function closeSkillModal() {
+            document.getElementById('skillModal').classList.remove('active');
+        }
+
+        async function saveSkills() {
+            const sliders = document.querySelectorAll('.skill-slider');
+            const skills = [];
+            sliders.forEach(s => {
+                skills.push({ skill_name: s.dataset.skill, skill_level: parseFloat(s.value) });
+            });
+
+            try {
+                const res = await fetch('/api/auth/skills', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ skills }),
+                });
+                if (res.status === 401) { logout(); return; }
+                const data = await res.json();
+                closeSkillModal();
+            } catch (e) {
+                console.error('Save skills error:', e);
+            }
+        }
+
+        // ===========================================
+        // Init on page load
+        // ===========================================
+        (function init() {
+            // Restore theme preference
+            initTheme();
+
+            // Check if we have a reset_token in URL (password reset link clicked)
+            const urlParams = new URLSearchParams(window.location.search);
+            const resetToken = urlParams.get('reset_token');
+
+            if (resetToken) {
+                document.getElementById('authScreen').style.display = 'flex';
+                showResetPassword();
+                return;
+            }
+
+            if (authToken && currentUser) {
+                showApp();
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+            }
+        })();
     </script>
 
 </body>

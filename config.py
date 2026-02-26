@@ -23,11 +23,23 @@ SYSTEM_PROMPT_PATH = BASE_DIR / "system_prompt.txt"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ===========================================
-# AI Settings
+# AI Settings (OpenRouter)
 # ===========================================
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-AI_MODEL = os.getenv("AI_MODEL", "claude-sonnet-4-5-20250929")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+AI_MODEL = os.getenv("AI_MODEL", "openrouter/free")
 MAX_TOKENS = 8000
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+# ===========================================
+# Database Settings
+# ===========================================
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'ladx.db'}")
+
+# ===========================================
+# JWT Authentication
+# ===========================================
+JWT_SECRET = os.getenv("JWT_SECRET", "ladx-dev-secret-change-in-production")
+JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 
 # ===========================================
 # Server Settings
@@ -41,6 +53,16 @@ PORT = int(os.getenv("PORT", "8000"))
 TIA_BRIDGE_URL = os.getenv("TIA_BRIDGE_URL", "http://localhost:5050")
 
 # ===========================================
+# Email / SMTP (Namecheap Private Email)
+# ===========================================
+SMTP_HOST = os.getenv("SMTP_HOST", "mail.privateemail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+SMTP_USER = os.getenv("SMTP_USER", "hello@ladx.ai")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "hello@ladx.ai")
+APP_URL = os.getenv("APP_URL", "http://localhost:8000")
+
+# ===========================================
 # Load System Prompt
 # ===========================================
 def get_system_prompt() -> str:
@@ -51,7 +73,7 @@ def get_system_prompt() -> str:
 
 
 # ===========================================
-# Platform Definitions
+# Platform Definitions (Siemens Only)
 # ===========================================
 PLATFORMS = {
     "siemens": {
@@ -60,16 +82,39 @@ PLATFORMS = {
         "file_ext": ".scl",
         "description": "Siemens S7-1200/1500 with TIA Portal"
     },
-    "allen_bradley": {
-        "name": "Allen-Bradley Studio 5000",
-        "language": "Structured Text",
-        "file_ext": ".st",
-        "description": "Rockwell ControlLogix/CompactLogix"
-    },
-    "codesys": {
-        "name": "CODESYS",
-        "language": "Structured Text (IEC 61131-3)",
-        "file_ext": ".st",
-        "description": "CODESYS V3 compatible PLCs"
-    }
 }
+
+# Siemens hardware options
+SIEMENS_CPU_MODELS = {
+    "S7-1200": {
+        "name": "SIMATIC S7-1200",
+        "variants": ["CPU 1211C", "CPU 1212C", "CPU 1214C", "CPU 1215C", "CPU 1217C"],
+        "description": "Compact controller for simple to medium automation tasks",
+    },
+    "S7-1500": {
+        "name": "SIMATIC S7-1500",
+        "variants": ["CPU 1511-1", "CPU 1513-1", "CPU 1515-2", "CPU 1516-3 PN/DP", "CPU 1517-3", "CPU 1518-4"],
+        "description": "High-performance controller for demanding automation",
+    },
+    "S7-1500F": {
+        "name": "SIMATIC S7-1500F (Fail-safe)",
+        "variants": ["CPU 1511F-1", "CPU 1513F-1", "CPU 1515F-2", "CPU 1516F-3 PN/DP", "CPU 1518F-4"],
+        "description": "Fail-safe controller for safety-critical applications",
+    },
+}
+
+TIA_PORTAL_VERSIONS = ["V17", "V18", "V19", "V20"]
+
+NETWORK_TYPES = ["PROFINET", "PROFIBUS", "MPI", "Ethernet/IP"]
+
+IO_MODULE_TYPES = [
+    "DI 16x24VDC",
+    "DI 32x24VDC",
+    "DQ 16x24VDC/0.5A",
+    "DQ 32x24VDC/0.5A",
+    "AI 8xU/I/RTD/TC",
+    "AI 4xU/I/RTD/TC",
+    "AQ 4xU/I",
+    "AQ 2xU/I",
+    "DI/DQ 16x24VDC Combo",
+]

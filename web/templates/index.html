@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LADX - Your AI Partner for PLC Programming</title>
+    <link rel="icon" type="image/svg+xml" href="/static/ladx-logo.svg">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-tertiary: #242734;
+            --text-primary: #e4e6ef;
+            --text-secondary: #9ca0b0;
+            --accent: #4f8ff7;
+            --accent-hover: #3a7ae8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --border: #2d3044;
+            --code-bg: #1e2030;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .logo-text-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #ffffff;
+        }
+
+        .logo-subtitle {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: var(--text-secondary);
+            margin-top: -1px;
+        }
+
+        .welcome-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .header-right { display: flex; gap: 8px; }
+
+        .header-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin: 8px 0 4px 0;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .quick-action:hover {
+            border-color: var(--accent);
+            background: rgba(79, 143, 247, 0.08);
+        }
+
+        .quick-action .icon { font-size: 18px; }
+
+        .platform-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .platform-select option { background: var(--bg-secondary); }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-assistant {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-assistant pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .message-assistant code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+        }
+
+        .message-system {
+            align-self: center;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: var(--warning);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .typing-indicator.active { display: flex; gap: 4px; align-items: center; }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            min-height: 48px;
+            max-height: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus { border-color: var(--accent); }
+
+        .input-field::placeholder { color: var(--text-secondary); }
+
+        .send-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .send-btn:hover { background: var(--accent-hover); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Welcome Screen */
+        .welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: var(--text-secondary);
+        }
+
+        .welcome h2 {
+            color: var(--text-primary);
+            font-size: 22px;
+        }
+
+        .welcome p { font-size: 14px; max-width: 500px; text-align: center; }
+
+        .example-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-width: 600px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .example-prompt {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-prompt:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* File saved notification */
+        .file-saved {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: var(--success);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .message { max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="bgGrad" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#0a0e1a"/>
+                            <stop offset="100%" stop-color="#111827"/>
+                        </linearGradient>
+                        <linearGradient id="circuitGrad" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="50%" stop-color="#3b82f6"/>
+                            <stop offset="100%" stop-color="#06b6d4"/>
+                        </linearGradient>
+                        <linearGradient id="glowGrad" x1="60" y1="60" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#818cf8" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Dark circle background -->
+                    <circle cx="100" cy="100" r="96" fill="url(#bgGrad)"/>
+                    <circle cx="100" cy="100" r="95" stroke="#1e293b" stroke-width="2" fill="none"/>
+                    <!-- Outer ring -->
+                    <circle cx="100" cy="100" r="90" stroke="url(#circuitGrad)" stroke-width="1.5" fill="none" opacity="0.5"/>
+                    <!-- Inner glow -->
+                    <circle cx="100" cy="100" r="70" fill="url(#glowGrad)"/>
+                    <!-- Circuit board traces -->
+                    <g stroke="url(#circuitGrad)" stroke-width="1.2" opacity="0.4">
+                        <!-- Horizontal traces -->
+                        <line x1="20" y1="55" x2="55" y2="55"/>
+                        <line x1="145" y1="55" x2="180" y2="55"/>
+                        <line x1="20" y1="145" x2="55" y2="145"/>
+                        <line x1="145" y1="145" x2="180" y2="145"/>
+                        <!-- Vertical traces -->
+                        <line x1="55" y1="20" x2="55" y2="55"/>
+                        <line x1="145" y1="20" x2="145" y2="55"/>
+                        <line x1="55" y1="145" x2="55" y2="180"/>
+                        <line x1="145" y1="145" x2="145" y2="180"/>
+                        <!-- Diagonal traces -->
+                        <line x1="35" y1="35" x2="55" y2="55"/>
+                        <line x1="165" y1="35" x2="145" y2="55"/>
+                        <line x1="35" y1="165" x2="55" y2="145"/>
+                        <line x1="165" y1="165" x2="145" y2="145"/>
+                    </g>
+                    <!-- Circuit nodes -->
+                    <g fill="url(#circuitGrad)" opacity="0.6">
+                        <circle cx="55" cy="55" r="3"/>
+                        <circle cx="145" cy="55" r="3"/>
+                        <circle cx="55" cy="145" r="3"/>
+                        <circle cx="145" cy="145" r="3"/>
+                        <circle cx="100" cy="35" r="2"/>
+                        <circle cx="100" cy="165" r="2"/>
+                        <circle cx="35" cy="100" r="2"/>
+                        <circle cx="165" cy="100" r="2"/>
+                    </g>
+                    <!-- Glowing center nodes -->
+                    <circle cx="55" cy="55" r="1.5" fill="#818cf8" opacity="0.8"/>
+                    <circle cx="145" cy="55" r="1.5" fill="#3b82f6" opacity="0.8"/>
+                    <circle cx="55" cy="145" r="1.5" fill="#3b82f6" opacity="0.8"/>
+                    <circle cx="145" cy="145" r="1.5" fill="#06b6d4" opacity="0.8"/>
+                    <!-- LADX text -->
+                    <text x="100" y="108" text-anchor="middle" fill="white" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="42" font-weight="800" letter-spacing="6">LADX</text>
+                    <!-- BUILT FOR PLC subtitle -->
+                    <text x="100" y="130" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" letter-spacing="4">BUILT FOR PLC</text>
+                </svg>
+                <div class="logo-text-group">
+                    <div class="logo-text">LADX</div>
+                    <div class="logo-subtitle">Built for PLC</div>
+                </div>
+            </div>
+            <div class="status-badge">Online</div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" onclick="exportChat()">Export Chat</button>
+            <button class="header-btn" onclick="resetChat()">New Chat</button>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-title">Platform</div>
+            <select class="platform-select" id="platformSelect">
+                <option value="siemens">Siemens TIA Portal (SCL)</option>
+                <option value="allen_bradley">Allen-Bradley (Studio 5000)</option>
+                <option value="codesys">CODESYS (IEC 61131-3)</option>
+            </select>
+
+            <div class="sidebar-title">Quick Actions</div>
+
+            <div class="quick-action" onclick="quickAction('generate')">
+                <span class="icon">⚡</span>
+                <span>Generate Code</span>
+            </div>
+            <div class="quick-action" onclick="quickAction('troubleshoot')">
+                <span class="icon">🔍</span>
+                <span>Troubleshoot Fault</span>
+            </div>
+            <div class="quick-action" onclick="quickAction('convert')">
+                <span class="icon">🔄</span>
+                <span>Convert Code</span>
+            </div>
+            <div class="quick-action" onclick="quickAction('explain')">
+                <span class="icon">📖</span>
+                <span>Explain Code</span>
+            </div>
+            <div class="quick-action" onclick="quickAction('taglist')">
+                <span class="icon">📋</span>
+                <span>Generate Tag List</span>
+            </div>
+            <div class="quick-action" onclick="quickAction('document')">
+                <span class="icon">📄</span>
+                <span>Document Project</span>
+            </div>
+
+            <div class="sidebar-title">TIA Portal Bridge</div>
+            <div class="quick-action" onclick="checkBridge()" id="bridgeStatus">
+                <span class="icon">🔌</span>
+                <span>Check Connection</span>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome screen -->
+                <div class="welcome" id="welcomeScreen">
+                    <svg class="welcome-logo" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bgGrad2" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#0a0e1a"/>
+                                <stop offset="100%" stop-color="#111827"/>
+                            </linearGradient>
+                            <linearGradient id="circuitGrad2" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="50%" stop-color="#3b82f6"/>
+                                <stop offset="100%" stop-color="#06b6d4"/>
+                            </linearGradient>
+                            <linearGradient id="glowGrad2" x1="60" y1="60" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#818cf8" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="96" fill="url(#bgGrad2)"/>
+                        <circle cx="100" cy="100" r="95" stroke="#1e293b" stroke-width="2" fill="none"/>
+                        <circle cx="100" cy="100" r="90" stroke="url(#circuitGrad2)" stroke-width="1.5" fill="none" opacity="0.5"/>
+                        <circle cx="100" cy="100" r="70" fill="url(#glowGrad2)"/>
+                        <g stroke="url(#circuitGrad2)" stroke-width="1.2" opacity="0.4">
+                            <line x1="20" y1="55" x2="55" y2="55"/><line x1="145" y1="55" x2="180" y2="55"/>
+                            <line x1="20" y1="145" x2="55" y2="145"/><line x1="145" y1="145" x2="180" y2="145"/>
+                            <line x1="55" y1="20" x2="55" y2="55"/><line x1="145" y1="20" x2="145" y2="55"/>
+                            <line x1="55" y1="145" x2="55" y2="180"/><line x1="145" y1="145" x2="145" y2="180"/>
+                            <line x1="35" y1="35" x2="55" y2="55"/><line x1="165" y1="35" x2="145" y2="55"/>
+                            <line x1="35" y1="165" x2="55" y2="145"/><line x1="165" y1="165" x2="145" y2="145"/>
+                        </g>
+                        <g fill="url(#circuitGrad2)" opacity="0.6">
+                            <circle cx="55" cy="55" r="3"/><circle cx="145" cy="55" r="3"/>
+                            <circle cx="55" cy="145" r="3"/><circle cx="145" cy="145" r="3"/>
+                            <circle cx="100" cy="35" r="2"/><circle cx="100" cy="165" r="2"/>
+                            <circle cx="35" cy="100" r="2"/><circle cx="165" cy="100" r="2"/>
+                        </g>
+                        <circle cx="55" cy="55" r="1.5" fill="#818cf8" opacity="0.8"/>
+                        <circle cx="145" cy="55" r="1.5" fill="#3b82f6" opacity="0.8"/>
+                        <circle cx="55" cy="145" r="1.5" fill="#3b82f6" opacity="0.8"/>
+                        <circle cx="145" cy="145" r="1.5" fill="#06b6d4" opacity="0.8"/>
+                        <text x="100" y="108" text-anchor="middle" fill="white" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="42" font-weight="800" letter-spacing="6">LADX</text>
+                        <text x="100" y="130" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" letter-spacing="4">BUILT FOR PLC</text>
+                    </svg>
+                    <h2>LADX</h2>
+                    <p>Your AI partner for PLC programming — Siemens TIA Portal, Allen-Bradley Studio 5000, and CODESYS.</p>
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="useExample(this)">
+                            Create a motor starter FB with overload protection
+                        </div>
+                        <div class="example-prompt" onclick="useExample(this)">
+                            S7-1500 showing 'Module not accessible' error
+                        </div>
+                        <div class="example-prompt" onclick="useExample(this)">
+                            Convert this Siemens SCL to Allen-Bradley ST
+                        </div>
+                        <div class="example-prompt" onclick="useExample(this)">
+                            Generate a PID control loop for tank level
+                        </div>
+                        <div class="example-prompt" onclick="useExample(this)">
+                            Create a 3-step batch sequence with ISA-88
+                        </div>
+                        <div class="example-prompt" onclick="useExample(this)">
+                            Generate tag list for a packaging line
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <span style="margin-left: 8px; font-size: 13px; color: var(--text-secondary);">
+                    LADX is thinking...
+                </span>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea
+                        class="input-field"
+                        id="userInput"
+                        placeholder="Describe what you need... (Shift+Enter for new line)"
+                        rows="1"
+                        onkeydown="handleKeydown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const platformSelect = document.getElementById('platformSelect');
+
+        let isWaiting = false;
+
+        function handleKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+        }
+
+        function addMessage(text, role) {
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+            const msg = document.createElement('div');
+            msg.className = `message message-${role}`;
+
+            if (role === 'assistant') {
+                // Format code blocks
+                text = text.replace(/```(\w*)\n?([\s\S]*?)```/g,
+                    '<pre><code>$2</code></pre>');
+                // Format inline code
+                text = text.replace(/`([^`]+)`/g,
+                    '<code style="background:var(--code-bg);padding:2px 6px;border-radius:3px;">$1</code>');
+                // Format bold
+                text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                msg.innerHTML = text;
+            } else {
+                msg.textContent = text;
+            }
+
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text || isWaiting) return;
+
+            const platform = platformSelect.value;
+
+            addMessage(text, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            isWaiting = true;
+            sendBtn.disabled = true;
+            typingIndicator.classList.add('active');
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        platform: platform
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addMessage(`Error: ${data.error}`, 'system');
+                } else {
+                    addMessage(data.response, 'assistant');
+
+                    if (data.files_saved && data.files_saved.length > 0) {
+                        const fileMsg = data.files_saved
+                            .map(f => `📁 Saved: ${f}`)
+                            .join('\n');
+                        addMessage(fileMsg, 'system');
+                    }
+                }
+            } catch (error) {
+                addMessage(`Connection error: ${error.message}`, 'system');
+            }
+
+            isWaiting = false;
+            sendBtn.disabled = false;
+            typingIndicator.classList.remove('active');
+        }
+
+        function useExample(el) {
+            userInput.value = el.textContent.trim();
+            userInput.focus();
+        }
+
+        function quickAction(action) {
+            const prompts = {
+                generate: 'Generate a Function Block for: [describe your requirements]',
+                troubleshoot: 'I have this PLC error: [describe the problem, error code, LED status]',
+                convert: 'Convert this code from Siemens SCL to Allen-Bradley ST:\n\n[paste your code here]',
+                explain: 'Explain what this PLC code does:\n\n[paste your code here]',
+                taglist: 'Generate a tag list for: [describe your system]',
+                document: 'Document this PLC project: [describe the system or paste code]'
+            };
+            userInput.value = prompts[action] || '';
+            userInput.focus();
+            autoResize(userInput);
+        }
+
+        async function checkBridge() {
+            const btn = document.getElementById('bridgeStatus');
+            btn.querySelector('span:last-child').textContent = 'Checking...';
+
+            try {
+                const response = await fetch('/api/bridge-status');
+                const data = await response.json();
+
+                if (data.connected) {
+                    btn.querySelector('.icon').textContent = '✅';
+                    btn.querySelector('span:last-child').textContent = 'TIA Portal Connected';
+                } else {
+                    btn.querySelector('.icon').textContent = '❌';
+                    btn.querySelector('span:last-child').textContent = 'Bridge Not Found';
+                }
+            } catch {
+                btn.querySelector('.icon').textContent = '❌';
+                btn.querySelector('span:last-child').textContent = 'Bridge Offline';
+            }
+        }
+
+        function resetChat() {
+            fetch('/api/reset', { method: 'POST' });
+            chatMessages.innerHTML = '';
+            if (welcomeScreen) {
+                chatMessages.appendChild(welcomeScreen);
+                welcomeScreen.style.display = 'flex';
+            }
+        }
+
+        function exportChat() {
+            const messages = chatMessages.querySelectorAll('.message');
+            let text = 'LADX - Chat Export\n';
+            text += '='.repeat(50) + '\n\n';
+
+            messages.forEach(msg => {
+                if (msg.classList.contains('message-user')) {
+                    text += 'USER:\n' + msg.textContent + '\n\n';
+                } else if (msg.classList.contains('message-assistant')) {
+                    text += 'LADX:\n' + msg.textContent + '\n\n';
+                }
+                text += '-'.repeat(50) + '\n\n';
+            });
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ladx_chat_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
+        // Focus input on load
+        userInput.focus();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Environment
+venv/
+.env
+
+# Knowledge base
+chroma_db/
+knowledge/
+
+# Output
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

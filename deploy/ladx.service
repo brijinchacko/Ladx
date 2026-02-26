@@ -1,0 +1,24 @@
+[Unit]
+Description=LADX PLC AI Agent
+After=network.target
+
+[Service]
+Type=simple
+User=ladx
+Group=ladx
+WorkingDirectory=/opt/ladx/app
+EnvironmentFile=/opt/ladx/app/.env
+ExecStart=/opt/ladx/app/venv/bin/uvicorn web_app:app --host 127.0.0.1 --port 8000 --workers 2
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/ladx/app/uploads /opt/ladx/app/generated_docs /opt/ladx/app/output /opt/ladx/app/knowledge /opt/ladx/app/chroma_db /opt/ladx/app
+
+[Install]
+WantedBy=multi-user.target

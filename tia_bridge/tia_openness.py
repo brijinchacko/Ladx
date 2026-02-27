@@ -101,7 +101,48 @@ class TIAHandler:
         """Initialize pythonnet and load Siemens.Engineering.dll."""
         try:
             import clr
+            import sys as _sys
+            from pathlib import Path as _Path
+
+            # The DLL directory contains contract/dependency DLLs that must
+            # be discoverable. Add the PublicAPI folder to the assembly search path.
+            dll_dir = str(_Path(self.dll_path).parent)
+            if dll_dir not in _sys.path:
+                _sys.path.append(dll_dir)
+
+            # Also add the Siemens assemblies directory to .NET resolver
+            # so it can find Siemens.Engineering.Contract.dll and others
+            try:
+                from System import Environment
+                from System.Reflection import Assembly
+                from System import AppDomain
+                import System
+
+                # Add the DLL directory to .NET assembly resolution
+                def resolve_handler(sender, args):
+                    """Resolve missing assemblies from the TIA PublicAPI folder."""
+                    assembly_name = args.Name.split(',')[0]
+                    dll_file = _Path(dll_dir) / f"{assembly_name}.dll"
+                    if dll_file.exists():
+                        return Assembly.LoadFrom(str(dll_file))
+                    return None
+
+                AppDomain.CurrentDomain.AssemblyResolve += resolve_handler
+                self._log(f"Added assembly resolver for: {dll_dir}")
+            except Exception as resolver_err:
+                self._log(f"Warning: Could not set up assembly resolver: {resolver_err}")
+
+            # Now load the main DLL
             clr.AddReference(self.dll_path)
+
+            # Also try to load the contract DLL explicitly if it exists
+            contract_dll = _Path(dll_dir) / "Siemens.Engineering.Contract.dll"
+            if contract_dll.exists():
+                try:
+                    clr.AddReference(str(contract_dll))
+                    self._log(f"Loaded contract DLL: {contract_dll}")
+                except Exception:
+                    pass
 
             # Import Siemens.Engineering namespaces
             # These become available after AddReference

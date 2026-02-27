@@ -97,6 +97,46 @@ class TIAHandler:
         if len(self._log_lines) > 500:
             self._log_lines = self._log_lines[-500:]
 
+    def _find_assembly_dirs(self):
+        """
+        Find all directories that may contain Siemens .NET assemblies.
+        TIA Portal V19 scatters DLLs across multiple directories.
+        The Contract DLL is often in the Bin folder, not the PublicAPI folder.
+        """
+        from pathlib import Path as _Path
+
+        dirs = set()
+        dll_dir = _Path(self.dll_path).parent
+        dirs.add(str(dll_dir))
+
+        # Common locations for Siemens.Engineering.Contract.dll and other deps
+        tia_base = _Path(r"C:\Program Files\Siemens\Automation\Portal V19")
+
+        search_paths = [
+            dll_dir,
+            dll_dir.parent,  # PublicAPI root
+            tia_base / "Bin",
+            tia_base / "Bin" / "Siemens.Engineering",
+            tia_base / "Bin" / "PublicAPI",
+            tia_base / "PublicAPI" / "V19",
+            tia_base / "Hsp" / "Bin",
+        ]
+
+        for p in search_paths:
+            if p.exists() and p.is_dir():
+                dirs.add(str(p))
+
+        # Also do a broader search: find all Siemens.Engineering.Contract.dll
+        # under the TIA Portal installation
+        try:
+            for contract in tia_base.rglob("Siemens.Engineering.Contract.dll"):
+                dirs.add(str(contract.parent))
+                self._log(f"Found contract DLL at: {contract}")
+        except Exception:
+            pass
+
+        return list(dirs)
+
     def _init_dotnet(self):
         """Initialize pythonnet and load Siemens.Engineering.dll."""
         try:
@@ -104,45 +144,60 @@ class TIAHandler:
             import sys as _sys
             from pathlib import Path as _Path
 
-            # The DLL directory contains contract/dependency DLLs that must
-            # be discoverable. Add the PublicAPI folder to the assembly search path.
-            dll_dir = str(_Path(self.dll_path).parent)
-            if dll_dir not in _sys.path:
-                _sys.path.append(dll_dir)
+            # Discover all directories containing Siemens assemblies
+            assembly_dirs = self._find_assembly_dirs()
+            self._log(f"Assembly search directories: {assembly_dirs}")
 
-            # Also add the Siemens assemblies directory to .NET resolver
-            # so it can find Siemens.Engineering.Contract.dll and others
+            # Add all assembly dirs to Python path (helps pythonnet find DLLs)
+            for d in assembly_dirs:
+                if d not in _sys.path:
+                    _sys.path.append(d)
+
+            # Set up .NET assembly resolver BEFORE loading any DLLs.
+            # This is critical — pythonnet needs to resolve dependent assemblies
+            # (like Siemens.Engineering.Contract) when loading types.
             try:
-                from System import Environment
                 from System.Reflection import Assembly
                 from System import AppDomain
-                import System
 
-                # Add the DLL directory to .NET assembly resolution
                 def resolve_handler(sender, args):
-                    """Resolve missing assemblies from the TIA PublicAPI folder."""
+                    """Resolve missing assemblies from known TIA Portal directories."""
                     assembly_name = args.Name.split(',')[0]
-                    dll_file = _Path(dll_dir) / f"{assembly_name}.dll"
-                    if dll_file.exists():
-                        return Assembly.LoadFrom(str(dll_file))
+                    for search_dir in assembly_dirs:
+                        dll_file = _Path(search_dir) / f"{assembly_name}.dll"
+                        if dll_file.exists():
+                            try:
+                                loaded = Assembly.LoadFrom(str(dll_file))
+                                return loaded
+                            except Exception:
+                                continue
                     return None
 
                 AppDomain.CurrentDomain.AssemblyResolve += resolve_handler
-                self._log(f"Added assembly resolver for: {dll_dir}")
+                self._log("Assembly resolver registered for all TIA directories")
             except Exception as resolver_err:
                 self._log(f"Warning: Could not set up assembly resolver: {resolver_err}")
 
-            # Now load the main DLL
-            clr.AddReference(self.dll_path)
+            # Pre-load contract and dependency DLLs BEFORE the main DLL
+            # This ensures they're already in the AppDomain when needed
+            preload_assemblies = [
+                "Siemens.Engineering.Contract",
+                "Siemens.Engineering.Hmi",
+            ]
+            for asm_name in preload_assemblies:
+                for search_dir in assembly_dirs:
+                    asm_path = _Path(search_dir) / f"{asm_name}.dll"
+                    if asm_path.exists():
+                        try:
+                            clr.AddReference(str(asm_path))
+                            self._log(f"Pre-loaded: {asm_path}")
+                        except Exception as e:
+                            self._log(f"Note: Could not pre-load {asm_name}: {e}")
+                        break
 
-            # Also try to load the contract DLL explicitly if it exists
-            contract_dll = _Path(dll_dir) / "Siemens.Engineering.Contract.dll"
-            if contract_dll.exists():
-                try:
-                    clr.AddReference(str(contract_dll))
-                    self._log(f"Loaded contract DLL: {contract_dll}")
-                except Exception:
-                    pass
+            # Now load the main Siemens.Engineering.dll
+            clr.AddReference(self.dll_path)
+            self._log(f"Loaded main DLL: {self.dll_path}")
 
             # Import Siemens.Engineering namespaces
             # These become available after AddReference
@@ -159,7 +214,7 @@ class TIAHandler:
             from Siemens.Engineering.Compiler import CompilerResult
 
             self._initialized = True
-            self._log(f"Siemens.Engineering.dll loaded from: {self.dll_path}")
+            self._log(f"SUCCESS: All Siemens.Engineering types loaded!")
 
         except ImportError as e:
             self._log(f"ERROR: pythonnet not installed. Run: pip install pythonnet")
@@ -169,7 +224,10 @@ class TIAHandler:
         except Exception as e:
             self._log(f"ERROR: Failed to load Siemens.Engineering.dll: {e}")
             self._log(f"DLL path: {self.dll_path}")
+            self._log(f"Traceback: {traceback.format_exc()}")
             self._log(f"Make sure TIA Portal V19 is installed and the DLL exists.")
+            self._log(f"Tip: Run this on Windows to find contract DLL location:")
+            self._log(f'  dir /s "C:\\Program Files\\Siemens\\Automation\\Portal V19\\Siemens.Engineering.Contract.dll"')
             self._initialized = False
 
     def get_status(self) -> dict:

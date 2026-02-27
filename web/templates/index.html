@@ -1741,6 +1741,216 @@
         }
         .gen-doc-download:hover { background: var(--accent-hover); }
 
+        /* ========== TIA PORTAL PANEL ========== */
+        .tia-panel {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .tia-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .tia-panel-header h2 {
+            font-size: 22px;
+            color: var(--text-primary);
+        }
+        .tia-connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-tertiary);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .tia-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+        .tia-status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+        .tia-status-dot.disconnected {
+            background: var(--danger);
+        }
+        .tia-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .tia-section h3 {
+            font-size: 15px;
+            color: var(--accent);
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+        .tia-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .tia-form-row {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .tia-form-group {
+            flex: 1;
+        }
+        .tia-form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .tia-input, .tia-select {
+            width: 100%;
+            padding: 9px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        .tia-input:focus, .tia-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .tia-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tia-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .tia-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+        .tia-btn.primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+        .tia-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .tia-btn.secondary:hover:not(:disabled) {
+            background: var(--border);
+        }
+        .tia-btn.outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .tia-btn.outline:hover:not(:disabled) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .tia-btn.success {
+            background: #059669;
+            color: white;
+        }
+        .tia-btn.success:hover:not(:disabled) {
+            background: #047857;
+        }
+        .tia-info-box, .tia-result-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .tia-result-box.error {
+            border-color: var(--danger);
+            background: rgba(248, 113, 113, 0.08);
+        }
+        .tia-result-box.success-result {
+            border-color: var(--success);
+            background: rgba(52, 211, 153, 0.08);
+        }
+        .tia-block-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .tia-block-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .tia-block-item .block-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .tia-block-item .block-type {
+            color: var(--accent);
+            font-size: 11px;
+            padding: 2px 8px;
+            background: var(--accent-glow);
+            border-radius: 10px;
+        }
+        .tia-log-box {
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .tia-empty-msg {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: center;
+            padding: 16px;
+            opacity: 0.7;
+        }
+        .tia-loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: tia-spin 0.6s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes tia-spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* ========== LIGHT MODE ========== */
         body.light-mode {
             --bg-primary: #f5f5f7;
@@ -2153,6 +2363,7 @@
                 <div class="sidebar-nav">
                     <button class="sidebar-nav-btn active" id="navChat" onclick="switchView('chat')">Chat</button>
                     <button class="sidebar-nav-btn" id="navDashboard" onclick="switchView('dashboard')">Dashboard</button>
+                    <button class="sidebar-nav-btn" id="navTIA" onclick="switchView('tia')">TIA Portal</button>
                 </div>
                 <div class="sidebar-header">
                     <button class="new-chat-btn" onclick="openNewProjectModal()">+ New Project</button>
@@ -2288,6 +2499,115 @@
             <!-- ========== SETTINGS VIEW ========== -->
             <div class="dashboard-container" id="settingsContainer">
                 <div id="settingsContent"></div>
+            </div>
+
+            <!-- ========== TIA PORTAL VIEW ========== -->
+            <div class="dashboard-container" id="tiaContainer">
+                <div class="tia-panel">
+                    <div class="tia-panel-header">
+                        <h2>TIA Portal Control</h2>
+                        <div class="tia-connection-status" id="tiaStatusBadge">
+                            <span class="tia-status-dot disconnected"></span>
+                            <span id="tiaStatusText">Disconnected</span>
+                        </div>
+                    </div>
+
+                    <!-- Connection Section -->
+                    <div class="tia-section">
+                        <h3>Connection</h3>
+                        <div class="tia-row">
+                            <button class="tia-btn primary" onclick="tiaConnect()" id="tiaConnectBtn">Connect to TIA Portal</button>
+                            <button class="tia-btn secondary" onclick="tiaDisconnect()" id="tiaDisconnectBtn" disabled>Disconnect</button>
+                            <button class="tia-btn outline" onclick="tiaRefreshStatus()">Refresh Status</button>
+                        </div>
+                        <div class="tia-info-box" id="tiaConnectionInfo" style="display:none;">
+                            <div id="tiaConnectionDetails"></div>
+                        </div>
+                    </div>
+
+                    <!-- Project Section -->
+                    <div class="tia-section">
+                        <h3>Project</h3>
+                        <div class="tia-form-row">
+                            <div class="tia-form-group">
+                                <label>Project Name</label>
+                                <input type="text" class="tia-input" id="tiaProjectName" placeholder="e.g. MotorControl_V1">
+                            </div>
+                            <div class="tia-form-group">
+                                <label>CPU Model</label>
+                                <select class="tia-select" id="tiaCPUModel">
+                                    <optgroup label="S7-1200">
+                                        <option value="CPU 1211C DC/DC/DC">CPU 1211C DC/DC/DC</option>
+                                        <option value="CPU 1212C DC/DC/DC">CPU 1212C DC/DC/DC</option>
+                                        <option value="CPU 1214C DC/DC/DC" selected>CPU 1214C DC/DC/DC</option>
+                                        <option value="CPU 1215C DC/DC/DC">CPU 1215C DC/DC/DC</option>
+                                        <option value="CPU 1217C DC/DC/DC">CPU 1217C DC/DC/DC</option>
+                                    </optgroup>
+                                    <optgroup label="S7-1500">
+                                        <option value="CPU 1511-1 PN">CPU 1511-1 PN</option>
+                                        <option value="CPU 1513-1 PN">CPU 1513-1 PN</option>
+                                        <option value="CPU 1515-2 PN">CPU 1515-2 PN</option>
+                                        <option value="CPU 1516-3 PN/DP">CPU 1516-3 PN/DP</option>
+                                        <option value="CPU 1518-4 PN/DP">CPU 1518-4 PN/DP</option>
+                                    </optgroup>
+                                    <optgroup label="S7-1500F (Failsafe)">
+                                        <option value="CPU 1511F-1 PN">CPU 1511F-1 PN</option>
+                                        <option value="CPU 1513F-1 PN">CPU 1513F-1 PN</option>
+                                        <option value="CPU 1515F-2 PN">CPU 1515F-2 PN</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tia-row">
+                            <button class="tia-btn primary" onclick="tiaCreateProject()">Create Project</button>
+                            <button class="tia-btn outline" onclick="tiaGetProjectInfo()">Project Info</button>
+                        </div>
+                        <div class="tia-info-box" id="tiaProjectInfo" style="display:none;">
+                            <div id="tiaProjectDetails"></div>
+                        </div>
+                    </div>
+
+                    <!-- Program Blocks Section -->
+                    <div class="tia-section">
+                        <h3>Program Blocks</h3>
+                        <div class="tia-row">
+                            <button class="tia-btn outline" onclick="tiaListBlocks()">Refresh Blocks</button>
+                        </div>
+                        <div class="tia-block-list" id="tiaBlockList">
+                            <div class="tia-empty-msg">No blocks loaded. Open or create a project first.</div>
+                        </div>
+                    </div>
+
+                    <!-- Compile & Download Section -->
+                    <div class="tia-section">
+                        <h3>Build & Deploy</h3>
+                        <div class="tia-form-row">
+                            <div class="tia-form-group">
+                                <label>PLC IP Address</label>
+                                <input type="text" class="tia-input" id="tiaPlcIP" placeholder="192.168.0.1" value="192.168.0.1">
+                            </div>
+                        </div>
+                        <div class="tia-row">
+                            <button class="tia-btn success" onclick="tiaCompile()">Compile</button>
+                            <button class="tia-btn primary" onclick="tiaDownload()">Download to PLC</button>
+                            <button class="tia-btn outline" onclick="tiaGoOnline()">Go Online</button>
+                        </div>
+                        <div class="tia-result-box" id="tiaCompileResults" style="display:none;">
+                            <div id="tiaCompileDetails"></div>
+                        </div>
+                    </div>
+
+                    <!-- Log Section -->
+                    <div class="tia-section">
+                        <h3>Bridge Log</h3>
+                        <div class="tia-row">
+                            <button class="tia-btn outline" onclick="tiaGetLogs()">Refresh Logs</button>
+                        </div>
+                        <div class="tia-log-box" id="tiaLogBox">
+                            <div class="tia-empty-msg">No logs available.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -3209,16 +3529,20 @@
             const dashEl = document.getElementById('dashboardContainer');
             const profileEl = document.getElementById('profileContainer');
             const settingsEl = document.getElementById('settingsContainer');
+            const tiaEl = document.getElementById('tiaContainer');
             const navChat = document.getElementById('navChat');
             const navDash = document.getElementById('navDashboard');
+            const navTIA = document.getElementById('navTIA');
 
             // Hide all views
             chatEl.style.display = 'none';
             dashEl.classList.remove('active');
             profileEl.classList.remove('active');
             settingsEl.classList.remove('active');
+            tiaEl.classList.remove('active');
             navChat.classList.remove('active');
             navDash.classList.remove('active');
+            navTIA.classList.remove('active');
 
             if (view === 'dashboard') {
                 dashEl.classList.add('active');
@@ -3230,6 +3554,10 @@
             } else if (view === 'settings') {
                 settingsEl.classList.add('active');
                 loadSettingsPage();
+            } else if (view === 'tia') {
+                tiaEl.classList.add('active');
+                navTIA.classList.add('active');
+                tiaRefreshStatus();
             } else {
                 chatEl.style.display = 'flex';
                 navChat.classList.add('active');
@@ -4082,6 +4410,287 @@
                 closeSkillModal();
             } catch (e) {
                 console.error('Save skills error:', e);
+            }
+        }
+
+        // ===========================================
+        // TIA Portal Panel Functions
+        // ===========================================
+
+        async function tiaRefreshStatus() {
+            try {
+                const res = await fetch('/api/tia/status');
+                const data = await res.json();
+                const dot = document.querySelector('.tia-status-dot');
+                const text = document.getElementById('tiaStatusText');
+                const connectBtn = document.getElementById('tiaConnectBtn');
+                const disconnectBtn = document.getElementById('tiaDisconnectBtn');
+
+                if (data.tia_portal_connected) {
+                    dot.className = 'tia-status-dot connected';
+                    text.textContent = data.project_open ? `Connected — ${data.project_name || 'No project'}` : 'Connected — No project open';
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                } else if (data.dll_loaded || data.bridge === 'online') {
+                    dot.className = 'tia-status-dot disconnected';
+                    text.textContent = 'Bridge Online — TIA Not Connected';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                } else {
+                    dot.className = 'tia-status-dot disconnected';
+                    text.textContent = 'Bridge Offline';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                }
+
+                // Show connection details
+                const infoBox = document.getElementById('tiaConnectionInfo');
+                const details = document.getElementById('tiaConnectionDetails');
+                infoBox.style.display = 'block';
+                details.innerHTML = `
+                    <strong>Bridge:</strong> ${data.bridge || 'unknown'}<br>
+                    <strong>DLL Loaded:</strong> ${data.dll_loaded ? 'Yes' : 'No'}<br>
+                    <strong>TIA Connected:</strong> ${data.tia_portal_connected ? 'Yes' : 'No'}<br>
+                    <strong>Project Open:</strong> ${data.project_open ? 'Yes' : 'No'}
+                    ${data.project_name ? '<br><strong>Project:</strong> ' + data.project_name : ''}
+                `;
+            } catch (e) {
+                document.querySelector('.tia-status-dot').className = 'tia-status-dot disconnected';
+                document.getElementById('tiaStatusText').textContent = 'Bridge Unreachable';
+                const infoBox = document.getElementById('tiaConnectionInfo');
+                infoBox.style.display = 'block';
+                document.getElementById('tiaConnectionDetails').innerHTML =
+                    '<span style="color:var(--danger)">Cannot reach TIA Bridge server. Make sure tia_bridge_server.py is running on your Windows PC.</span>';
+            }
+        }
+
+        async function tiaConnect() {
+            const btn = document.getElementById('tiaConnectBtn');
+            btn.innerHTML = '<span class="tia-loading"></span>Connecting...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/tia/connect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({with_ui: true}),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await tiaRefreshStatus();
+                } else {
+                    alert('Connection failed: ' + (data.message || 'Unknown error'));
+                    btn.innerHTML = 'Connect to TIA Portal';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert('Connection error: ' + e.message);
+                btn.innerHTML = 'Connect to TIA Portal';
+                btn.disabled = false;
+            }
+        }
+
+        async function tiaDisconnect() {
+            if (!confirm('Disconnect from TIA Portal? Any unsaved changes will be saved.')) return;
+            try {
+                await fetch('/api/tia/disconnect', {method: 'POST'});
+                await tiaRefreshStatus();
+            } catch (e) {
+                alert('Disconnect error: ' + e.message);
+            }
+        }
+
+        async function tiaCreateProject() {
+            const name = document.getElementById('tiaProjectName').value.trim();
+            const cpu = document.getElementById('tiaCPUModel').value;
+            if (!name) { alert('Please enter a project name.'); return; }
+
+            const infoBox = document.getElementById('tiaProjectInfo');
+            const details = document.getElementById('tiaProjectDetails');
+            infoBox.style.display = 'block';
+            details.innerHTML = '<span class="tia-loading"></span>Creating project...';
+
+            try {
+                const res = await fetch('/api/tia/create-project', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, cpu_model: cpu}),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    details.innerHTML = `
+                        <span style="color:var(--success)">&#10003; Project created!</span><br>
+                        <strong>Name:</strong> ${data.project_name || name}<br>
+                        <strong>CPU:</strong> ${cpu}<br>
+                        ${data.project_path ? '<strong>Path:</strong> ' + data.project_path : ''}
+                    `;
+                    await tiaRefreshStatus();
+                } else {
+                    details.innerHTML = `<span style="color:var(--danger)">Failed: ${data.message}</span>`;
+                }
+            } catch (e) {
+                details.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function tiaGetProjectInfo() {
+            const infoBox = document.getElementById('tiaProjectInfo');
+            const details = document.getElementById('tiaProjectDetails');
+            infoBox.style.display = 'block';
+            details.innerHTML = '<span class="tia-loading"></span>Loading...';
+
+            try {
+                const res = await fetch('/api/tia/project-info');
+                const data = await res.json();
+                if (data.success) {
+                    let devicesHtml = '';
+                    if (data.devices && data.devices.length) {
+                        devicesHtml = '<br><strong>Devices:</strong><br>' +
+                            data.devices.map(d => `&nbsp;&nbsp;- ${d.name}`).join('<br>');
+                    }
+                    details.innerHTML = `
+                        <strong>Project:</strong> ${data.project_name}<br>
+                        <strong>Path:</strong> ${data.project_path}<br>
+                        <strong>Devices:</strong> ${data.device_count || 0}<br>
+                        <strong>Blocks:</strong> ${data.block_count || 0}
+                        ${devicesHtml}
+                    `;
+                } else {
+                    details.innerHTML = `<span style="color:var(--warning)">${data.message}</span>`;
+                }
+            } catch (e) {
+                details.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function tiaListBlocks() {
+            const listEl = document.getElementById('tiaBlockList');
+            listEl.innerHTML = '<div class="tia-empty-msg"><span class="tia-loading"></span>Loading blocks...</div>';
+
+            try {
+                const res = await fetch('/api/tia/list-blocks');
+                const data = await res.json();
+                if (data.success && data.blocks && data.blocks.length) {
+                    listEl.innerHTML = data.blocks.map(b => `
+                        <div class="tia-block-item">
+                            <span class="block-name">${b.name}</span>
+                            <span class="block-type">${b.type || 'Block'} ${b.programming_language ? '(' + b.programming_language + ')' : ''}</span>
+                        </div>
+                    `).join('');
+                } else if (data.success) {
+                    listEl.innerHTML = '<div class="tia-empty-msg">No program blocks in project.</div>';
+                } else {
+                    listEl.innerHTML = `<div class="tia-empty-msg" style="color:var(--warning)">${data.message}</div>`;
+                }
+            } catch (e) {
+                listEl.innerHTML = `<div class="tia-empty-msg" style="color:var(--danger)">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function tiaCompile() {
+            const box = document.getElementById('tiaCompileResults');
+            const details = document.getElementById('tiaCompileDetails');
+            box.style.display = 'block';
+            box.className = 'tia-result-box';
+            details.innerHTML = '<span class="tia-loading"></span>Compiling project... This may take a moment.';
+
+            try {
+                const res = await fetch('/api/tia/compile', {method: 'POST'});
+                const data = await res.json();
+                if (data.success) {
+                    box.className = 'tia-result-box success-result';
+                    let html = '<span style="color:var(--success)">&#10003; Compilation Successful!</span>';
+                    if (data.warning_count > 0) {
+                        html += `<br>Warnings: ${data.warning_count}`;
+                        (data.warnings || []).slice(0, 5).forEach(w => { html += `<br>&nbsp;&nbsp;- ${w}`; });
+                    }
+                    details.innerHTML = html;
+                } else {
+                    box.className = 'tia-result-box error';
+                    let html = `<span style="color:var(--danger)">&#10007; Compilation Failed</span>`;
+                    html += `<br>Errors: ${data.error_count || 'unknown'}`;
+                    (data.errors || []).slice(0, 10).forEach(e => { html += `<br>&nbsp;&nbsp;- ${e}`; });
+                    details.innerHTML = html;
+                }
+            } catch (e) {
+                box.className = 'tia-result-box error';
+                details.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function tiaDownload() {
+            const plcIp = document.getElementById('tiaPlcIP').value.trim();
+            if (!plcIp) { alert('Please enter the PLC IP address.'); return; }
+            if (!confirm(`Download program to PLC at ${plcIp}?`)) return;
+
+            const box = document.getElementById('tiaCompileResults');
+            const details = document.getElementById('tiaCompileDetails');
+            box.style.display = 'block';
+            box.className = 'tia-result-box';
+            details.innerHTML = `<span class="tia-loading"></span>Downloading to PLC at ${plcIp}...`;
+
+            try {
+                const res = await fetch('/api/tia/download', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({plc_ip: plcIp}),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.className = 'tia-result-box success-result';
+                    details.innerHTML = `<span style="color:var(--success)">&#10003; Download Successful!</span><br>PLC: ${plcIp}`;
+                } else {
+                    box.className = 'tia-result-box error';
+                    details.innerHTML = `<span style="color:var(--danger)">Download Failed: ${data.message}</span>`;
+                }
+            } catch (e) {
+                box.className = 'tia-result-box error';
+                details.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function tiaGoOnline() {
+            const plcIp = document.getElementById('tiaPlcIP').value.trim();
+            if (!plcIp) { alert('Please enter the PLC IP address.'); return; }
+
+            const box = document.getElementById('tiaCompileResults');
+            const details = document.getElementById('tiaCompileDetails');
+            box.style.display = 'block';
+            box.className = 'tia-result-box';
+            details.innerHTML = `<span class="tia-loading"></span>Going online with PLC at ${plcIp}...`;
+
+            try {
+                const res = await fetch('/api/tia/go-online', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({plc_ip: plcIp}),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    box.className = 'tia-result-box success-result';
+                    details.innerHTML = `<span style="color:var(--success)">&#10003; Online with PLC at ${plcIp}</span>`;
+                } else {
+                    box.className = 'tia-result-box error';
+                    details.innerHTML = `<span style="color:var(--danger)">Failed: ${data.message}</span>`;
+                }
+            } catch (e) {
+                box.className = 'tia-result-box error';
+                details.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        }
+
+        async function tiaGetLogs() {
+            const logBox = document.getElementById('tiaLogBox');
+            try {
+                const res = await fetch('/api/tia/logs');
+                const data = await res.json();
+                if (data.logs && data.logs.length) {
+                    logBox.textContent = data.logs.join('\n');
+                    logBox.scrollTop = logBox.scrollHeight;
+                } else {
+                    logBox.innerHTML = '<div class="tia-empty-msg">No logs available.</div>';
+                }
+            } catch (e) {
+                logBox.innerHTML = `<div class="tia-empty-msg" style="color:var(--danger)">Cannot fetch logs: ${e.message}</div>`;
             }
         }
 

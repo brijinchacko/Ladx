@@ -260,6 +260,124 @@ async def bridge_status():
         })
 
 
+# ===========================================
+# TIA Portal Proxy Endpoints
+# ===========================================
+
+async def _tia_proxy(method: str, endpoint: str, json_data: dict = None, timeout: float = 60.0):
+    """Proxy a request to the TIA Bridge server."""
+    try:
+        async with httpx.AsyncClient() as client:
+            if method == "GET":
+                resp = await client.get(f"{TIA_BRIDGE_URL}{endpoint}", timeout=timeout)
+            else:
+                resp = await client.post(f"{TIA_BRIDGE_URL}{endpoint}", json=json_data or {}, timeout=timeout)
+            return JSONResponse(resp.json())
+    except httpx.ConnectError:
+        return JSONResponse({
+            "success": False,
+            "connected": False,
+            "message": f"Cannot reach TIA Bridge at {TIA_BRIDGE_URL}. Is tia_bridge_server.py running on Windows?"
+        })
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "message": f"Bridge error: {str(e)}"
+        }, status_code=500)
+
+
+@app.get("/api/tia/status")
+async def tia_status():
+    """Get TIA Portal bridge and connection status."""
+    return await _tia_proxy("GET", "/api/status", timeout=5.0)
+
+
+@app.post("/api/tia/connect")
+async def tia_connect(request: Request):
+    """Connect to or launch TIA Portal."""
+    data = await request.json() if request.headers.get("content-type") == "application/json" else {}
+    return await _tia_proxy("POST", "/api/connect", data, timeout=120.0)
+
+
+@app.post("/api/tia/disconnect")
+async def tia_disconnect():
+    """Disconnect from TIA Portal."""
+    return await _tia_proxy("POST", "/api/disconnect")
+
+
+@app.post("/api/tia/create-project")
+async def tia_create_project(request: Request):
+    """Create a new TIA Portal project."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/create-project", data, timeout=120.0)
+
+
+@app.post("/api/tia/open-project")
+async def tia_open_project(request: Request):
+    """Open an existing TIA Portal project."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/open-project", data, timeout=60.0)
+
+
+@app.get("/api/tia/project-info")
+async def tia_project_info():
+    """Get current TIA Portal project details."""
+    return await _tia_proxy("GET", "/api/project-info")
+
+
+@app.post("/api/tia/configure-hardware")
+async def tia_configure_hardware(request: Request):
+    """Configure PLC hardware (IO modules, network)."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/configure-hardware", data)
+
+
+@app.post("/api/tia/import-scl")
+async def tia_import_scl(request: Request):
+    """Import SCL code into TIA Portal."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/import-scl", data)
+
+
+@app.post("/api/tia/import-xml")
+async def tia_import_xml(request: Request):
+    """Import XML block (LAD/FBD) into TIA Portal."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/import-xml", data)
+
+
+@app.post("/api/tia/compile")
+async def tia_compile():
+    """Compile the TIA Portal project."""
+    return await _tia_proxy("POST", "/api/compile", timeout=180.0)
+
+
+@app.post("/api/tia/download")
+async def tia_download(request: Request):
+    """Download program to PLC."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/download", data, timeout=120.0)
+
+
+@app.post("/api/tia/go-online")
+async def tia_go_online(request: Request):
+    """Go online with PLC."""
+    data = await request.json()
+    return await _tia_proxy("POST", "/api/go-online", data)
+
+
+@app.get("/api/tia/list-blocks")
+async def tia_list_blocks():
+    """List all program blocks in TIA Portal project."""
+    return await _tia_proxy("GET", "/api/list-blocks")
+
+
+@app.get("/api/tia/logs")
+async def tia_logs():
+    """Get bridge log entries."""
+    return await _tia_proxy("GET", "/api/logs")
+
+
 @app.get("/api/output-files")
 async def list_output_files(user: User = Depends(get_current_user)):
     """List all generated files in the output directory."""

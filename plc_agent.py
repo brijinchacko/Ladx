@@ -217,7 +217,135 @@ TOOLS = [
                 "required": ["block_name", "action"]
             }
         }
-    }
+    },
+    # --- TIA Portal Automation Tools ---
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_create_project",
+            "description": "Create a new TIA Portal project with a PLC device. This will launch TIA Portal (if not already running), create a project, and add the specified CPU.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "project_name": {
+                        "type": "string",
+                        "description": "Name for the new TIA Portal project"
+                    },
+                    "cpu_model": {
+                        "type": "string",
+                        "description": "CPU model to add, e.g. 'CPU 1214C DC/DC/DC', 'CPU 1511-1 PN', 'CPU 1516-3 PN/DP'"
+                    }
+                },
+                "required": ["project_name", "cpu_model"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_configure_hardware",
+            "description": "Configure PLC hardware in TIA Portal — add IO modules and set PROFINET IP address.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "io_modules": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of IO modules to add, e.g. ['DI 16x24VDC', 'DQ 16x24VDC/0.5A', 'AI 8xU/I/RTD/TC']"
+                    },
+                    "profinet_ip": {
+                        "type": "string",
+                        "description": "PROFINET IP address for the PLC, e.g. '192.168.0.1'"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_import_program",
+            "description": "Import a PLC program block into TIA Portal. Supports SCL code (text) or SimaticML XML (for LAD/FBD).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "block_name": {
+                        "type": "string",
+                        "description": "Name of the program block"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "The program code (SCL text or SimaticML XML)"
+                    },
+                    "language": {
+                        "type": "string",
+                        "enum": ["SCL", "XML"],
+                        "description": "Programming language format: SCL for Structured Control Language, XML for SimaticML (LAD/FBD)"
+                    }
+                },
+                "required": ["block_name", "code", "language"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_compile",
+            "description": "Compile the current TIA Portal project. Returns compilation results including any errors and warnings.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_download",
+            "description": "Download the compiled PLC program to a physical PLC or PLCSIM. The project must be compiled first.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "plc_ip": {
+                        "type": "string",
+                        "description": "IP address of the PLC to download to, e.g. '192.168.0.1'"
+                    }
+                },
+                "required": ["plc_ip"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_go_online",
+            "description": "Establish an online connection to the PLC for monitoring and diagnostics.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "plc_ip": {
+                        "type": "string",
+                        "description": "IP address of the PLC"
+                    }
+                },
+                "required": ["plc_ip"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tia_project_status",
+            "description": "Get the current TIA Portal project status including connection state, project info, device list, and program blocks.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
 ]
 
 
@@ -457,6 +585,185 @@ def handle_send_to_tia_portal(params: dict) -> str:
         return f"Error communicating with TIA Portal bridge: {str(e)}"
 
 
+def _tia_bridge_call(method, endpoint, json_data=None, timeout=60.0) -> dict:
+    """Helper: call the TIA bridge and return the result dict."""
+    try:
+        if method == "GET":
+            response = httpx.get(f"{TIA_BRIDGE_URL}{endpoint}", timeout=timeout)
+        else:
+            response = httpx.post(f"{TIA_BRIDGE_URL}{endpoint}", json=json_data or {}, timeout=timeout)
+        return response.json()
+    except httpx.ConnectError:
+        return {
+            "success": False,
+            "message": f"Cannot connect to TIA Portal bridge at {TIA_BRIDGE_URL}. "
+                       "Make sure tia_bridge_server.py is running on your Windows PC.",
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Bridge communication error: {str(e)}"}
+
+
+def handle_tia_create_project(params: dict) -> str:
+    """Create a new TIA Portal project."""
+    project_name = params.get("project_name", "LADX_Project")
+    cpu_model = params.get("cpu_model", "CPU 1214C DC/DC/DC")
+
+    # First ensure TIA Portal is connected
+    connect_result = _tia_bridge_call("POST", "/api/connect", {"with_ui": True})
+    if not connect_result.get("success"):
+        return f"Failed to connect to TIA Portal: {connect_result.get('message')}"
+
+    # Create the project
+    result = _tia_bridge_call("POST", "/api/create-project", {
+        "name": project_name,
+        "cpu_model": cpu_model,
+    }, timeout=120.0)
+
+    if result.get("success"):
+        msg = f"TIA Portal project '{project_name}' created successfully!\n"
+        msg += f"CPU: {cpu_model}\n"
+        if result.get("project_path"):
+            msg += f"Path: {result['project_path']}\n"
+        msg += "\nThe project is now open in TIA Portal. You can add program blocks next."
+        return msg
+    else:
+        return f"Failed to create project: {result.get('message')}"
+
+
+def handle_tia_configure_hardware(params: dict) -> str:
+    """Configure PLC hardware in TIA Portal."""
+    io_modules = params.get("io_modules", [])
+    profinet_ip = params.get("profinet_ip")
+
+    result = _tia_bridge_call("POST", "/api/configure-hardware", {
+        "io_modules": io_modules,
+        "profinet_ip": profinet_ip,
+    })
+
+    if result.get("success"):
+        msg = "Hardware configuration updated:\n"
+        if result.get("modules_added"):
+            msg += f"  IO Modules added: {', '.join(result['modules_added'])}\n"
+        if result.get("network_configured"):
+            msg += f"  PROFINET IP set: {profinet_ip}\n"
+        return msg
+    else:
+        return f"Hardware configuration failed: {result.get('message')}"
+
+
+def handle_tia_import_program(params: dict) -> str:
+    """Import a program block into TIA Portal."""
+    block_name = params.get("block_name", "NewBlock")
+    code = params.get("code", "")
+    language = params.get("language", "SCL")
+
+    if not code:
+        return "No code provided to import."
+
+    if language == "SCL":
+        result = _tia_bridge_call("POST", "/api/import-scl", {
+            "block_name": block_name,
+            "scl_code": code,
+        })
+    elif language == "XML":
+        result = _tia_bridge_call("POST", "/api/import-xml", {
+            "block_name": block_name,
+            "xml_content": code,
+        })
+    else:
+        return f"Unsupported language: {language}. Use SCL or XML."
+
+    if result.get("success"):
+        tia_imported = result.get("tia_imported", True)
+        if tia_imported:
+            return f"Block '{block_name}' imported into TIA Portal successfully ({language})."
+        else:
+            return (
+                f"Block '{block_name}' saved to file (TIA Portal not connected).\n"
+                f"File: {result.get('file_path', 'unknown')}\n"
+                "Connect to TIA Portal and re-import to load into the project."
+            )
+    else:
+        return f"Import failed: {result.get('message')}"
+
+
+def handle_tia_compile(params: dict) -> str:
+    """Compile the current TIA Portal project."""
+    result = _tia_bridge_call("POST", "/api/compile", timeout=180.0)
+
+    if result.get("success"):
+        msg = "Compilation SUCCESSFUL!\n"
+        if result.get("warning_count", 0) > 0:
+            msg += f"Warnings: {result['warning_count']}\n"
+            for w in result.get("warnings", [])[:5]:
+                msg += f"  - {w}\n"
+        return msg
+    else:
+        msg = "Compilation FAILED!\n"
+        msg += f"Errors: {result.get('error_count', 'unknown')}\n"
+        for e in result.get("errors", [])[:10]:
+            msg += f"  - {e}\n"
+        if result.get("warnings"):
+            msg += f"Warnings: {result.get('warning_count', 0)}\n"
+        return msg
+
+
+def handle_tia_download(params: dict) -> str:
+    """Download program to PLC."""
+    plc_ip = params.get("plc_ip", "192.168.0.1")
+
+    result = _tia_bridge_call("POST", "/api/download", {
+        "plc_ip": plc_ip,
+    }, timeout=120.0)
+
+    if result.get("success"):
+        return f"Program downloaded to PLC at {plc_ip} successfully!"
+    else:
+        return f"Download failed: {result.get('message')}"
+
+
+def handle_tia_go_online(params: dict) -> str:
+    """Go online with PLC."""
+    plc_ip = params.get("plc_ip", "192.168.0.1")
+
+    result = _tia_bridge_call("POST", "/api/go-online", {
+        "plc_ip": plc_ip,
+    })
+
+    if result.get("success"):
+        return f"Online connection established with PLC at {plc_ip}."
+    else:
+        return f"Failed to go online: {result.get('message')}"
+
+
+def handle_tia_project_status(params: dict) -> str:
+    """Get TIA Portal project status."""
+    status = _tia_bridge_call("GET", "/api/status")
+    info = _tia_bridge_call("GET", "/api/project-info")
+    blocks = _tia_bridge_call("GET", "/api/list-blocks")
+
+    msg = "=== TIA Portal Status ===\n"
+    msg += f"Bridge: {status.get('bridge', 'unknown')}\n"
+    msg += f"TIA Portal Connected: {status.get('tia_portal_connected', False)}\n"
+    msg += f"Project Open: {status.get('project_open', False)}\n"
+
+    if info.get("success"):
+        msg += f"\nProject: {info.get('project_name', 'N/A')}\n"
+        msg += f"Path: {info.get('project_path', 'N/A')}\n"
+        msg += f"Devices: {info.get('device_count', 0)}\n"
+        for dev in info.get("devices", []):
+            msg += f"  - {dev['name']} ({dev.get('type', 'Unknown')})\n"
+
+    if blocks.get("success") and blocks.get("blocks"):
+        msg += f"\nProgram Blocks ({blocks.get('count', 0)}):\n"
+        for b in blocks["blocks"]:
+            msg += f"  - {b['name']} ({b.get('type', 'Unknown')}) [{b.get('programming_language', '')}]\n"
+    elif blocks.get("success"):
+        msg += "\nNo program blocks yet.\n"
+
+    return msg
+
+
 # ===========================================
 # Tool Router
 # ===========================================
@@ -468,6 +775,14 @@ TOOL_HANDLERS = {
     "generate_tag_list": handle_generate_tag_list,
     "save_code_to_file": handle_save_code_to_file,
     "send_to_tia_portal": handle_send_to_tia_portal,
+    # TIA Portal Automation
+    "tia_create_project": handle_tia_create_project,
+    "tia_configure_hardware": handle_tia_configure_hardware,
+    "tia_import_program": handle_tia_import_program,
+    "tia_compile": handle_tia_compile,
+    "tia_download": handle_tia_download,
+    "tia_go_online": handle_tia_go_online,
+    "tia_project_status": handle_tia_project_status,
 }
 
 

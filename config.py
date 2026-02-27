@@ -51,6 +51,12 @@ PORT = int(os.getenv("PORT", "8000"))
 # TIA Portal Bridge
 # ===========================================
 TIA_BRIDGE_URL = os.getenv("TIA_BRIDGE_URL", "http://localhost:5050")
+TIA_PORTAL_VERSION = os.getenv("TIA_PORTAL_VERSION", "V19")
+TIA_DLL_PATH = os.getenv(
+    "TIA_DLL_PATH",
+    r"C:\Program Files\Siemens\Automation\Portal V19\PublicAPI\V19\Siemens.Engineering.dll"
+)
+TIA_PROJECT_DIR = os.getenv("TIA_PROJECT_DIR", r"C:\TIA_Projects")
 
 # ===========================================
 # Email / SMTP (Namecheap Private Email)

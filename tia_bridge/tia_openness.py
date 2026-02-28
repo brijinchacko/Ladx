@@ -317,8 +317,11 @@ class TIAHandler:
                 self.project.Close()
                 self.project = None
 
-            # Create project directory
+            # Create project directory (remove if it exists to avoid "not empty" error)
             project_path = Path(self.project_dir) / name
+            if project_path.exists():
+                import shutil
+                shutil.rmtree(project_path, ignore_errors=True)
             project_path.mkdir(parents=True, exist_ok=True)
 
             self._log(f"Creating project '{name}' at {project_path}")
@@ -370,21 +373,31 @@ class TIAHandler:
                 }
 
             # Create device name from CPU model
-            device_name = f"PLC_1"
+            device_name = "PLC_1"
 
             self._log(f"Adding device: {cpu_model} ({order_number})")
 
             # Add the device to the project
             # DeviceComposition.CreateWithItem(typeIdentifier, name, deviceName)
-            device = self.project.Devices.CreateWithItem(
+            self.project.Devices.CreateWithItem(
                 order_number, device_name, device_name
             )
 
-            self._log(f"Device added: {device.Name}")
+            # Re-fetch the device from the project to get a valid reference
+            # (the returned object from CreateWithItem can become disposed)
+            actual_name = device_name
+            try:
+                if self.project.Devices.Count > 0:
+                    last_device = self.project.Devices[self.project.Devices.Count - 1]
+                    actual_name = last_device.Name
+            except Exception:
+                pass
+
+            self._log(f"Device added: {actual_name}")
 
             return {
                 "success": True,
-                "device_name": device.Name,
+                "device_name": actual_name,
                 "cpu_model": cpu_model,
                 "order_number": order_number,
             }

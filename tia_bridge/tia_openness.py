@@ -441,21 +441,38 @@ class TIAHandler:
         if not self.project:
             return None
 
+        def _search_item(device_item, depth=0):
+            """Recursively search device items for PlcSoftware service."""
+            try:
+                sw = device_item.GetService[PlcSoftware]()
+                if sw:
+                    self._log(f"Found PlcSoftware at depth {depth}: {device_item.Name}")
+                    return sw
+            except Exception:
+                pass
+
+            # Recurse into child items (up to 5 levels deep)
+            if depth < 5:
+                try:
+                    for child in device_item.DeviceItems:
+                        result = _search_item(child, depth + 1)
+                        if result:
+                            return result
+                except Exception:
+                    pass
+            return None
+
         try:
             for device in self.project.Devices:
+                self._log(f"Searching device: {device.Name}")
                 for item in device.DeviceItems:
-                    software_container = item.GetService[PlcSoftware]()
-                    if software_container:
-                        return software_container
-
-                    # Check nested device items
-                    for sub_item in item.DeviceItems:
-                        software_container = sub_item.GetService[PlcSoftware]()
-                        if software_container:
-                            return software_container
+                    result = _search_item(item)
+                    if result:
+                        return result
         except Exception as e:
             self._log(f"Error finding PLC software: {e}")
 
+        self._log("WARNING: No PlcSoftware found in any device")
         return None
 
     def configure_hardware(self, io_modules=None, profinet_ip=None) -> dict:

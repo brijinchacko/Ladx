@@ -203,7 +203,7 @@ class TIAHandler:
             # These become available after AddReference
             global TiaPortal, TiaPortalMode, Project
             global PlcSoftware, PlcBlock, PlcBlockGroup
-            global DeviceItem, Device
+            global DeviceItem, Device, SoftwareContainer
             global CompilerResult
 
             from Siemens.Engineering import TiaPortal, TiaPortalMode
@@ -211,6 +211,7 @@ class TIAHandler:
             from Siemens.Engineering.SW.Blocks import PlcBlock, PlcBlockGroup
             from Siemens.Engineering.SW import PlcSoftware
             from Siemens.Engineering.HW import DeviceItem, Device
+            from Siemens.Engineering.HW.Features import SoftwareContainer
             from Siemens.Engineering.Compiler import CompilerResult
 
             self._initialized = True
@@ -442,11 +443,23 @@ class TIAHandler:
             return None
 
         def _search_item(device_item, depth=0):
-            """Recursively search device items for PlcSoftware service."""
+            """Recursively search device items for PlcSoftware via SoftwareContainer."""
+            # Method 1: Use SoftwareContainer (TIA V15+ / V19 proper way)
+            try:
+                container = device_item.GetService[SoftwareContainer]()
+                if container and container.Software:
+                    sw = container.Software
+                    self._log(f"Found PlcSoftware via SoftwareContainer at depth {depth}: {device_item.Name}")
+                    return sw
+            except Exception as e:
+                if "SoftwareContainer" not in str(e):
+                    self._log(f"  SoftwareContainer check at {device_item.Name}: {e}")
+
+            # Method 2: Direct PlcSoftware service (older API style)
             try:
                 sw = device_item.GetService[PlcSoftware]()
                 if sw:
-                    self._log(f"Found PlcSoftware at depth {depth}: {device_item.Name}")
+                    self._log(f"Found PlcSoftware directly at depth {depth}: {device_item.Name}")
                     return sw
             except Exception:
                 pass

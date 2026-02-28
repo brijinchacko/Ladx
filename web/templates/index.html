@@ -290,7 +290,7 @@
         /* Main Layout */
         .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-        /* Sidebar - Chat History */
+        /* Sidebar - Project List */
         .sidebar {
             width: 250px;
             background: var(--bg-secondary);
@@ -298,35 +298,22 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            transition: width 0.25s ease, opacity 0.25s ease;
             overflow: hidden;
             position: relative;
         }
 
-        .sidebar.collapsed {
-            width: 0;
-            border-right: none;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .sidebar-toggle-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 14px;
-            transition: all 0.2s;
+        /* Project Dashboard Panel (left of chat) */
+        .project-dash-panel {
+            width: 420px;
+            min-width: 320px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
             flex-shrink: 0;
+            display: none;
+            padding: 20px;
         }
-
-        .sidebar-toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+        .project-dash-panel.active { display: block; }
 
         .sidebar-user-area {
             margin-top: auto;
@@ -1018,27 +1005,7 @@
 
         .modal-cancel:hover { background: var(--border); }
 
-        /* Nav Tabs in sidebar */
-        /* Sidebar toggle inside sidebar (side-panel icon) */
-        .sidebar-inner-toggle {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-            z-index: 10;
-        }
-        .sidebar-inner-toggle:hover { color: var(--accent); border-color: var(--accent); }
-        .sidebar-inner-toggle svg { width: 16px; height: 16px; }
+        /* (sidebar toggle removed per design) */
 
         /* Project list items - 2-line layout */
         .conversation-item {
@@ -1145,13 +1112,14 @@
         .proj-dash-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .proj-dash-header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 18px;
             color: var(--text-primary);
         }
 
@@ -1169,9 +1137,9 @@
 
         .proj-dash-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .proj-stat-card {
@@ -2144,212 +2112,9 @@
             resize: vertical;
         }
 
-        /* ========== PROJECT OVERVIEW BAR ========== */
-        .project-overview {
-            display: none;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
+        /* ========== PROJECT OVERVIEW BAR (replaced by split-pane dashboard) ========== */
 
-        .project-overview.active { display: block; }
-
-        .overview-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        .overview-header:hover { background: var(--bg-tertiary); }
-
-        .overview-header-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .overview-project-title {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .overview-platform-badge {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: var(--accent-glow);
-            color: var(--accent);
-        }
-
-        .overview-version {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .overview-toggle-icon {
-            color: var(--text-secondary);
-            font-size: 12px;
-            transition: transform 0.2s;
-        }
-
-        .overview-body {
-            display: none;
-            padding: 0 20px 14px;
-            border-top: 1px solid var(--border);
-        }
-
-        .overview-body.expanded { display: block; }
-
-        .overview-meta {
-            display: flex;
-            gap: 20px;
-            padding: 12px 0;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .overview-meta strong { color: var(--text-primary); }
-
-        .overview-stage-badge {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .overview-stage-badge.planning { background: rgba(59,130,246,0.15); color: #3b82f6; }
-        .overview-stage-badge.execution { background: rgba(245,158,11,0.15); color: #f59e0b; }
-        .overview-stage-badge.testing { background: rgba(168,85,247,0.15); color: #a855f7; }
-        .overview-stage-badge.completed { background: rgba(52,211,153,0.15); color: #34d399; }
-
-        .overview-hw-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            padding: 12px 0;
-        }
-        .ov-hw-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .ov-hw-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-        }
-        .ov-hw-value {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .overview-stage-actions {
-            padding: 8px 0;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .overview-stage-actions button {
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid var(--border);
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-        .overview-stage-actions button:hover { border-color: var(--accent); }
-        .overview-stage-actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .overview-stage-actions button.primary:hover { background: var(--accent-hover); }
-
-        .overview-desc {
-            margin-top: 8px;
-        }
-
-        .overview-desc textarea {
-            width: 100%;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: var(--text-primary);
-            font-size: 13px;
-            font-family: inherit;
-            min-height: 48px;
-            resize: vertical;
-            outline: none;
-        }
-
-        .overview-desc textarea:focus { border-color: var(--accent); }
-
-        .overview-desc-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .overview-desc-actions button {
-            padding: 4px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-save-desc {
-            background: var(--accent);
-            border: none;
-            color: white;
-        }
-
-        .btn-save-desc:hover { background: var(--accent-hover); }
-
-        .btn-cancel-desc {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-        }
-
-        /* Documents section */
-        .overview-docs {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .overview-docs-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .overview-docs-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .upload-btn {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .upload-btn:hover { border-color: var(--accent); }
+        /* (old overview bar CSS removed — dashboard panel uses proj-dash-* styles) */
 
         .doc-list { display: flex; flex-direction: column; gap: 4px; }
 
@@ -2480,12 +2245,6 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Open sidebar" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <line x1="9" y1="3" x2="9" y2="21"/>
-                    </svg>
-                </button>
                 <div class="logo">
                     <img class="logo-icon" src="/static/LADX-logo.png" alt="LADX">
                 </div>
@@ -2514,14 +2273,7 @@
 
             <!-- Sidebar - Project List -->
             <div class="sidebar" id="sidebarEl">
-                <!-- Side-panel toggle inside sidebar -->
-                <button class="sidebar-inner-toggle" onclick="toggleSidebar()" title="Collapse sidebar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <line x1="9" y1="3" x2="9" y2="21"/>
-                    </svg>
-                </button>
-                <div class="sidebar-header" style="padding-top: 8px;">
+                <div class="sidebar-header" style="padding-top: 12px;">
                     <button class="new-chat-btn" onclick="openNewProjectModal()">+ New Project</button>
                 </div>
                 <div class="sidebar-title">Projects</div>
@@ -2548,53 +2300,15 @@
                 </div>
             </div>
 
+            <!-- Project Dashboard Panel (always visible when project selected) -->
+            <div class="project-dash-panel" id="projectDashPanel">
+                <div id="projDashContent">
+                    <div class="proj-dash-empty">Select a project to view its dashboard.</div>
+                </div>
+            </div>
+
             <!-- Chat Area -->
             <div class="chat-container">
-                <!-- Project Overview Bar (Highlighted) -->
-                <div class="project-overview" id="projectOverview">
-                    <div class="overview-header" onclick="toggleOverview()">
-                        <div class="overview-header-left">
-                            <span class="overview-project-title" id="ovTitle">Project</span>
-                            <span class="overview-platform-badge" id="ovPlatform">Siemens</span>
-                            <span class="overview-version" id="ovVersion"></span>
-                            <span class="overview-stage-badge" id="ovStage">Planning</span>
-                        </div>
-                        <span class="overview-toggle-icon" id="ovToggleIcon">&#9660;</span>
-                    </div>
-                    <div class="overview-body" id="overviewBody">
-                        <!-- Hardware Config Grid -->
-                        <div class="overview-hw-grid" id="ovHardwareGrid">
-                            <div class="ov-hw-item"><span class="ov-hw-label">CPU</span><span class="ov-hw-value" id="ovCPU">-</span></div>
-                            <div class="ov-hw-item"><span class="ov-hw-label">Variant</span><span class="ov-hw-value" id="ovVariant">-</span></div>
-                            <div class="ov-hw-item"><span class="ov-hw-label">TIA Portal</span><span class="ov-hw-value" id="ovTIA">-</span></div>
-                            <div class="ov-hw-item"><span class="ov-hw-label">Network</span><span class="ov-hw-value" id="ovNetwork">-</span></div>
-                            <div class="ov-hw-item"><span class="ov-hw-label">Safety</span><span class="ov-hw-value" id="ovSafety">Standard</span></div>
-                            <div class="ov-hw-item"><span class="ov-hw-label">Messages</span><span class="ov-hw-value" id="ovMsgCount">0</span></div>
-                        </div>
-                        <div class="overview-meta">
-                            <span>Created: <strong id="ovCreated">-</strong></span>
-                        </div>
-                        <div class="overview-desc">
-                            <textarea id="ovDescription" placeholder="Add project notes or overview..."></textarea>
-                            <div class="overview-desc-actions">
-                                <button class="btn-save-desc" onclick="saveProjectDescription()">Save</button>
-                            </div>
-                        </div>
-                        <div class="overview-docs">
-                            <div class="overview-docs-header">
-                                <span class="overview-docs-title">Documents</span>
-                                <button class="upload-btn" onclick="document.getElementById('fileUpload').click()">+ Upload</button>
-                                <input type="file" id="fileUpload" style="display:none" onchange="uploadDocument(this)" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.xml,.json">
-                            </div>
-                            <div class="doc-list" id="docList">
-                                <div class="no-docs">No documents uploaded yet.</div>
-                            </div>
-                        </div>
-                        <!-- Stage Actions -->
-                        <div class="overview-stage-actions" id="ovStageActions"></div>
-                    </div>
-                </div>
-
                 <div class="chat-messages" id="chatMessages">
                     <!-- Welcome screen -->
                     <div class="welcome" id="welcomeScreen">
@@ -3194,17 +2908,14 @@
             } catch (e) {}
         }
 
-        // Select a project - load it and show unified view
+        // Select a project - load it and show dashboard + chat
         async function selectProject(id) {
             await loadConversation(id);
             switchView('chat');
-            // Auto-expand project overview when selected
-            const body = document.getElementById('overviewBody');
-            const icon = document.getElementById('ovToggleIcon');
-            if (body && !body.classList.contains('expanded')) {
-                body.classList.add('expanded');
-                if (icon) icon.innerHTML = '&#9650;';
-            }
+            // Load full dashboard into the left panel
+            await loadDashboard();
+            // Show the dashboard panel
+            document.getElementById('projectDashPanel').classList.add('active');
         }
 
         async function loadConversation(id) {
@@ -3232,9 +2943,6 @@
                     message_count: data.messages.length,
                 };
 
-                // Update project overview bar
-                updateProjectOverview();
-
                 // Clear chat area
                 chatMessages.innerHTML = '';
                 if (welcomeScreen && welcomeScreen.parentNode === chatMessages) {
@@ -3261,8 +2969,8 @@
             currentConversationId = null;
             currentProject = null;
 
-            // Hide project overview
-            document.getElementById('projectOverview').classList.remove('active');
+            // Hide project dashboard panel
+            document.getElementById('projectDashPanel').classList.remove('active');
 
             // Reset chat area
             chatMessages.innerHTML = '';
@@ -3384,15 +3092,19 @@
 
         // Background refresh of dashboard/project data (called after each chat message)
         async function refreshDashboardBackground() {
+            if (!currentConversationId) return;
             try {
                 const res = await fetch(`/api/conversations/${currentConversationId}/dashboard`, { headers: authHeaders() });
                 if (res.ok) {
                     dashboardData = await res.json();
-                    // Update project overview with latest data
-                    if (dashboardData.project) {
+                    const container = document.getElementById('projDashContent');
+                    if (container && dashboardData) {
+                        renderProjectDashboard(dashboardData, container);
+                    }
+                    // Update currentProject with latest stage/count
+                    if (dashboardData.project && currentProject) {
                         currentProject.current_stage = dashboardData.project.current_stage;
                         currentProject.message_count = dashboardData.stats?.total_messages || currentProject.message_count;
-                        updateProjectOverview();
                     }
                 }
             } catch (e) { /* silent background refresh */ }
@@ -3463,20 +3175,7 @@
             }
         });
 
-        // ===========================================
-        // Sidebar Toggle (Collapse/Expand)
-        // ===========================================
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebarEl');
-            const headerBtn = document.getElementById('sidebarToggleBtn');
-            sidebar.classList.toggle('collapsed');
-            // Show header toggle when sidebar is collapsed
-            if (sidebar.classList.contains('collapsed')) {
-                headerBtn.style.display = 'flex';
-            } else {
-                headerBtn.style.display = 'none';
-            }
-        }
+        // (Sidebar toggle removed — sidebar always visible)
 
         // ===========================================
         // Theme Toggle
@@ -3574,7 +3273,10 @@
                 await loadConversations();
                 currentConversationId = data.id;
                 await loadConversation(data.id);
-                switchView('chat');  // Show unified project + chat view
+                switchView('chat');
+                // Load dashboard for new project
+                await loadDashboard();
+                document.getElementById('projectDashPanel').classList.add('active');
             } catch (err) {
                 console.error('Create project error:', err);
             }
@@ -3584,80 +3286,19 @@
         // ===========================================
         // Project Overview (Chat bar)
         // ===========================================
+        // updateProjectOverview now just refreshes the dashboard panel
         function updateProjectOverview() {
             if (!currentProject) {
-                document.getElementById('projectOverview').classList.remove('active');
+                document.getElementById('projectDashPanel').classList.remove('active');
                 return;
             }
-            const p = currentProject;
-            document.getElementById('projectOverview').classList.add('active');
-            document.getElementById('ovTitle').textContent = p.title;
-            document.getElementById('ovPlatform').textContent = 'Siemens ' + (p.cpu_model || 'S7-1500');
-            document.getElementById('ovVersion').textContent = 'TIA Portal ' + (p.software_version || '');
-            document.getElementById('ovCreated').textContent = p.created_at ? new Date(p.created_at).toLocaleDateString() : '-';
-            document.getElementById('ovMsgCount').textContent = p.message_count || 0;
-            document.getElementById('ovDescription').value = p.description || '';
-
-            // Hardware grid
-            document.getElementById('ovCPU').textContent = p.cpu_model || 'Not set';
-            document.getElementById('ovVariant').textContent = p.cpu_variant || 'Not set';
-            document.getElementById('ovTIA').textContent = p.software_version || 'Not set';
-            document.getElementById('ovNetwork').textContent = p.network_type || 'Not set';
-            document.getElementById('ovSafety').textContent = p.safety_required ? 'Required (F-CPU)' : 'Standard';
-
-            // Stage badge
-            const stageBadge = document.getElementById('ovStage');
-            const stage = p.current_stage || 'planning';
-            const stageNames = { planning: 'Planning', execution: 'Execution', testing: 'Testing', completed: 'Completed' };
-            stageBadge.textContent = stageNames[stage] || stage;
-            stageBadge.className = 'overview-stage-badge ' + stage;
-
-            // Stage actions
-            const actionsEl = document.getElementById('ovStageActions');
-            let actionsHtml = '';
-            if (stage === 'planning') {
-                actionsHtml = `
-                    <button class="primary" onclick="generateDocument('FDS')">Generate FDS</button>
-                    <button onclick="document.getElementById('fileUpload').click()">Upload FDS</button>
-                    <button class="primary" onclick="generateDocument('IO_LIST')">Generate IO List</button>
-                    <button onclick="advanceStage()">Advance to Execution &rarr;</button>`;
-            } else if (stage === 'execution') {
-                actionsHtml = `
-                    <button class="primary" onclick="generateDocument('PLC_CODE')">Generate PLC Code</button>
-                    <button onclick="advanceStage()">Advance to Testing &rarr;</button>`;
-            } else if (stage === 'testing') {
-                actionsHtml = `
-                    <button class="primary" onclick="generateDocument('FAT')">Generate FAT</button>
-                    <button class="primary" onclick="generateDocument('SAT')">Generate SAT</button>
-                    <button onclick="advanceStage()">Mark Complete &check;</button>`;
-            } else if (stage === 'completed') {
-                actionsHtml = '<span style="color:var(--success);font-size:12px;">Project completed</span>';
-            }
-            actionsEl.innerHTML = actionsHtml;
-
-            renderDocList(p.documents || []);
+            // Refresh the full dashboard in the panel
+            loadDashboard();
         }
 
-        function toggleOverview() {
-            const body = document.getElementById('overviewBody');
-            const icon = document.getElementById('ovToggleIcon');
-            body.classList.toggle('expanded');
-            icon.innerHTML = body.classList.contains('expanded') ? '&#9650;' : '&#9660;';
-        }
-
+        // saveProjectDescription now handled by saveProjDashDesc in dashboard panel
         async function saveProjectDescription() {
-            if (!currentConversationId) return;
-            const desc = document.getElementById('ovDescription').value;
-            try {
-                await fetch(`/api/conversations/${currentConversationId}`, {
-                    method: 'PUT',
-                    headers: authHeaders(),
-                    body: JSON.stringify({ description: desc }),
-                });
-                if (currentProject) currentProject.description = desc;
-            } catch (e) {
-                console.error('Save description error:', e);
-            }
+            return saveProjDashDesc();
         }
 
         // ===========================================
@@ -3747,11 +3388,13 @@
         function switchView(view) {
             currentView = view;
             const chatEl = document.querySelector('.chat-container');
+            const dashPanel = document.getElementById('projectDashPanel');
             const profileEl = document.getElementById('profileContainer');
             const settingsEl = document.getElementById('settingsContainer');
 
             // Hide all views
             chatEl.style.display = 'none';
+            dashPanel.style.display = 'none';
             profileEl.classList.remove('active');
             settingsEl.classList.remove('active');
 
@@ -3762,8 +3405,13 @@
                 settingsEl.classList.add('active');
                 loadSettingsPage();
             } else {
-                // Default: show unified project + chat view
+                // Default: show project dashboard (left) + chat (right)
                 chatEl.style.display = 'flex';
+                // Show dashboard panel if a project is selected
+                if (currentConversationId) {
+                    dashPanel.style.display = 'block';
+                    dashPanel.classList.add('active');
+                }
             }
         }
 

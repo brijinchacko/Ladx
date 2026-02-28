@@ -346,6 +346,33 @@ TOOLS = [
             }
         }
     },
+    # --- Ladder Diagram Generation ---
+    {
+        "type": "function",
+        "function": {
+            "name": "generate_ladder_diagram",
+            "description": "Generate a Ladder Diagram (LAD) program as SimaticML XML that can be imported into TIA Portal. Use this when the user asks for ladder logic, LAD, or when TIA Portal is connected and a visual program is preferred.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of what the ladder logic program should do"
+                    },
+                    "block_name": {
+                        "type": "string",
+                        "description": "Name of the program block, e.g. 'MotorControl', 'PumpLogic'"
+                    },
+                    "block_type": {
+                        "type": "string",
+                        "enum": ["FB", "FC", "OB"],
+                        "description": "Block type: FB (Function Block), FC (Function), OB (Organization Block)"
+                    }
+                },
+                "required": ["description", "block_name"]
+            }
+        }
+    },
 ]
 
 
@@ -764,6 +791,84 @@ def handle_tia_project_status(params: dict) -> str:
     return msg
 
 
+def handle_generate_ladder_diagram(params: dict) -> str:
+    """Generate a Ladder Diagram (LAD) program as SimaticML XML."""
+    block_name = params.get("block_name", "LadderBlock")
+    block_type = params.get("block_type", "FB")
+    description = params["description"]
+
+    prompt = f"""Generate a SimaticML XML file for a Ladder Diagram (LAD) program block.
+
+Block Name: {block_name}
+Block Type: {block_type}
+Description: {description}
+
+IMPORTANT: Generate VALID SimaticML XML that can be imported into TIA Portal V17-V19.
+The XML must follow the SimaticML schema for LAD programs.
+
+SimaticML LAD structure reference:
+- Root element: <Document>
+- Contains <SW.Blocks.{block_type}> with ID and CompositionName
+- Each network is a <NetworkSource> containing <FlgNet> elements
+- LAD elements use:
+  - <Contact> for NO (normally open) and NC (normally closed) contacts
+  - <Coil> for output coils
+  - <SRFlipFlop> for set/reset operations
+  - <TON>, <TOF>, <TP> for timers
+  - <CTU>, <CTD>, <CTUD> for counters
+  - <Move> for data moves
+  - <Cmp> for comparisons (EQ, NE, GT, LT, GE, LE)
+- Wire connections use <Wire> elements with UId references
+- Variables declared in <Interface> section with Input, Output, InOut, Static, Temp sections
+
+Requirements:
+- Generate complete, valid SimaticML XML
+- Include proper Interface declarations for all variables used
+- Create meaningful network titles and comments
+- Use proper UId numbering for all elements and wires
+- Ensure all wire connections are valid
+- The program should implement: {description}
+
+Return ONLY the complete SimaticML XML, no explanation text."""
+
+    response = client.chat.completions.create(
+        model=AI_MODEL,
+        max_tokens=MAX_TOKENS,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    xml_code = response.choices[0].message.content
+
+    # Clean up: extract XML if wrapped in markdown code block
+    if "```xml" in xml_code:
+        xml_code = xml_code.split("```xml")[1].split("```")[0].strip()
+    elif "```" in xml_code:
+        xml_code = xml_code.split("```")[1].split("```")[0].strip()
+
+    # Save to output directory
+    filename = f"{block_name}.xml"
+    filepath = OUTPUT_DIR / filename
+    filepath.write_text(xml_code, encoding="utf-8")
+
+    # Try to auto-import to TIA Portal if connected
+    import_msg = ""
+    try:
+        status = _tia_bridge_call("GET", "/api/status")
+        if status.get("tia_portal_connected") and status.get("project_open"):
+            result = _tia_bridge_call("POST", "/api/import-xml", {
+                "block_name": block_name,
+                "xml_content": xml_code,
+            })
+            if result.get("success"):
+                import_msg = f"\n\nAutomatically imported '{block_name}' to TIA Portal."
+            else:
+                import_msg = f"\n\nCould not auto-import to TIA: {result.get('message', 'Unknown error')}. XML file saved for manual import."
+    except Exception:
+        import_msg = "\n\nTIA Portal not connected. XML file saved for manual import."
+
+    return f"Generated LAD program '{block_name}' ({block_type}) as SimaticML XML.\nSaved to: {filepath}{import_msg}\n\n{xml_code}"
+
+
 # ===========================================
 # Tool Router
 # ===========================================
@@ -783,6 +888,8 @@ TOOL_HANDLERS = {
     "tia_download": handle_tia_download,
     "tia_go_online": handle_tia_go_online,
     "tia_project_status": handle_tia_project_status,
+    # Ladder Diagram
+    "generate_ladder_diagram": handle_generate_ladder_diagram,
 }
 
 

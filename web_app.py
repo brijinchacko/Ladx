@@ -174,9 +174,31 @@ async def chat(
         # Filter tools based on tier
         allowed_features = get_allowed_features(user.tier)
 
-        # Prepend platform context
-        platform_prefix = f"[Target Platform: {req.platform}] "
-        full_message = platform_prefix + req.message
+        # Build context-aware message with project hardware info
+        context_parts = [f"[Target Platform: {req.platform}]"]
+        if convo:
+            if convo.cpu_model:
+                context_parts.append(f"[CPU: {convo.cpu_model}")
+                if convo.cpu_variant:
+                    context_parts[-1] += f" {convo.cpu_variant}"
+                context_parts[-1] += "]"
+            if convo.software_version:
+                context_parts.append(f"[TIA Portal: {convo.software_version}]")
+            if convo.network_type:
+                context_parts.append(f"[Network: {convo.network_type}]")
+            if getattr(convo, 'safety_required', False):
+                context_parts.append("[Safety: F-CPU Required]")
+            if getattr(convo, 'io_modules', None):
+                try:
+                    import json
+                    modules = json.loads(convo.io_modules) if isinstance(convo.io_modules, str) else convo.io_modules
+                    if modules:
+                        context_parts.append(f"[IO Modules: {', '.join(modules)}]")
+                except Exception:
+                    pass
+            if convo.current_stage:
+                context_parts.append(f"[Stage: {convo.current_stage}]")
+        full_message = " ".join(context_parts) + " " + req.message
 
         # Save user message to DB
         user_msg = Message(

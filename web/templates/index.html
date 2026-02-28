@@ -451,21 +451,7 @@
             padding: 0 8px;
         }
 
-        .conversation-item {
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .conversation-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-        .conversation-item.active { background: var(--accent-glow); color: var(--accent); }
+        /* (conversation-item styling moved to new sidebar section above) */
 
         .sidebar-section {
             padding: 8px 12px;
@@ -1033,26 +1019,127 @@
         .modal-cancel:hover { background: var(--border); }
 
         /* Nav Tabs in sidebar */
-        .sidebar-nav {
+        /* Sidebar toggle inside sidebar (side-panel icon) */
+        .sidebar-inner-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
             display: flex;
-            border-bottom: 1px solid var(--border);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            z-index: 10;
         }
+        .sidebar-inner-toggle:hover { color: var(--accent); border-color: var(--accent); }
+        .sidebar-inner-toggle svg { width: 16px; height: 16px; }
 
-        .sidebar-nav-btn {
-            flex: 1;
+        /* Project list items - 2-line layout */
+        .conversation-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .conversation-item .conv-title {
+            font-size: 13px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+        .conversation-item .conv-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .conversation-item .conv-stage-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .conversation-item:hover { background: var(--bg-tertiary); }
+        .conversation-item.active { background: var(--accent-glow); border: 1px solid rgba(63,191,183,0.3); }
+        .conversation-item.active .conv-title { color: var(--accent); }
+
+        /* TIA Status Indicator (header) */
+        .tia-header-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+        .tia-header-status:hover { border-color: var(--accent); }
+        .tia-header-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        .tia-header-dot.offline { background: var(--danger); }
+        .tia-header-dot.bridge-online { background: var(--warning); }
+        .tia-header-dot.connected { background: var(--success); }
+        .tia-header-label { font-weight: 500; }
+
+        /* TIA Overlay Panel (click to expand) */
+        .tia-overlay {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 16px;
+            width: 420px;
+            max-height: 80vh;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 500;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .tia-overlay.show { display: block; }
+        .tia-overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .tia-overlay-header h3 { font-size: 16px; margin: 0; }
+        .tia-overlay-close {
             background: none;
             border: none;
-            padding: 10px 0;
-            font-size: 12px;
-            font-weight: 600;
             color: var(--text-secondary);
+            font-size: 20px;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
         }
-
-        .sidebar-nav-btn:hover { color: var(--text-primary); }
-        .sidebar-nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tia-overlay-close:hover { color: var(--text-primary); }
 
         /* ========== PER-PROJECT DASHBOARD ========== */
         .proj-dash-header {
@@ -2125,6 +2212,63 @@
 
         .overview-meta strong { color: var(--text-primary); }
 
+        .overview-stage-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .overview-stage-badge.planning { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .overview-stage-badge.execution { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .overview-stage-badge.testing { background: rgba(168,85,247,0.15); color: #a855f7; }
+        .overview-stage-badge.completed { background: rgba(52,211,153,0.15); color: #34d399; }
+
+        .overview-hw-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px 0;
+        }
+        .ov-hw-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .ov-hw-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .ov-hw-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .overview-stage-actions {
+            padding: 8px 0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .overview-stage-actions button {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .overview-stage-actions button:hover { border-color: var(--accent); }
+        .overview-stage-actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .overview-stage-actions button.primary:hover { background: var(--accent-hover); }
+
         .overview-desc {
             margin-top: 8px;
         }
@@ -2336,7 +2480,12 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar">&#9776;</button>
+                <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Open sidebar" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                </button>
                 <div class="logo">
                     <img class="logo-icon" src="/static/LADX-logo.png" alt="LADX">
                 </div>
@@ -2344,6 +2493,11 @@
                 <span class="usage-info" id="usageInfo"></span>
             </div>
             <div class="header-right">
+                <!-- TIA Portal Status Indicator -->
+                <div class="tia-header-status" id="tiaHeaderStatus" onclick="toggleTiaOverlay()" title="TIA Portal Status">
+                    <span class="tia-header-dot offline" id="tiaHeaderDot"></span>
+                    <span class="tia-header-label" id="tiaHeaderLabel">TIA Offline</span>
+                </div>
                 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">&#9790;</button>
                 <button class="header-btn" onclick="exportChat()" id="exportBtn">Export</button>
             </div>
@@ -2358,14 +2512,16 @@
         <!-- Main Layout -->
         <div class="main-layout">
 
-            <!-- Sidebar - Chat History -->
-            <div class="sidebar">
-                <div class="sidebar-nav">
-                    <button class="sidebar-nav-btn active" id="navChat" onclick="switchView('chat')">Chat</button>
-                    <button class="sidebar-nav-btn" id="navDashboard" onclick="switchView('dashboard')">Dashboard</button>
-                    <button class="sidebar-nav-btn" id="navTIA" onclick="switchView('tia')">TIA Portal</button>
-                </div>
-                <div class="sidebar-header">
+            <!-- Sidebar - Project List -->
+            <div class="sidebar" id="sidebarEl">
+                <!-- Side-panel toggle inside sidebar -->
+                <button class="sidebar-inner-toggle" onclick="toggleSidebar()" title="Collapse sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                </button>
+                <div class="sidebar-header" style="padding-top: 8px;">
                     <button class="new-chat-btn" onclick="openNewProjectModal()">+ New Project</button>
                 </div>
                 <div class="sidebar-title">Projects</div>
@@ -2394,20 +2550,29 @@
 
             <!-- Chat Area -->
             <div class="chat-container">
-                <!-- Project Overview Bar -->
+                <!-- Project Overview Bar (Highlighted) -->
                 <div class="project-overview" id="projectOverview">
                     <div class="overview-header" onclick="toggleOverview()">
                         <div class="overview-header-left">
                             <span class="overview-project-title" id="ovTitle">Project</span>
                             <span class="overview-platform-badge" id="ovPlatform">Siemens</span>
                             <span class="overview-version" id="ovVersion"></span>
+                            <span class="overview-stage-badge" id="ovStage">Planning</span>
                         </div>
                         <span class="overview-toggle-icon" id="ovToggleIcon">&#9660;</span>
                     </div>
                     <div class="overview-body" id="overviewBody">
+                        <!-- Hardware Config Grid -->
+                        <div class="overview-hw-grid" id="ovHardwareGrid">
+                            <div class="ov-hw-item"><span class="ov-hw-label">CPU</span><span class="ov-hw-value" id="ovCPU">-</span></div>
+                            <div class="ov-hw-item"><span class="ov-hw-label">Variant</span><span class="ov-hw-value" id="ovVariant">-</span></div>
+                            <div class="ov-hw-item"><span class="ov-hw-label">TIA Portal</span><span class="ov-hw-value" id="ovTIA">-</span></div>
+                            <div class="ov-hw-item"><span class="ov-hw-label">Network</span><span class="ov-hw-value" id="ovNetwork">-</span></div>
+                            <div class="ov-hw-item"><span class="ov-hw-label">Safety</span><span class="ov-hw-value" id="ovSafety">Standard</span></div>
+                            <div class="ov-hw-item"><span class="ov-hw-label">Messages</span><span class="ov-hw-value" id="ovMsgCount">0</span></div>
+                        </div>
                         <div class="overview-meta">
                             <span>Created: <strong id="ovCreated">-</strong></span>
-                            <span>Messages: <strong id="ovMsgCount">0</strong></span>
                         </div>
                         <div class="overview-desc">
                             <textarea id="ovDescription" placeholder="Add project notes or overview..."></textarea>
@@ -2425,6 +2590,8 @@
                                 <div class="no-docs">No documents uploaded yet.</div>
                             </div>
                         </div>
+                        <!-- Stage Actions -->
+                        <div class="overview-stage-actions" id="ovStageActions"></div>
                     </div>
                 </div>
 
@@ -2482,15 +2649,6 @@
                 </div>
             </div>
 
-            <!-- ========== DASHBOARD VIEW (Per-Project) ========== -->
-            <div class="dashboard-container" id="dashboardContainer">
-                <div id="projDashContent">
-                    <div class="proj-dash-empty" id="projDashEmpty">
-                        Select a project to view its dashboard.
-                    </div>
-                </div>
-            </div>
-
             <!-- ========== PROFILE VIEW ========== -->
             <div class="dashboard-container" id="profileContainer">
                 <div id="profileContent"></div>
@@ -2501,115 +2659,114 @@
                 <div id="settingsContent"></div>
             </div>
 
-            <!-- ========== TIA PORTAL VIEW ========== -->
-            <div class="dashboard-container" id="tiaContainer">
-                <div class="tia-panel">
-                    <div class="tia-panel-header">
-                        <h2>TIA Portal Control</h2>
-                        <div class="tia-connection-status" id="tiaStatusBadge">
-                            <span class="tia-status-dot disconnected"></span>
-                            <span id="tiaStatusText">Disconnected</span>
-                        </div>
-                    </div>
+        </div>
+    </div>
 
-                    <!-- Connection Section -->
-                    <div class="tia-section">
-                        <h3>Connection</h3>
-                        <div class="tia-row">
-                            <button class="tia-btn primary" onclick="tiaConnect()" id="tiaConnectBtn">Connect to TIA Portal</button>
-                            <button class="tia-btn secondary" onclick="tiaDisconnect()" id="tiaDisconnectBtn" disabled>Disconnect</button>
-                            <button class="tia-btn outline" onclick="tiaRefreshStatus()">Refresh Status</button>
-                        </div>
-                        <div class="tia-info-box" id="tiaConnectionInfo" style="display:none;">
-                            <div id="tiaConnectionDetails"></div>
-                        </div>
-                    </div>
+    <!-- ========== TIA PORTAL OVERLAY (Floating Panel) ========== -->
+    <div class="tia-overlay" id="tiaOverlay">
+        <div class="tia-overlay-header">
+            <h3>TIA Portal Control</h3>
+            <button class="tia-overlay-close" onclick="toggleTiaOverlay()">&times;</button>
+        </div>
+        <div class="tia-connection-status" id="tiaStatusBadge" style="margin-bottom:12px;">
+            <span class="tia-status-dot disconnected"></span>
+            <span id="tiaStatusText">Disconnected</span>
+        </div>
 
-                    <!-- Project Section -->
-                    <div class="tia-section">
-                        <h3>Project</h3>
-                        <div class="tia-form-row">
-                            <div class="tia-form-group">
-                                <label>Project Name</label>
-                                <input type="text" class="tia-input" id="tiaProjectName" placeholder="e.g. MotorControl_V1">
-                            </div>
-                            <div class="tia-form-group">
-                                <label>CPU Model</label>
-                                <select class="tia-select" id="tiaCPUModel">
-                                    <optgroup label="S7-1200">
-                                        <option value="CPU 1211C DC/DC/DC">CPU 1211C DC/DC/DC</option>
-                                        <option value="CPU 1212C DC/DC/DC">CPU 1212C DC/DC/DC</option>
-                                        <option value="CPU 1214C DC/DC/DC" selected>CPU 1214C DC/DC/DC</option>
-                                        <option value="CPU 1215C DC/DC/DC">CPU 1215C DC/DC/DC</option>
-                                        <option value="CPU 1217C DC/DC/DC">CPU 1217C DC/DC/DC</option>
-                                    </optgroup>
-                                    <optgroup label="S7-1500">
-                                        <option value="CPU 1511-1 PN">CPU 1511-1 PN</option>
-                                        <option value="CPU 1513-1 PN">CPU 1513-1 PN</option>
-                                        <option value="CPU 1515-2 PN">CPU 1515-2 PN</option>
-                                        <option value="CPU 1516-3 PN/DP">CPU 1516-3 PN/DP</option>
-                                        <option value="CPU 1518-4 PN/DP">CPU 1518-4 PN/DP</option>
-                                    </optgroup>
-                                    <optgroup label="S7-1500F (Failsafe)">
-                                        <option value="CPU 1511F-1 PN">CPU 1511F-1 PN</option>
-                                        <option value="CPU 1513F-1 PN">CPU 1513F-1 PN</option>
-                                        <option value="CPU 1515F-2 PN">CPU 1515F-2 PN</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="tia-row">
-                            <button class="tia-btn primary" onclick="tiaCreateProject()">Create Project</button>
-                            <button class="tia-btn outline" onclick="tiaGetProjectInfo()">Project Info</button>
-                        </div>
-                        <div class="tia-info-box" id="tiaProjectInfo" style="display:none;">
-                            <div id="tiaProjectDetails"></div>
-                        </div>
-                    </div>
+        <!-- Connection Section -->
+        <div class="tia-section">
+            <h3>Connection</h3>
+            <div class="tia-row">
+                <button class="tia-btn primary" onclick="tiaConnect()" id="tiaConnectBtn">Connect to TIA Portal</button>
+                <button class="tia-btn secondary" onclick="tiaDisconnect()" id="tiaDisconnectBtn" disabled>Disconnect</button>
+                <button class="tia-btn outline" onclick="tiaRefreshStatus()">Refresh</button>
+            </div>
+            <div class="tia-info-box" id="tiaConnectionInfo" style="display:none;">
+                <div id="tiaConnectionDetails"></div>
+            </div>
+        </div>
 
-                    <!-- Program Blocks Section -->
-                    <div class="tia-section">
-                        <h3>Program Blocks</h3>
-                        <div class="tia-row">
-                            <button class="tia-btn outline" onclick="tiaListBlocks()">Refresh Blocks</button>
-                        </div>
-                        <div class="tia-block-list" id="tiaBlockList">
-                            <div class="tia-empty-msg">No blocks loaded. Open or create a project first.</div>
-                        </div>
-                    </div>
-
-                    <!-- Compile & Download Section -->
-                    <div class="tia-section">
-                        <h3>Build & Deploy</h3>
-                        <div class="tia-form-row">
-                            <div class="tia-form-group">
-                                <label>PLC IP Address</label>
-                                <input type="text" class="tia-input" id="tiaPlcIP" placeholder="192.168.0.1" value="192.168.0.1">
-                            </div>
-                        </div>
-                        <div class="tia-row">
-                            <button class="tia-btn success" onclick="tiaCompile()">Compile</button>
-                            <button class="tia-btn primary" onclick="tiaDownload()">Download to PLC</button>
-                            <button class="tia-btn outline" onclick="tiaGoOnline()">Go Online</button>
-                        </div>
-                        <div class="tia-result-box" id="tiaCompileResults" style="display:none;">
-                            <div id="tiaCompileDetails"></div>
-                        </div>
-                    </div>
-
-                    <!-- Log Section -->
-                    <div class="tia-section">
-                        <h3>Bridge Log</h3>
-                        <div class="tia-row">
-                            <button class="tia-btn outline" onclick="tiaGetLogs()">Refresh Logs</button>
-                        </div>
-                        <div class="tia-log-box" id="tiaLogBox">
-                            <div class="tia-empty-msg">No logs available.</div>
-                        </div>
-                    </div>
+        <!-- Project Section -->
+        <div class="tia-section">
+            <h3>Project</h3>
+            <div class="tia-form-row">
+                <div class="tia-form-group">
+                    <label>Project Name</label>
+                    <input type="text" class="tia-input" id="tiaProjectName" placeholder="e.g. MotorControl_V1">
+                </div>
+                <div class="tia-form-group">
+                    <label>CPU Model</label>
+                    <select class="tia-select" id="tiaCPUModel">
+                        <optgroup label="S7-1200">
+                            <option value="CPU 1211C DC/DC/DC">CPU 1211C DC/DC/DC</option>
+                            <option value="CPU 1212C DC/DC/DC">CPU 1212C DC/DC/DC</option>
+                            <option value="CPU 1214C DC/DC/DC" selected>CPU 1214C DC/DC/DC</option>
+                            <option value="CPU 1215C DC/DC/DC">CPU 1215C DC/DC/DC</option>
+                            <option value="CPU 1217C DC/DC/DC">CPU 1217C DC/DC/DC</option>
+                        </optgroup>
+                        <optgroup label="S7-1500">
+                            <option value="CPU 1511-1 PN">CPU 1511-1 PN</option>
+                            <option value="CPU 1513-1 PN">CPU 1513-1 PN</option>
+                            <option value="CPU 1515-2 PN">CPU 1515-2 PN</option>
+                            <option value="CPU 1516-3 PN/DP">CPU 1516-3 PN/DP</option>
+                            <option value="CPU 1518-4 PN/DP">CPU 1518-4 PN/DP</option>
+                        </optgroup>
+                        <optgroup label="S7-1500F (Failsafe)">
+                            <option value="CPU 1511F-1 PN">CPU 1511F-1 PN</option>
+                            <option value="CPU 1513F-1 PN">CPU 1513F-1 PN</option>
+                            <option value="CPU 1515F-2 PN">CPU 1515F-2 PN</option>
+                        </optgroup>
+                    </select>
                 </div>
             </div>
+            <div class="tia-row">
+                <button class="tia-btn primary" onclick="tiaCreateProject()">Create Project</button>
+                <button class="tia-btn outline" onclick="tiaGetProjectInfo()">Project Info</button>
+            </div>
+            <div class="tia-info-box" id="tiaProjectInfo" style="display:none;">
+                <div id="tiaProjectDetails"></div>
+            </div>
+        </div>
 
+        <!-- Program Blocks Section -->
+        <div class="tia-section">
+            <h3>Program Blocks</h3>
+            <div class="tia-row">
+                <button class="tia-btn outline" onclick="tiaListBlocks()">Refresh Blocks</button>
+            </div>
+            <div class="tia-block-list" id="tiaBlockList">
+                <div class="tia-empty-msg">No blocks loaded.</div>
+            </div>
+        </div>
+
+        <!-- Compile & Download Section -->
+        <div class="tia-section">
+            <h3>Build & Deploy</h3>
+            <div class="tia-form-row">
+                <div class="tia-form-group">
+                    <label>PLC IP Address</label>
+                    <input type="text" class="tia-input" id="tiaPlcIP" placeholder="192.168.0.1" value="192.168.0.1">
+                </div>
+            </div>
+            <div class="tia-row">
+                <button class="tia-btn success" onclick="tiaCompile()">Compile</button>
+                <button class="tia-btn primary" onclick="tiaDownload()">Download to PLC</button>
+                <button class="tia-btn outline" onclick="tiaGoOnline()">Go Online</button>
+            </div>
+            <div class="tia-result-box" id="tiaCompileResults" style="display:none;">
+                <div id="tiaCompileDetails"></div>
+            </div>
+        </div>
+
+        <!-- Log Section -->
+        <div class="tia-section">
+            <h3>Bridge Log</h3>
+            <div class="tia-row">
+                <button class="tia-btn outline" onclick="tiaGetLogs()">Refresh Logs</button>
+            </div>
+            <div class="tia-log-box" id="tiaLogBox">
+                <div class="tia-empty-msg">No logs available.</div>
+            </div>
         </div>
     </div>
 
@@ -3017,19 +3174,37 @@
                 list.innerHTML = '';
 
                 const stageColors = { planning: '#3b82f6', execution: '#f59e0b', testing: '#a855f7', completed: '#34d399' };
-                const stageIcons = { planning: '&#9679;', execution: '&#9881;', testing: '&#9745;', completed: '&#10003;' };
 
                 convos.forEach(c => {
                     const el = document.createElement('div');
                     el.className = 'conversation-item' + (c.id === currentConversationId ? ' active' : '');
                     el.dataset.id = c.id;
                     const color = stageColors[c.current_stage] || '#9ca0b0';
-                    const icon = stageIcons[c.current_stage] || '&#9679;';
-                    el.innerHTML = `<span class="conv-platform-dot" style="color:${color}">${icon}</span>${c.title}`;
-                    el.onclick = () => { loadConversation(c.id); switchView('dashboard'); };
+                    const cpuLabel = c.cpu_model || 'Siemens';
+                    const dateLabel = c.updated_at ? new Date(c.updated_at).toLocaleDateString() : '';
+                    el.innerHTML = `
+                        <div class="conv-title">${c.title}</div>
+                        <div class="conv-subtitle">
+                            <span class="conv-stage-dot" style="background:${color}"></span>
+                            ${cpuLabel}${dateLabel ? ' &middot; ' + dateLabel : ''}
+                        </div>`;
+                    el.onclick = () => { selectProject(c.id); };
                     list.appendChild(el);
                 });
             } catch (e) {}
+        }
+
+        // Select a project - load it and show unified view
+        async function selectProject(id) {
+            await loadConversation(id);
+            switchView('chat');
+            // Auto-expand project overview when selected
+            const body = document.getElementById('overviewBody');
+            const icon = document.getElementById('ovToggleIcon');
+            if (body && !body.classList.contains('expanded')) {
+                body.classList.add('expanded');
+                if (icon) icon.innerHTML = '&#9650;';
+            }
         }
 
         async function loadConversation(id) {
@@ -3207,16 +3382,17 @@
             typingIndicator.classList.remove('active');
         }
 
-        // Background refresh of dashboard data (called after each chat message)
+        // Background refresh of dashboard/project data (called after each chat message)
         async function refreshDashboardBackground() {
             try {
                 const res = await fetch(`/api/conversations/${currentConversationId}/dashboard`, { headers: authHeaders() });
                 if (res.ok) {
                     dashboardData = await res.json();
-                    // If user is viewing dashboard, re-render
-                    if (currentView === 'dashboard') {
-                        const container = document.getElementById('projDashContent');
-                        renderProjectDashboard(dashboardData, container);
+                    // Update project overview with latest data
+                    if (dashboardData.project) {
+                        currentProject.current_stage = dashboardData.project.current_stage;
+                        currentProject.message_count = dashboardData.stats?.total_messages || currentProject.message_count;
+                        updateProjectOverview();
                     }
                 }
             } catch (e) { /* silent background refresh */ }
@@ -3291,8 +3467,15 @@
         // Sidebar Toggle (Collapse/Expand)
         // ===========================================
         function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
+            const sidebar = document.getElementById('sidebarEl');
+            const headerBtn = document.getElementById('sidebarToggleBtn');
             sidebar.classList.toggle('collapsed');
+            // Show header toggle when sidebar is collapsed
+            if (sidebar.classList.contains('collapsed')) {
+                headerBtn.style.display = 'flex';
+            } else {
+                headerBtn.style.display = 'none';
+            }
         }
 
         // ===========================================
@@ -3391,7 +3574,7 @@
                 await loadConversations();
                 currentConversationId = data.id;
                 await loadConversation(data.id);
-                switchView('dashboard');  // Go to dashboard, not chat
+                switchView('chat');  // Show unified project + chat view
             } catch (err) {
                 console.error('Create project error:', err);
             }
@@ -3414,6 +3597,44 @@
             document.getElementById('ovCreated').textContent = p.created_at ? new Date(p.created_at).toLocaleDateString() : '-';
             document.getElementById('ovMsgCount').textContent = p.message_count || 0;
             document.getElementById('ovDescription').value = p.description || '';
+
+            // Hardware grid
+            document.getElementById('ovCPU').textContent = p.cpu_model || 'Not set';
+            document.getElementById('ovVariant').textContent = p.cpu_variant || 'Not set';
+            document.getElementById('ovTIA').textContent = p.software_version || 'Not set';
+            document.getElementById('ovNetwork').textContent = p.network_type || 'Not set';
+            document.getElementById('ovSafety').textContent = p.safety_required ? 'Required (F-CPU)' : 'Standard';
+
+            // Stage badge
+            const stageBadge = document.getElementById('ovStage');
+            const stage = p.current_stage || 'planning';
+            const stageNames = { planning: 'Planning', execution: 'Execution', testing: 'Testing', completed: 'Completed' };
+            stageBadge.textContent = stageNames[stage] || stage;
+            stageBadge.className = 'overview-stage-badge ' + stage;
+
+            // Stage actions
+            const actionsEl = document.getElementById('ovStageActions');
+            let actionsHtml = '';
+            if (stage === 'planning') {
+                actionsHtml = `
+                    <button class="primary" onclick="generateDocument('FDS')">Generate FDS</button>
+                    <button onclick="document.getElementById('fileUpload').click()">Upload FDS</button>
+                    <button class="primary" onclick="generateDocument('IO_LIST')">Generate IO List</button>
+                    <button onclick="advanceStage()">Advance to Execution &rarr;</button>`;
+            } else if (stage === 'execution') {
+                actionsHtml = `
+                    <button class="primary" onclick="generateDocument('PLC_CODE')">Generate PLC Code</button>
+                    <button onclick="advanceStage()">Advance to Testing &rarr;</button>`;
+            } else if (stage === 'testing') {
+                actionsHtml = `
+                    <button class="primary" onclick="generateDocument('FAT')">Generate FAT</button>
+                    <button class="primary" onclick="generateDocument('SAT')">Generate SAT</button>
+                    <button onclick="advanceStage()">Mark Complete &check;</button>`;
+            } else if (stage === 'completed') {
+                actionsHtml = '<span style="color:var(--success);font-size:12px;">Project completed</span>';
+            }
+            actionsEl.innerHTML = actionsHtml;
+
             renderDocList(p.documents || []);
         }
 
@@ -3466,7 +3687,7 @@
                     renderDocList(currentProject.documents);
                 }
                 // Refresh dashboard if currently showing it
-                if (currentView === 'dashboard') loadDashboard();
+                refreshDashboardBackground();
             } catch (e) {
                 console.error('Upload error:', e);
             }
@@ -3511,7 +3732,7 @@
                         currentProject.documents = currentProject.documents.filter(d => d.id !== docId);
                         renderDocList(currentProject.documents);
                     }
-                    if (currentView === 'dashboard') loadDashboard();
+                    refreshDashboardBackground();
                 }
             } catch (e) {
                 console.error('Delete doc error:', e);
@@ -3519,48 +3740,30 @@
         }
 
         // ===========================================
-        // View Switching (Chat / Dashboard)
+        // View Switching (Unified: project+chat is default, profile/settings are overlays)
         // ===========================================
         let currentView = 'chat';
 
         function switchView(view) {
             currentView = view;
             const chatEl = document.querySelector('.chat-container');
-            const dashEl = document.getElementById('dashboardContainer');
             const profileEl = document.getElementById('profileContainer');
             const settingsEl = document.getElementById('settingsContainer');
-            const tiaEl = document.getElementById('tiaContainer');
-            const navChat = document.getElementById('navChat');
-            const navDash = document.getElementById('navDashboard');
-            const navTIA = document.getElementById('navTIA');
 
             // Hide all views
             chatEl.style.display = 'none';
-            dashEl.classList.remove('active');
             profileEl.classList.remove('active');
             settingsEl.classList.remove('active');
-            tiaEl.classList.remove('active');
-            navChat.classList.remove('active');
-            navDash.classList.remove('active');
-            navTIA.classList.remove('active');
 
-            if (view === 'dashboard') {
-                dashEl.classList.add('active');
-                navDash.classList.add('active');
-                loadDashboard();
-            } else if (view === 'profile') {
+            if (view === 'profile') {
                 profileEl.classList.add('active');
                 loadProfilePage();
             } else if (view === 'settings') {
                 settingsEl.classList.add('active');
                 loadSettingsPage();
-            } else if (view === 'tia') {
-                tiaEl.classList.add('active');
-                navTIA.classList.add('active');
-                tiaRefreshStatus();
             } else {
+                // Default: show unified project + chat view
                 chatEl.style.display = 'flex';
-                navChat.classList.add('active');
             }
         }
 
@@ -3800,7 +4003,7 @@
                 viewGeneratedDocContent(data.title, data.content);
 
                 // Reload dashboard to reflect changes
-                await loadDashboard();
+                await refreshDashboardBackground();
             } catch (e) {
                 const sp = document.getElementById('genSpinner');
                 if (sp) sp.remove();
@@ -3860,7 +4063,7 @@
                 }
                 const data = await res.json();
                 if (currentProject) currentProject.current_stage = data.current_stage;
-                await loadDashboard();
+                await refreshDashboardBackground();
                 await loadConversations();  // Refresh sidebar stage indicators
             } catch (e) {
                 console.error('Advance stage error:', e);
@@ -3893,7 +4096,7 @@
                     const err = await res.json();
                     alert(err.detail || 'Upload failed');
                 } else {
-                    await loadDashboard();
+                    await refreshDashboardBackground();
                 }
             } catch (e) {
                 const sp = document.getElementById('genSpinner');
@@ -3930,7 +4133,7 @@
                     body: formData,
                 });
                 if (!res.ok) { const d = await res.json(); alert(d.detail || 'Upload failed'); }
-                else { loadDashboard(); }
+                else { refreshDashboardBackground(); }
             } catch (e) { console.error('Upload error:', e); }
             input.value = '';
         }
@@ -3942,7 +4145,7 @@
                     method: 'DELETE',
                     headers: authHeaders(),
                 });
-                if (res.ok) loadDashboard();
+                if (res.ok) refreshDashboardBackground();
             } catch (e) { console.error('Delete doc error:', e); }
         }
 
@@ -4004,7 +4207,7 @@
                         }
                     } catch (e) { break; }
                 }
-                await loadDashboard();
+                await refreshDashboardBackground();
                 await loadConversations();
             } else {
                 // Going backwards - just view that stage detail (no actual stage change)
@@ -4414,33 +4617,96 @@
         }
 
         // ===========================================
-        // TIA Portal Panel Functions
+        // TIA Portal Overlay & Status Functions
         // ===========================================
+        let tiaOverlayOpen = false;
+
+        function toggleTiaOverlay() {
+            const overlay = document.getElementById('tiaOverlay');
+            tiaOverlayOpen = !tiaOverlayOpen;
+            if (tiaOverlayOpen) {
+                overlay.classList.add('show');
+                tiaRefreshStatus();
+            } else {
+                overlay.classList.remove('show');
+            }
+        }
+
+        // Close overlay on outside click
+        document.addEventListener('click', (e) => {
+            if (tiaOverlayOpen && !e.target.closest('.tia-overlay') && !e.target.closest('.tia-header-status')) {
+                tiaOverlayOpen = false;
+                document.getElementById('tiaOverlay').classList.remove('show');
+            }
+        });
+
+        // Update header TIA indicator
+        function updateTiaHeaderIndicator(status) {
+            const dot = document.getElementById('tiaHeaderDot');
+            const label = document.getElementById('tiaHeaderLabel');
+            if (status === 'connected') {
+                dot.className = 'tia-header-dot connected';
+                label.textContent = 'TIA Connected';
+            } else if (status === 'bridge') {
+                dot.className = 'tia-header-dot bridge-online';
+                label.textContent = 'TIA Bridge';
+            } else {
+                dot.className = 'tia-header-dot offline';
+                label.textContent = 'TIA Offline';
+            }
+        }
+
+        // Poll TIA status every 5 seconds
+        let tiaPollingInterval = null;
+        function startTiaPolling() {
+            if (tiaPollingInterval) return;
+            tiaPollingInterval = setInterval(pollTiaStatus, 5000);
+            pollTiaStatus(); // immediate first poll
+        }
+
+        async function pollTiaStatus() {
+            try {
+                const res = await fetch('/api/tia/status');
+                const data = await res.json();
+                if (data.tia_portal_connected) {
+                    updateTiaHeaderIndicator('connected');
+                } else if (data.dll_loaded || data.bridge === 'online') {
+                    updateTiaHeaderIndicator('bridge');
+                } else {
+                    updateTiaHeaderIndicator('offline');
+                }
+            } catch (e) {
+                updateTiaHeaderIndicator('offline');
+            }
+        }
 
         async function tiaRefreshStatus() {
             try {
                 const res = await fetch('/api/tia/status');
                 const data = await res.json();
-                const dot = document.querySelector('.tia-status-dot');
+                const dot = document.querySelector('#tiaOverlay .tia-status-dot');
                 const text = document.getElementById('tiaStatusText');
                 const connectBtn = document.getElementById('tiaConnectBtn');
                 const disconnectBtn = document.getElementById('tiaDisconnectBtn');
 
                 if (data.tia_portal_connected) {
-                    dot.className = 'tia-status-dot connected';
+                    if (dot) dot.className = 'tia-status-dot connected';
                     text.textContent = data.project_open ? `Connected — ${data.project_name || 'No project'}` : 'Connected — No project open';
                     connectBtn.disabled = true;
                     disconnectBtn.disabled = false;
+                    updateTiaHeaderIndicator('connected');
                 } else if (data.dll_loaded || data.bridge === 'online') {
-                    dot.className = 'tia-status-dot disconnected';
+                    if (dot) dot.className = 'tia-status-dot disconnected';
                     text.textContent = 'Bridge Online — TIA Not Connected';
                     connectBtn.disabled = false;
                     disconnectBtn.disabled = true;
+                    updateTiaHeaderIndicator('bridge');
                 } else {
-                    dot.className = 'tia-status-dot disconnected';
+                    if (dot) dot.className = 'tia-status-dot disconnected';
                     text.textContent = 'Bridge Offline';
                     connectBtn.disabled = false;
                     disconnectBtn.disabled = true;
+                    updateTiaHeaderIndicator('offline');
                 }
 
                 // Show connection details
@@ -4455,12 +4721,14 @@
                     ${data.project_name ? '<br><strong>Project:</strong> ' + data.project_name : ''}
                 `;
             } catch (e) {
-                document.querySelector('.tia-status-dot').className = 'tia-status-dot disconnected';
+                const dot = document.querySelector('#tiaOverlay .tia-status-dot');
+                if (dot) dot.className = 'tia-status-dot disconnected';
                 document.getElementById('tiaStatusText').textContent = 'Bridge Unreachable';
                 const infoBox = document.getElementById('tiaConnectionInfo');
                 infoBox.style.display = 'block';
                 document.getElementById('tiaConnectionDetails').innerHTML =
                     '<span style="color:var(--danger)">Cannot reach TIA Bridge server. Make sure tia_bridge_server.py is running on your Windows PC.</span>';
+                updateTiaHeaderIndicator('offline');
             }
         }
 
@@ -4713,6 +4981,8 @@
 
             if (authToken && currentUser) {
                 showApp();
+                // Start TIA status polling
+                startTiaPolling();
             } else {
                 document.getElementById('authScreen').style.display = 'flex';
             }

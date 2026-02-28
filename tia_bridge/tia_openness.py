@@ -561,12 +561,44 @@ class TIAHandler:
 
             # Import via External Sources
             from System.IO import FileInfo
-            file_info = FileInfo(str(scl_file))
 
             external_source_group = plc_software.ExternalSourceGroup
-            external_source = external_source_group.ExternalSources.CreateFromFile(
-                block_name, file_info
-            )
+
+            # Try different method signatures (varies by TIA Portal version)
+            external_source = None
+            errors = []
+
+            # Attempt 1: CreateFromFile(name, path_as_string)
+            try:
+                external_source = external_source_group.ExternalSources.CreateFromFile(
+                    block_name, str(scl_file)
+                )
+            except Exception as e1:
+                errors.append(f"(str,str): {e1}")
+
+            # Attempt 2: CreateFromFile(FileInfo)
+            if external_source is None:
+                try:
+                    file_info = FileInfo(str(scl_file))
+                    external_source = external_source_group.ExternalSources.CreateFromFile(
+                        file_info
+                    )
+                except Exception as e2:
+                    errors.append(f"(FileInfo): {e2}")
+
+            # Attempt 3: CreateFromFile(name, FileInfo)
+            if external_source is None:
+                try:
+                    file_info = FileInfo(str(scl_file))
+                    external_source = external_source_group.ExternalSources.CreateFromFile(
+                        block_name, file_info
+                    )
+                except Exception as e3:
+                    errors.append(f"(str,FileInfo): {e3}")
+
+            if external_source is None:
+                self._log(f"All CreateFromFile attempts failed: {errors}")
+                return {"success": False, "message": f"CreateFromFile failed. Tried: {errors}"}
 
             # Generate blocks from the external source
             self._log("Generating blocks from external source...")

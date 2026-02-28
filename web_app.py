@@ -10,7 +10,7 @@ import httpx
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -248,6 +248,134 @@ async def chat(
 
     except Exception as e:
         return JSONResponse({"error": f"Error calling AI: {e}"}, status_code=500)
+
+
+import asyncio, queue, threading
+
+
+@app.post("/api/chat/stream")
+async def chat_stream(
+    req: ChatRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """SSE streaming chat — sends status updates as AI works, then the final response."""
+    # Rate limit check
+    rate_info = check_rate_limit(db, user.id, user.tier)
+    if not rate_info["allowed"]:
+        return JSONResponse({"error": "Rate limit reached"}, status_code=429)
+
+    # Resolve conversation
+    conversation_id = req.conversation_id
+    if not conversation_id:
+        convo = Conversation(
+            user_id=user.id,
+            title=req.message[:50] + ("..." if len(req.message) > 50 else ""),
+            platform=req.platform,
+        )
+        db.add(convo)
+        db.commit()
+        db.refresh(convo)
+        conversation_id = convo.id
+    else:
+        convo = db.query(Conversation).filter(
+            Conversation.id == conversation_id,
+            Conversation.user_id == user.id,
+        ).first()
+        if not convo:
+            return JSONResponse({"error": "Conversation not found"}, status_code=404)
+
+    # Build context message (same as /api/chat)
+    context_parts = [f"[Target Platform: {req.platform}]"]
+    if convo:
+        if convo.cpu_model:
+            context_parts.append(f"[CPU: {convo.cpu_model}")
+            if convo.cpu_variant:
+                context_parts[-1] += f" {convo.cpu_variant}"
+            context_parts[-1] += "]"
+        if convo.software_version:
+            context_parts.append(f"[TIA Portal: {convo.software_version}]")
+        if convo.network_type:
+            context_parts.append(f"[Network: {convo.network_type}]")
+        if getattr(convo, 'safety_required', False):
+            context_parts.append("[Safety: F-CPU Required]")
+        if getattr(convo, 'io_modules', None):
+            try:
+                import json as _j
+                modules = _j.loads(convo.io_modules) if isinstance(convo.io_modules, str) else convo.io_modules
+                if modules:
+                    context_parts.append(f"[IO Modules: {', '.join(modules)}]")
+            except Exception:
+                pass
+        if convo.current_stage:
+            context_parts.append(f"[Stage: {convo.current_stage}]")
+    full_message = " ".join(context_parts) + " " + req.message
+
+    # Save user message
+    user_msg = Message(conversation_id=conversation_id, role="user", content=req.message)
+    db.add(user_msg)
+    db.commit()
+
+    # Status queue for SSE
+    status_q = queue.Queue()
+
+    def status_callback(text):
+        status_q.put(("status", text))
+
+    def run_agent():
+        try:
+            cleanup_agents()
+            agent = get_agent(user.id, conversation_id, db)
+            if req.model:
+                agent.model_override = req.model
+            response = agent.chat(full_message, status_callback=status_callback)
+            status_q.put(("done", response))
+        except Exception as e:
+            status_q.put(("error", str(e)))
+
+    # Run agent in thread
+    threading.Thread(target=run_agent, daemon=True).start()
+
+    import json as _json
+
+    async def event_generator():
+        while True:
+            try:
+                kind, data = status_q.get(timeout=0.15)
+            except queue.Empty:
+                # Send heartbeat to keep connection alive
+                yield f"data: {_json.dumps({'type': 'heartbeat'})}\n\n"
+                continue
+
+            if kind == "status":
+                yield f"data: {_json.dumps({'type': 'status', 'text': data})}\n\n"
+            elif kind == "done":
+                # Save assistant response
+                assistant_msg = Message(conversation_id=conversation_id, role="assistant", content=data)
+                db.add(assistant_msg)
+                c = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+                if c:
+                    c.updated_at = datetime.utcnow()
+                increment_usage(db, user.id)
+                db.commit()
+
+                # Check files
+                files_saved = []
+                if OUTPUT_DIR.exists():
+                    now = time.time()
+                    for f in OUTPUT_DIR.iterdir():
+                        if f.is_file() and (now - f.stat().st_mtime) < 10:
+                            files_saved.append(f.name)
+
+                updated_rate = check_rate_limit(db, user.id, user.tier)
+
+                yield f"data: {_json.dumps({'type': 'response', 'response': data, 'conversation_id': conversation_id, 'files_saved': files_saved, 'usage': updated_rate})}\n\n"
+                return
+            elif kind == "error":
+                yield f"data: {_json.dumps({'type': 'error', 'error': data})}\n\n"
+                return
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @app.post("/api/reset")

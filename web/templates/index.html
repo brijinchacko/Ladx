@@ -588,12 +588,28 @@
             align-self: flex-start;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            padding: 12px 16px;
+            padding: 10px 16px;
             border-radius: 12px;
             display: none;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 90%;
         }
 
-        .typing-indicator.active { display: flex; gap: 4px; align-items: center; }
+        .typing-indicator.active { display: flex; }
+
+        .typing-dots { display: flex; gap: 4px; align-items: center; }
+
+        .typing-status-text {
+            font-size: 12px;
+            color: var(--accent);
+            animation: statusFade 0.3s ease;
+        }
+
+        @keyframes statusFade {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
 
         .dot {
             width: 8px; height: 8px;
@@ -2417,10 +2433,14 @@
                     <span class="quick-action-chip" onclick="quickAction('taglist')">Tag List</span>
                 </div>
 
-                <!-- Typing indicator -->
+                <!-- Typing / Status indicator -->
                 <div class="typing-indicator" id="typingIndicator">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                    <span style="margin-left: 8px; font-size: 13px; color: var(--accent);">LADX is thinking...</span>
+                    <div class="typing-dots">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                    <div class="typing-status">
+                        <span class="typing-status-text" id="typingStatusText">LADX is thinking...</span>
+                    </div>
                 </div>
 
                 <!-- Input Area -->
@@ -3108,6 +3128,11 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        function updateTypingStatus(text) {
+            const el = document.getElementById('typingStatusText');
+            if (el) el.textContent = text;
+        }
+
         async function sendMessage() {
             const text = userInput.value.trim();
             if (!text || isWaiting) return;
@@ -3120,11 +3145,11 @@
 
             isWaiting = true;
             sendBtn.disabled = true;
-            sendBtn.disabled = true; // waiting state
+            updateTypingStatus('Analyzing your request...');
             typingIndicator.classList.add('active');
 
             try {
-                const response = await fetch('/api/chat', {
+                const response = await fetch('/api/chat/stream', {
                     method: 'POST',
                     headers: authHeaders(),
                     body: JSON.stringify({
@@ -3136,47 +3161,68 @@
                 });
 
                 if (response.status === 401) { logout(); return; }
-
-                const data = await response.json();
-
                 if (response.status === 429) {
-                    addMessage(`Daily limit reached (${data.rate_limit.limit} messages). Upgrade your plan for more.`, 'system');
-                } else if (data.error) {
-                    addMessage(`Error: ${data.error}`, 'system');
-                } else {
-                    addMessage(data.response, 'assistant');
+                    addMessage('Daily limit reached. Upgrade your plan for more.', 'system');
+                    isWaiting = false;
+                    sendBtn.disabled = false;
+                    typingIndicator.classList.remove('active');
+                    return;
+                }
 
-                    // Update conversation ID (for new conversations)
-                    if (data.conversation_id) {
-                        currentConversationId = data.conversation_id;
-                        await loadConversations();
-                    }
+                // Read SSE stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
 
-                    // Update usage display
-                    if (data.usage) {
-                        const u = data.usage;
-                        if (u.limit) {
-                            document.getElementById('usageInfo').textContent = `${u.used}/${u.limit} messages today`;
-                        }
-                    }
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
 
-                    if (data.files_saved && data.files_saved.length > 0) {
-                        const fileMsg = data.files_saved.map(f => `Saved: ${f}`).join('\n');
-                        addMessage(fileMsg, 'system');
-                    }
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // keep incomplete line
 
-                    // Sync: refresh dashboard data in background when chat updates
-                    if (currentConversationId) {
-                        refreshDashboardBackground();
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const evt = JSON.parse(line.slice(6));
+
+                            if (evt.type === 'status') {
+                                updateTypingStatus(evt.text);
+                            } else if (evt.type === 'response') {
+                                addMessage(evt.response, 'assistant');
+
+                                if (evt.conversation_id) {
+                                    currentConversationId = evt.conversation_id;
+                                    await loadConversations();
+                                }
+
+                                if (evt.usage && evt.usage.limit) {
+                                    document.getElementById('usageInfo').textContent =
+                                        `${evt.usage.used}/${evt.usage.limit} messages today`;
+                                }
+
+                                if (evt.files_saved && evt.files_saved.length > 0) {
+                                    addMessage(evt.files_saved.map(f => `Saved: ${f}`).join('\n'), 'system');
+                                }
+
+                                if (currentConversationId) {
+                                    refreshDashboardBackground();
+                                }
+                            } else if (evt.type === 'error') {
+                                addMessage(`Error: ${evt.error}`, 'system');
+                            }
+                            // heartbeat — ignore
+                        } catch (e) { /* skip bad JSON */ }
                     }
                 }
+
             } catch (error) {
                 addMessage(`Connection error: ${error.message}`, 'system');
             }
 
             isWaiting = false;
             sendBtn.disabled = false;
-            sendBtn.disabled = false; // ready state
             typingIndicator.classList.remove('active');
         }
 
@@ -3417,6 +3463,9 @@
                 // Load dashboard for new project
                 await loadDashboard();
                 document.getElementById('projectDashPanel').classList.add('active');
+
+                // Auto-generate FDS and IO List in background
+                autoGenerateDocs(data.id);
             } catch (err) {
                 console.error('Create project error:', err);
             }
@@ -3755,6 +3804,47 @@
 
             html += '</div>';
             return html;
+        }
+
+        // ---- Auto-generate FDS & IO List on project creation ----
+        async function autoGenerateDocs(convoId) {
+            // Show status in chat
+            addMessage('Auto-generating FDS and IO List for your project...', 'system');
+
+            try {
+                // Generate FDS first
+                updateTypingStatus('Generating FDS document...');
+                typingIndicator.classList.add('active');
+
+                const fdsRes = await fetch(`/api/conversations/${convoId}/generate/FDS`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ prompt: null }),
+                });
+                if (fdsRes.ok) {
+                    addMessage('FDS document generated successfully.', 'system');
+                }
+
+                // Then generate IO List
+                updateTypingStatus('Generating IO List...');
+                const ioRes = await fetch(`/api/conversations/${convoId}/generate/IO_LIST`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ prompt: null }),
+                });
+                if (ioRes.ok) {
+                    addMessage('IO List generated successfully.', 'system');
+                }
+
+                typingIndicator.classList.remove('active');
+
+                // Refresh dashboard to show new docs
+                await refreshDashboardBackground();
+
+            } catch (e) {
+                console.error('Auto-generate docs error:', e);
+                typingIndicator.classList.remove('active');
+            }
         }
 
         // ---- Generate a document (FDS, IO_LIST, PLC_CODE, FAT, SAT) ----

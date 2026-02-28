@@ -914,11 +914,15 @@ class PLCAgent:
         """Return the model to use: override if set, otherwise default."""
         return self.model_override or AI_MODEL
 
-    def chat(self, user_message: str) -> str:
+    def chat(self, user_message: str, status_callback=None) -> str:
         """
         Send a message to the agent and get a response.
         Handles multi-turn tool use automatically via OpenAI function calling.
+        status_callback: optional callable(status_text) for live progress updates.
         """
+        self._status_cb = status_callback or (lambda s: None)
+        self._status_cb("Analyzing your request...")
+
         # Add user message to history
         self.conversation_history.append({
             "role": "user",
@@ -929,6 +933,8 @@ class PLCAgent:
         messages = [
             {"role": "system", "content": self.system_prompt}
         ] + self.conversation_history
+
+        self._status_cb("Thinking...")
 
         # Call OpenRouter with tools
         try:
@@ -946,6 +952,7 @@ class PLCAgent:
         except Exception as e:
             # If tool calling fails (some free models don't support it),
             # fall back to plain chat without tools
+            self._status_cb("Retrying without tools...")
             try:
                 response = client.chat.completions.create(
                     model=self.active_model,
@@ -965,13 +972,33 @@ class PLCAgent:
         final_response = self._process_response(response)
         return final_response
 
+    # Friendly tool name mapping for status display
+    TOOL_LABELS = {
+        "generate_scl_code": "Generating SCL code",
+        "analyze_scl_code": "Analyzing SCL code",
+        "convert_plc_code": "Converting PLC code",
+        "search_siemens_docs": "Searching Siemens documentation",
+        "get_tia_portal_instructions": "Getting TIA Portal instructions",
+        "generate_tag_list": "Generating tag list",
+        "troubleshoot_plc": "Troubleshooting PLC issue",
+        "get_plc_templates": "Loading PLC template",
+        "validate_scl_syntax": "Validating SCL syntax",
+        "explain_plc_code": "Explaining PLC code",
+        "generate_plc_comments": "Generating code comments",
+        "optimize_scl_code": "Optimizing SCL code",
+        "generate_hmi_tags": "Generating HMI tags",
+        "generate_ladder_diagram": "Generating ladder diagram (LAD)",
+    }
+
     def _process_response(self, response) -> str:
         """Process OpenRouter response, handling any tool calls."""
         collected_text = []
         message = response.choices[0].message
 
         # Loop for multi-turn tool use
+        tool_round = 0
         while message.tool_calls:
+            tool_round += 1
             # Collect any text content
             if message.content:
                 collected_text.append(message.content)
@@ -995,6 +1022,9 @@ class PLCAgent:
 
             # Execute all tool calls
             for tc in message.tool_calls:
+                tool_label = self.TOOL_LABELS.get(tc.function.name, tc.function.name.replace('_', ' ').title())
+                self._status_cb(f"{tool_label}...")
+
                 handler = TOOL_HANDLERS.get(tc.function.name)
                 if handler:
                     try:
@@ -1013,6 +1043,7 @@ class PLCAgent:
                 })
 
             # Get next response
+            self._status_cb("Processing results..." if tool_round == 1 else "Continuing analysis...")
             messages = [
                 {"role": "system", "content": self.system_prompt}
             ] + self.conversation_history
@@ -1035,6 +1066,7 @@ class PLCAgent:
                 break
 
         # Collect final text
+        self._status_cb("Composing response...")
         if message.content:
             collected_text.append(message.content)
 

@@ -23,7 +23,10 @@ def init_db():
         if "users" in tables:
             columns = [col["name"] for col in inspector.get_columns("users")]
             required = ["email_confirmed", "confirm_token", "reset_token", "reset_token_expires",
-                        "full_name", "company", "company_logo", "phone", "job_title"]
+                        "full_name", "company", "company_logo", "phone", "job_title",
+                        "profile_picture",
+                        "use_private_llm", "private_llm_provider", "private_llm_api_key",
+                        "private_llm_base_url", "private_llm_model"]
             if any(col not in columns for col in required):
                 needs_rebuild = True
 

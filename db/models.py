@@ -34,6 +34,7 @@ class User(Base):
     full_name = Column(String(200), nullable=True)
     company = Column(String(200), nullable=True)
     company_logo = Column(String(500), nullable=True)  # filepath to uploaded logo
+    profile_picture = Column(String(500), nullable=True)  # filepath to profile picture
     phone = Column(String(50), nullable=True)
     job_title = Column(String(200), nullable=True)
     password_hash = Column(String(255), nullable=False)
@@ -43,6 +44,14 @@ class User(Base):
     confirm_token = Column(String(255), nullable=True)
     reset_token = Column(String(255), nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
+
+    # Private LLM settings
+    use_private_llm = Column(Boolean, default=False)
+    private_llm_provider = Column(String(50), nullable=True)       # openrouter, openai, anthropic, custom
+    private_llm_api_key = Column(String(512), nullable=True)       # encrypted in production
+    private_llm_base_url = Column(String(512), nullable=True)      # custom endpoint URL
+    private_llm_model = Column(String(200), nullable=True)         # model name override
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

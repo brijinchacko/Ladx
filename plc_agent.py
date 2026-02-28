@@ -902,17 +902,42 @@ class PLCAgent:
     The main LADX Agent.
     Handles conversation, tool use, and maintains chat history.
     Uses OpenRouter with OpenAI-compatible API.
+    Supports per-user private LLM configuration.
     """
 
-    def __init__(self):
+    def __init__(self, private_llm_config: dict = None):
         self.conversation_history = []
         self.system_prompt = get_system_prompt()
         self.model_override = None  # Set per-request to override AI_MODEL
 
+        # Private LLM: create a dedicated client if the user has their own key
+        self._private_config = private_llm_config or {}
+        self._private_client = None
+        if self._private_config.get("enabled") and self._private_config.get("api_key"):
+            provider = self._private_config.get("provider", "openrouter")
+            base_url = self._private_config.get("base_url") or {
+                "openrouter": "https://openrouter.ai/api/v1",
+                "openai": "https://api.openai.com/v1",
+                "anthropic": "https://api.anthropic.com/v1",
+            }.get(provider, "https://openrouter.ai/api/v1")
+            self._private_client = OpenAI(
+                base_url=base_url,
+                api_key=self._private_config["api_key"],
+            )
+
+    @property
+    def _client(self):
+        """Return the private client if configured, otherwise the default global client."""
+        return self._private_client or client
+
     @property
     def active_model(self):
-        """Return the model to use: override if set, otherwise default."""
-        return self.model_override or AI_MODEL
+        """Return the model to use: override > private config > default."""
+        if self.model_override:
+            return self.model_override
+        if self._private_config.get("model"):
+            return self._private_config["model"]
+        return AI_MODEL
 
     def chat(self, user_message: str, status_callback=None) -> str:
         """
@@ -938,7 +963,7 @@ class PLCAgent:
 
         # Call OpenRouter with tools
         try:
-            response = client.chat.completions.create(
+            response = self._client.chat.completions.create(
                 model=self.active_model,
                 max_tokens=MAX_TOKENS,
                 messages=messages,
@@ -954,7 +979,7 @@ class PLCAgent:
             # fall back to plain chat without tools
             self._status_cb("Retrying without tools...")
             try:
-                response = client.chat.completions.create(
+                response = self._client.chat.completions.create(
                     model=self.active_model,
                     max_tokens=MAX_TOKENS,
                     messages=messages,
@@ -1049,7 +1074,7 @@ class PLCAgent:
             ] + self.conversation_history
 
             try:
-                next_response = client.chat.completions.create(
+                next_response = self._client.chat.completions.create(
                     model=self.active_model,
                     max_tokens=MAX_TOKENS,
                     messages=messages,

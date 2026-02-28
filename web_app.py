@@ -52,7 +52,7 @@ agents = {}
 AGENT_TIMEOUT = 1800  # 30 minutes
 
 
-def get_agent(user_id: int, conversation_id: int = None, db: Session = None) -> PLCAgent:
+def get_agent(user_id: int, conversation_id: int = None, db: Session = None, user: User = None) -> PLCAgent:
     """Get or create a PLCAgent instance for a user."""
     key = f"{user_id}_{conversation_id}" if conversation_id else str(user_id)
 
@@ -60,8 +60,19 @@ def get_agent(user_id: int, conversation_id: int = None, db: Session = None) -> 
         agents[key]["last_used"] = time.time()
         return agents[key]["agent"]
 
+    # Build private LLM config from user record
+    private_llm_config = None
+    if user and getattr(user, 'use_private_llm', False) and getattr(user, 'private_llm_api_key', None):
+        private_llm_config = {
+            "enabled": True,
+            "provider": user.private_llm_provider or "openrouter",
+            "api_key": user.private_llm_api_key,
+            "base_url": user.private_llm_base_url or "",
+            "model": user.private_llm_model or "",
+        }
+
     # Create new agent
-    agent = PLCAgent()
+    agent = PLCAgent(private_llm_config=private_llm_config)
 
     # Load conversation history from DB if resuming
     if conversation_id and db:
@@ -165,7 +176,7 @@ async def chat(
 
         # Get agent for this user/conversation
         cleanup_agents()
-        agent = get_agent(user.id, conversation_id, db)
+        agent = get_agent(user.id, conversation_id, db, user=user)
 
         # Set model override if specified
         if req.model:
@@ -325,7 +336,7 @@ async def chat_stream(
     def run_agent():
         try:
             cleanup_agents()
-            agent = get_agent(user.id, conversation_id, db)
+            agent = get_agent(user.id, conversation_id, db, user=user)
             if req.model:
                 agent.model_override = req.model
             response = agent.chat(full_message, status_callback=status_callback)
@@ -388,6 +399,17 @@ async def reset_chat(
     for k in expired:
         del agents[k]
     return JSONResponse({"status": "ok", "message": "Chat history cleared"})
+
+
+@app.post("/api/reset-agent")
+async def reset_agent(
+    user: User = Depends(get_current_user),
+):
+    """Clear cached agent instances for this user (e.g., after changing LLM settings)."""
+    expired = [k for k in agents if k.startswith(str(user.id))]
+    for k in expired:
+        del agents[k]
+    return JSONResponse({"status": "ok", "message": "Agent cache cleared"})
 
 
 @app.get("/api/bridge-status")

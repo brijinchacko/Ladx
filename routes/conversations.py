@@ -466,35 +466,52 @@ async def generate_document(
         f"Architecture: {convo.architecture_notes or 'Not specified'}\n"
     )
 
+    # User/company info for document headers
+    author_info = ""
+    if user.full_name or user.company:
+        parts = []
+        if user.full_name:
+            parts.append(f"Author: {user.full_name}")
+        if user.job_title:
+            parts.append(f"Role: {user.job_title}")
+        if user.company:
+            parts.append(f"Company: {user.company}")
+        if user.email:
+            parts.append(f"Email: {user.email}")
+        author_info = "\n".join(parts) + "\n"
+
     prompts = {
         "FDS": f"""Generate a detailed Functional Design Specification (FDS) for this Siemens PLC project.
 
 Project: {convo.title}
 Description: {convo.description or 'Not provided'}
-{hw_info}
+{author_info}{hw_info}
 {f'Additional instructions: {req.prompt}' if req.prompt else ''}
 
 Structure the FDS with these sections:
-1. **Project Overview** — scope, objectives, system description
-2. **Hardware Architecture** — CPU, IO modules, network topology
-3. **Software Architecture** — program structure, function blocks, data blocks
-4. **Functional Requirements** — detailed behavior per function
-5. **IO Signal List Summary** — input/output signals overview
-6. **Safety Requirements** — if applicable
-7. **HMI Requirements** — operator interface needs
-8. **Communication** — network, protocol details
-9. **Alarm & Diagnostics** — fault handling strategy
+1. **Document Header** — project name, document number, revision, date, author/company info
+2. **Project Overview** — scope, objectives, system description
+3. **Hardware Architecture** — CPU, IO modules, network topology
+4. **Software Architecture** — program structure, function blocks, data blocks
+5. **Functional Requirements** — detailed behavior per function
+6. **IO Signal List Summary** — input/output signals overview
+7. **Safety Requirements** — if applicable
+8. **HMI Requirements** — operator interface needs
+9. **Communication** — network, protocol details
+10. **Alarm & Diagnostics** — fault handling strategy
 
+Include the author and company information in the document header section.
 Write in professional engineering format with clear numbered sections.""",
 
         "IO_LIST": f"""Generate a comprehensive IO List for this Siemens PLC project based on the FDS.
 
 Project: {convo.title}
-{hw_info}
+{author_info}{hw_info}
 FDS Content:
 {convo.fds_content or 'No FDS available — generate based on project description: ' + (convo.description or '')}
 {f'Additional instructions: {req.prompt}' if req.prompt else ''}
 
+Include a document header with project name, date, author, and company information.
 Create a structured IO list in markdown table format with these columns:
 | Tag Name | Description | IO Type | Data Type | HW Address | Signal Range | Unit | Comment |
 
@@ -573,9 +590,18 @@ Structure the SAT document with:
     stage = stage_map[doc_type]
 
     try:
-        # Use a fresh agent for document generation
+        # Use a fresh agent for document generation (with user's private LLM if configured)
         from plc_agent import PLCAgent
-        agent = PLCAgent()
+        private_llm_config = None
+        if getattr(user, 'use_private_llm', False) and getattr(user, 'private_llm_api_key', None):
+            private_llm_config = {
+                "enabled": True,
+                "provider": user.private_llm_provider or "openrouter",
+                "api_key": user.private_llm_api_key,
+                "base_url": user.private_llm_base_url or "",
+                "model": user.private_llm_model or "",
+            }
+        agent = PLCAgent(private_llm_config=private_llm_config)
         content = agent.chat(prompt)
 
         # Save to DB
@@ -598,12 +624,19 @@ Structure the SAT document with:
                     "Network": convo.network_type or "N/A",
                     "Safety": "Required" if convo.safety_required else "Standard",
                 }
+                author_data = {
+                    "name": user.full_name or user.username or "",
+                    "company": user.company or "",
+                    "email": user.email or "",
+                    "job_title": user.job_title or "",
+                }
                 docx_path = markdown_to_docx(
                     content=content,
                     title=title,
                     doc_type=doc_type,
                     project_title=convo.title,
                     hardware_info=hw_info,
+                    author_info=author_data,
                 )
             except Exception as docx_err:
                 print(f"[LADX] DOCX generation failed (content still saved): {docx_err}")

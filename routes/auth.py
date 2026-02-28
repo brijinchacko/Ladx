@@ -5,9 +5,12 @@ Register, login, user profile, dashboard, and skill assessment endpoints.
 
 import re
 import traceback
+import shutil
+import uuid
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -171,6 +174,12 @@ class ProfileUpdate(BaseModel):
     company: Optional[str] = None
     phone: Optional[str] = None
     job_title: Optional[str] = None
+    # Private LLM settings
+    use_private_llm: Optional[bool] = None
+    private_llm_provider: Optional[str] = None
+    private_llm_api_key: Optional[str] = None
+    private_llm_base_url: Optional[str] = None
+    private_llm_model: Optional[str] = None
 
 
 @router.get("/profile")
@@ -182,6 +191,12 @@ async def get_profile(
     try:
         usage = check_rate_limit(db, user.id, user.tier)
 
+        # Mask API key for display (show last 4 chars only)
+        masked_key = ""
+        if user.private_llm_api_key:
+            k = user.private_llm_api_key
+            masked_key = ("*" * max(0, len(k) - 4)) + k[-4:] if len(k) > 4 else "****"
+
         return {
             "id": user.id,
             "email": user.email,
@@ -191,10 +206,18 @@ async def get_profile(
             "company_logo": user.company_logo,
             "phone": user.phone,
             "job_title": user.job_title,
+            "profile_picture": user.profile_picture or "",
             "tier": user.tier,
             "email_confirmed": True,
             "created_at": user.created_at.isoformat(),
             "usage": usage,
+            # LLM settings
+            "use_private_llm": user.use_private_llm or False,
+            "private_llm_provider": user.private_llm_provider or "openrouter",
+            "private_llm_api_key_masked": masked_key,
+            "private_llm_api_key_set": bool(user.private_llm_api_key),
+            "private_llm_base_url": user.private_llm_base_url or "",
+            "private_llm_model": user.private_llm_model or "",
         }
     except Exception as e:
         print(f"[LADX] Profile error: {e}")
@@ -214,6 +237,24 @@ async def update_profile(
             val = getattr(req, field, None)
             if val is not None:
                 setattr(user, field, val.strip())
+
+        # Private LLM settings
+        if req.use_private_llm is not None:
+            user.use_private_llm = req.use_private_llm
+        if req.private_llm_provider is not None:
+            user.private_llm_provider = req.private_llm_provider.strip()
+        if req.private_llm_api_key is not None:
+            # Only update if the user sends a real key (not the masked version)
+            key = req.private_llm_api_key.strip()
+            if key and not key.startswith("*"):
+                user.private_llm_api_key = key
+            elif not key:
+                user.private_llm_api_key = None
+        if req.private_llm_base_url is not None:
+            user.private_llm_base_url = req.private_llm_base_url.strip() or None
+        if req.private_llm_model is not None:
+            user.private_llm_model = req.private_llm_model.strip() or None
+
         user.updated_at = datetime.utcnow()
         db.commit()
         return {
@@ -223,9 +264,50 @@ async def update_profile(
             "company": user.company,
             "phone": user.phone,
             "job_title": user.job_title,
+            "use_private_llm": user.use_private_llm,
         }
     except Exception as e:
         print(f"[LADX] Profile update error: {e}")
+        return JSONResponse({"detail": str(e)}, status_code=500)
+
+
+@router.post("/profile/picture")
+async def upload_profile_picture(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a profile picture for the current user."""
+    try:
+        # Validate file type
+        allowed = {".png", ".jpg", ".jpeg", ".webp"}
+        ext = Path(file.filename).suffix.lower()
+        if ext not in allowed:
+            return JSONResponse({"detail": "Only PNG, JPG, and WEBP files are allowed."}, status_code=400)
+
+        # Save file
+        upload_dir = Path("uploads/avatars")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        unique_name = f"{user.id}_{uuid.uuid4().hex[:8]}{ext}"
+        dest = upload_dir / unique_name
+
+        with open(dest, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        # Update user record
+        user.profile_picture = f"/static/avatars/{unique_name}"
+        db.commit()
+
+        # Symlink or copy to static for serving
+        static_avatar_dir = Path("web/static/avatars")
+        static_avatar_dir.mkdir(parents=True, exist_ok=True)
+        static_dest = static_avatar_dir / unique_name
+        if not static_dest.exists():
+            shutil.copy2(str(dest), str(static_dest))
+
+        return {"status": "ok", "profile_picture": user.profile_picture}
+    except Exception as e:
+        print(f"[LADX] Avatar upload error: {e}")
         return JSONResponse({"detail": str(e)}, status_code=500)
 
 

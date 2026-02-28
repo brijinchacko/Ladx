@@ -23,10 +23,11 @@ os.makedirs(GENERATED_DIR, exist_ok=True)
 
 
 def markdown_to_docx(content: str, title: str, doc_type: str, project_title: str,
-                     hardware_info: dict = None) -> str:
+                     hardware_info: dict = None, author_info: dict = None) -> str:
     """
     Convert markdown-formatted AI content to a .docx file.
     Returns the filepath of the generated document.
+    author_info: optional dict with keys: name, company, email, job_title
     """
     if not DOCX_AVAILABLE:
         return None
@@ -58,6 +59,22 @@ def markdown_to_docx(content: str, title: str, doc_type: str, project_title: str
     run = date_para.add_run(f"Generated: {datetime.now().strftime('%B %d, %Y')}")
     run.font.size = Pt(11)
     run.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+
+    # Author / company info
+    if author_info:
+        author_parts = []
+        if author_info.get("name"):
+            author_parts.append(f"Prepared by: {author_info['name']}")
+        if author_info.get("job_title"):
+            author_parts.append(f"({author_info['job_title']})")
+        if author_info.get("company"):
+            author_parts.append(f"| {author_info['company']}")
+        if author_parts:
+            author_para = doc.add_paragraph()
+            author_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = author_para.add_run(" ".join(author_parts))
+            run.font.size = Pt(10)
+            run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
 
     doc.add_paragraph("")  # spacing
 

@@ -1794,6 +1794,63 @@
             height: 100%;
             object-fit: cover;
         }
+        /* Profile Picture */
+        .profile-avatar-upload {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: var(--bg-tertiary); border: 2px dashed var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); font-size: 28px; font-weight: 700;
+            cursor: pointer; overflow: hidden; position: relative;
+            transition: border-color 0.2s;
+        }
+        .profile-avatar-upload:hover { border-color: var(--accent); }
+        .profile-avatar-upload img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .profile-avatar-upload .avatar-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+            font-size: 11px; color: #fff; font-weight: 500;
+        }
+        .profile-avatar-upload:hover .avatar-overlay { opacity: 1; }
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative; display: inline-block; width: 44px; height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--bg-tertiary); border: 1px solid var(--border);
+            border-radius: 24px; transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: ""; position: absolute; height: 18px; width: 18px;
+            left: 2px; bottom: 2px; background: var(--text-secondary);
+            border-radius: 50%; transition: 0.3s;
+        }
+        input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
+        input:checked + .toggle-slider:before { transform: translateX(20px); background: #fff; }
+        .llm-provider-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
+        }
+        .llm-provider-card {
+            background: var(--bg-tertiary); border: 2px solid var(--border);
+            border-radius: 8px; padding: 10px 8px; text-align: center;
+            cursor: pointer; transition: all 0.2s; font-size: 12px; font-weight: 500;
+        }
+        .llm-provider-card:hover { border-color: var(--accent); }
+        .llm-provider-card.selected { border-color: var(--accent); background: rgba(99,102,241,0.1); }
+        .llm-provider-icon { font-size: 20px; margin-bottom: 4px; }
+        .llm-fields { transition: max-height 0.3s, opacity 0.3s; overflow: hidden; }
+        .llm-fields.collapsed { max-height: 0; opacity: 0; }
+        .llm-fields.expanded { max-height: 500px; opacity: 1; }
+        .llm-status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+        }
+        .llm-status-badge.active { background: rgba(16,185,129,0.15); color: var(--success); }
+        .llm-status-badge.inactive { background: rgba(156,163,175,0.15); color: var(--text-secondary); }
         .plan-card {
             background: var(--bg-tertiary);
             border: 2px solid var(--border);
@@ -4120,9 +4177,22 @@
         function renderProfilePage(data, container) {
             let html = '';
 
-            // ---- Personal Information ----
+            // ---- Personal Information (with profile picture) ----
+            const avatarInitial = (data.full_name || data.username || data.email || '?').charAt(0).toUpperCase();
+            const avatarSrc = data.profile_picture || '';
             html += `<div class="profile-section">
                 <div class="profile-section-title">Personal Information</div>
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:16px;">
+                    <div class="profile-avatar-upload" id="profAvatarWrap" onclick="document.getElementById('profAvatarInput').click()">
+                        ${avatarSrc ? `<img src="${avatarSrc}" alt="Avatar">` : avatarInitial}
+                        <div class="avatar-overlay">Change</div>
+                    </div>
+                    <input type="file" id="profAvatarInput" style="display:none" accept=".png,.jpg,.jpeg,.webp" onchange="previewAvatar(this)">
+                    <div>
+                        <div style="font-size:16px;font-weight:600;color:var(--text-primary);">${data.full_name || data.username || 'Your Name'}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">${data.email}</div>
+                    </div>
+                </div>
                 <div class="profile-form-grid">
                     <div class="profile-form-group">
                         <label class="profile-form-label">Full Name</label>
@@ -4172,6 +4242,71 @@
                     </div>
                 </div>
                 <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+            </div>`;
+
+            // ---- Private LLM Configuration ----
+            const llmEnabled = data.use_private_llm || false;
+            const llmProvider = data.private_llm_provider || 'openrouter';
+            const llmKeySet = data.private_llm_api_key_set || false;
+            const llmKeyMasked = data.private_llm_api_key_masked || '';
+            const llmBaseUrl = data.private_llm_base_url || '';
+            const llmModel = data.private_llm_model || '';
+
+            html += `<div class="profile-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                    <div>
+                        <div class="profile-section-title" style="margin-bottom:2px;">Private LLM</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">Use your own API key for AI conversations</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="llm-status-badge ${llmEnabled && llmKeySet ? 'active' : 'inactive'}">
+                            ${llmEnabled && llmKeySet ? '● Active' : '○ Default LLM'}
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="llmToggle" ${llmEnabled ? 'checked' : ''} onchange="togglePrivateLLM(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div id="llmConfigFields" class="llm-fields ${llmEnabled ? 'expanded' : 'collapsed'}">
+                    <div style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Provider</div>
+                    <div class="llm-provider-grid" id="llmProviderGrid">
+                        <div class="llm-provider-card ${llmProvider === 'openrouter' ? 'selected' : ''}" onclick="selectLLMProvider('openrouter')">
+                            <div class="llm-provider-icon">🌐</div>OpenRouter
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'openai' ? 'selected' : ''}" onclick="selectLLMProvider('openai')">
+                            <div class="llm-provider-icon">🤖</div>OpenAI
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'anthropic' ? 'selected' : ''}" onclick="selectLLMProvider('anthropic')">
+                            <div class="llm-provider-icon">🧠</div>Anthropic
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'custom' ? 'selected' : ''}" onclick="selectLLMProvider('custom')">
+                            <div class="llm-provider-icon">⚙️</div>Custom
+                        </div>
+                    </div>
+                    <input type="hidden" id="llmProvider" value="${llmProvider}">
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group full-width">
+                            <label class="profile-form-label">API Key</label>
+                            <div style="position:relative;">
+                                <input class="profile-form-input" id="llmApiKey" type="password" value="${llmKeySet ? llmKeyMasked : ''}"
+                                    placeholder="sk-..." style="padding-right:40px;">
+                                <button onclick="toggleLLMKeyVis()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:14px;" title="Show/Hide">👁</button>
+                            </div>
+                            ${llmKeySet ? '<div style="font-size:11px;color:var(--success);margin-top:2px;">Key saved. Enter a new key to replace.</div>' : ''}
+                        </div>
+                        <div class="profile-form-group" id="llmBaseUrlGroup" style="${llmProvider === 'custom' ? '' : 'display:none'}">
+                            <label class="profile-form-label">Base URL</label>
+                            <input class="profile-form-input" id="llmBaseUrl" type="text" value="${llmBaseUrl}" placeholder="https://your-api.com/v1">
+                        </div>
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Model</label>
+                            <input class="profile-form-input" id="llmModel" type="text" value="${llmModel}"
+                                placeholder="${llmProvider === 'openai' ? 'gpt-4o' : llmProvider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'deepseek/deepseek-r1'}">
+                        </div>
+                    </div>
+                    <button class="profile-save-btn" onclick="saveLLMSettings()">Save LLM Settings</button>
+                </div>
             </div>`;
 
             // ---- Plans ----
@@ -4289,6 +4424,109 @@
                 document.getElementById('profLogoPreview').innerHTML = `<img src="${e.target.result}" alt="Logo">`;
             };
             reader.readAsDataURL(file);
+        }
+
+        // ---- Profile Picture ----
+        function previewAvatar(input) {
+            if (!input.files.length) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const wrap = document.getElementById('profAvatarWrap');
+                wrap.innerHTML = `<img src="${e.target.result}" alt="Avatar"><div class="avatar-overlay">Change</div>`;
+                // Upload immediately
+                const formData = new FormData();
+                formData.append('file', file);
+                try {
+                    const res = await fetch('/api/auth/profile/picture', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('ladx_token') },
+                        body: formData,
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Update sidebar avatar
+                        const sidebarAv = document.getElementById('sidebarUserAvatar');
+                        if (sidebarAv && data.profile_picture) {
+                            sidebarAv.innerHTML = `<img src="${data.profile_picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                        }
+                    }
+                } catch (e) { console.error('Avatar upload error:', e); }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ---- Private LLM Settings ----
+        function togglePrivateLLM(enabled) {
+            const fields = document.getElementById('llmConfigFields');
+            if (enabled) {
+                fields.classList.remove('collapsed');
+                fields.classList.add('expanded');
+            } else {
+                fields.classList.remove('expanded');
+                fields.classList.add('collapsed');
+            }
+        }
+
+        function selectLLMProvider(provider) {
+            document.getElementById('llmProvider').value = provider;
+            document.querySelectorAll('.llm-provider-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            // Show/hide base URL field
+            const baseUrlGroup = document.getElementById('llmBaseUrlGroup');
+            baseUrlGroup.style.display = provider === 'custom' ? '' : 'none';
+            // Update model placeholder
+            const modelInput = document.getElementById('llmModel');
+            const placeholders = {
+                openrouter: 'deepseek/deepseek-r1',
+                openai: 'gpt-4o',
+                anthropic: 'claude-sonnet-4-20250514',
+                custom: 'your-model-name',
+            };
+            modelInput.placeholder = placeholders[provider] || 'model-name';
+        }
+
+        function toggleLLMKeyVis() {
+            const inp = document.getElementById('llmApiKey');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        }
+
+        async function saveLLMSettings() {
+            const enabled = document.getElementById('llmToggle').checked;
+            const provider = document.getElementById('llmProvider').value;
+            const apiKey = document.getElementById('llmApiKey').value.trim();
+            const baseUrl = document.getElementById('llmBaseUrl')?.value.trim() || '';
+            const model = document.getElementById('llmModel').value.trim();
+
+            const body = {
+                use_private_llm: enabled,
+                private_llm_provider: provider,
+                private_llm_api_key: apiKey,
+                private_llm_base_url: baseUrl,
+                private_llm_model: model,
+            };
+
+            try {
+                const res = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: authHeaders(),
+                    body: JSON.stringify(body),
+                });
+                if (res.status === 401) { logout(); return; }
+                if (res.ok) {
+                    // Clear cached agents so the new key is picked up
+                    await fetch('/api/reset-agent', { method: 'POST', headers: authHeaders() });
+                    alert('LLM settings saved! Your next message will use ' + (enabled ? 'your private LLM.' : 'the default LLM.'));
+                    // Reload profile to refresh status badge
+                    loadProfilePage();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || 'Save failed');
+                }
+            } catch (e) {
+                console.error('Save LLM settings error:', e);
+                alert('Failed to save LLM settings.');
+            }
         }
 
         // ===========================================

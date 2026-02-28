@@ -71,8 +71,15 @@ def get_agent(user_id: int, conversation_id: int = None, db: Session = None, use
             "model": user.private_llm_model or "",
         }
 
-    # Create new agent
-    agent = PLCAgent(private_llm_config=private_llm_config)
+    # Determine current stage from conversation
+    current_stage = "planning"
+    if conversation_id and db:
+        convo = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+        if convo:
+            current_stage = convo.current_stage or "planning"
+
+    # Create new agent with stage awareness
+    agent = PLCAgent(private_llm_config=private_llm_config, current_stage=current_stage)
 
     # Load conversation history from DB if resuming
     if conversation_id and db:
@@ -126,8 +133,26 @@ async def startup():
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    """Serve the main chat interface."""
+    """Public landing page — visitors see this first."""
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+
+@app.get("/app", response_class=HTMLResponse)
+async def app_page(request: Request):
+    """Main application — JS handles auth check."""
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Login/signup page (same as app, JS shows auth form)."""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/support", response_class=HTMLResponse)
+async def support_page(request: Request):
+    """Public Knowledge Base & Support page."""
+    return templates.TemplateResponse("support.html", {"request": request})
 
 
 # ===========================================

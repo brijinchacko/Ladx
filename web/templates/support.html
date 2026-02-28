@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LADX - Knowledge Base & Support</title>
+    <meta name="description" content="LADX Knowledge Base — guides, tutorials, and support for PLC programming with LADX.">
+    <link rel="icon" type="image/png" href="/static/LADX-icon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-tertiary: #242734;
+            --text-primary: #e4e6ef;
+            --text-secondary: #9ca0b0;
+            --accent: #3fbfb7;
+            --accent-rgb: 63,191,183;
+            --accent-hover: #33a89f;
+            --accent-glow: rgba(63, 191, 183, 0.15);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --border: #2d3044;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            padding: 16px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(15, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo-link { display: flex; align-items: center; text-decoration: none; }
+        .nav-logo { height: 36px; width: auto; }
+        .nav-links { display: flex; align-items: center; gap: 32px; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text-primary); text-decoration: none; }
+        .nav-btn { background: var(--accent); color: #ffffff !important; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .nav-btn:hover { background: var(--accent-hover); text-decoration: none; }
+        .nav-btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-primary); padding: 8px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav-btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+        .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 6px; flex-direction: column; gap: 5px; }
+        .nav-toggle span { display: block; width: 24px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+
+        /* ========== HERO ========== */
+        .kb-hero {
+            padding: 120px 40px 60px;
+            text-align: center;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .kb-hero h1 { font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+        .kb-hero p { color: var(--text-secondary); font-size: 16px; max-width: 550px; margin: 0 auto 28px; }
+
+        .kb-search {
+            max-width: 500px; margin: 0 auto;
+            position: relative;
+        }
+        .kb-search input {
+            width: 100%; padding: 14px 18px 14px 44px;
+            background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px;
+            color: var(--text-primary); font-size: 15px; outline: none; transition: border-color 0.2s;
+        }
+        .kb-search input:focus { border-color: var(--accent); }
+        .kb-search input::placeholder { color: var(--text-secondary); }
+        .kb-search-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* ========== CONTENT ========== */
+        .kb-content {
+            max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px;
+        }
+
+        /* Tabs */
+        .kb-tabs {
+            display: flex; gap: 0; margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+        .kb-tab {
+            padding: 12px 24px; cursor: pointer;
+            font-size: 14px; font-weight: 600;
+            color: var(--text-secondary); border-bottom: 2px solid transparent;
+            transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none;
+        }
+        .kb-tab:hover { color: var(--text-primary); }
+        .kb-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .kb-panel { display: none; }
+        .kb-panel.active { display: block; }
+
+        /* ========== CATEGORIES ========== */
+        .kb-categories {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+        .kb-cat-card {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px;
+            padding: 24px; cursor: pointer; transition: border-color 0.2s, transform 0.2s;
+        }
+        .kb-cat-card:hover { border-color: rgba(var(--accent-rgb), 0.4); transform: translateY(-2px); }
+        .kb-cat-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+        .kb-cat-card p { color: var(--text-secondary); font-size: 13px; }
+        .kb-cat-count { color: var(--accent); font-size: 12px; font-weight: 600; margin-top: 10px; }
+
+        /* ========== ARTICLES LIST ========== */
+        .kb-articles-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+        }
+        .kb-back-btn {
+            background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px;
+            padding: 6px 14px; color: var(--text-primary); font-size: 13px; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .kb-back-btn:hover { border-color: var(--accent); }
+        .kb-articles-header h2 { font-size: 22px; font-weight: 600; }
+
+        .kb-article-item {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px;
+            padding: 18px 22px; margin-bottom: 12px; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .kb-article-item:hover { border-color: rgba(var(--accent-rgb), 0.4); }
+        .kb-article-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .kb-article-item p { color: var(--text-secondary); font-size: 13px; }
+
+        /* ========== ARTICLE DETAIL ========== */
+        .kb-article-detail {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px;
+            padding: 36px; line-height: 1.8;
+        }
+        .kb-article-detail h3 { color: var(--accent); font-size: 20px; margin: 24px 0 10px; }
+        .kb-article-detail h3:first-child { margin-top: 0; }
+        .kb-article-detail p { color: var(--text-secondary); margin-bottom: 14px; font-size: 14px; }
+        .kb-article-detail ul { padding-left: 20px; margin-bottom: 14px; }
+        .kb-article-detail li { color: var(--text-secondary); font-size: 14px; margin-bottom: 6px; }
+        .kb-article-detail strong { color: var(--text-primary); }
+        .kb-article-detail code {
+            background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;
+            font-size: 13px; color: var(--accent);
+        }
+
+        /* ========== CONTACT / TICKETS ========== */
+        .support-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+        }
+        .support-card {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px;
+            padding: 32px;
+        }
+        .support-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+        .support-card .sub { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 10px 14px;
+            background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text-primary); font-size: 14px; outline: none;
+            font-family: inherit; transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .form-select option { background: var(--bg-tertiary); }
+
+        .form-btn {
+            background: var(--accent); color: #fff; border: none; border-radius: 8px;
+            padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s; width: 100%;
+        }
+        .form-btn:hover { background: var(--accent-hover); }
+
+        .contact-methods { margin-top: 24px; }
+        .contact-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .contact-item:last-child { border-bottom: none; }
+        .contact-icon {
+            width: 36px; height: 36px; border-radius: 8px; background: var(--accent-glow);
+            display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 16px;
+        }
+        .contact-label { font-size: 13px; color: var(--text-secondary); }
+        .contact-value { font-size: 14px; font-weight: 500; }
+
+        /* Ticket list */
+        .ticket-list { margin-top: 16px; }
+        .ticket-item {
+            background: var(--bg-tertiary); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .ticket-id { font-size: 12px; color: var(--accent); font-weight: 600; }
+        .ticket-subject { font-size: 13px; margin-top: 2px; }
+        .ticket-status {
+            font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 600;
+        }
+        .ticket-status.open { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+        .ticket-status.resolved { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+
+        .no-tickets { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 13px; }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            padding: 40px; text-align: center;
+            border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 13px;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 20px; flex-wrap: wrap; }
+            .nav-toggle { display: flex; }
+            .nav-links {
+                display: none; width: 100%; flex-direction: column; gap: 12px;
+                padding-top: 16px; border-top: 1px solid var(--border); margin-top: 12px;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { display: block; text-align: center; padding: 8px 0; }
+            .nav-links .nav-btn, .nav-links .nav-btn-outline { width: 100%; text-align: center; }
+            .kb-hero { padding: 100px 20px 40px; }
+            .kb-hero h1 { font-size: 26px; }
+            .kb-content { padding: 32px 20px 60px; }
+            .support-grid { grid-template-columns: 1fr; }
+            .kb-tabs { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-logo-link"><img src="/static/LADX-logo.png" alt="LADX" class="nav-logo"></a>
+        <button class="nav-toggle" onclick="this.classList.toggle('active'); document.getElementById('navLinks').classList.toggle('open');">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/#features">Features</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/support" style="color:var(--accent)">Knowledge Base</a>
+            <a href="/app" class="nav-btn-outline" id="navAuthBtn">Sign In</a>
+            <a href="/app#signup" class="nav-btn" id="navCtaBtn">Get Started Free</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="kb-hero">
+        <h1>Knowledge Base & Support</h1>
+        <p>Find answers, browse guides, and get help with LADX.</p>
+        <div class="kb-search">
+            <svg class="kb-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="kbSearch" placeholder="Search articles..." oninput="filterArticles(this.value)">
+        </div>
+    </section>
+
+    <!-- Content -->
+    <div class="kb-content">
+        <!-- Tabs -->
+        <div class="kb-tabs">
+            <button class="kb-tab active" onclick="switchTab('kb')">Knowledge Base</button>
+            <button class="kb-tab" onclick="switchTab('contact')">Contact & Support</button>
+        </div>
+
+        <!-- KB Panel -->
+        <div class="kb-panel active" id="panel-kb">
+            <div id="kbView"></div>
+        </div>
+
+        <!-- Contact Panel -->
+        <div class="kb-panel" id="panel-contact">
+            <div class="support-grid">
+                <!-- Submit Ticket -->
+                <div class="support-card">
+                    <h3>Submit a Ticket</h3>
+                    <p class="sub">Describe your issue and we'll get back to you within 24 hours.</p>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" class="form-input" id="ticketSubject" placeholder="Brief description of your issue">
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select class="form-select" id="ticketPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-textarea" id="ticketMessage" placeholder="Explain the issue in detail..."></textarea>
+                    </div>
+                    <button class="form-btn" onclick="submitTicket()">Submit Ticket</button>
+
+                    <div class="ticket-list" id="ticketList"></div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="support-card">
+                    <h3>Contact Us</h3>
+                    <p class="sub">Reach out directly for urgent issues or partnership inquiries.</p>
+
+                    <div class="contact-methods">
+                        <div class="contact-item">
+                            <div class="contact-icon">&#9993;</div>
+                            <div>
+                                <div class="contact-label">Email Support</div>
+                                <div class="contact-value"><a href="mailto:support@ladx.ai">support@ladx.ai</a></div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">&#128337;</div>
+                            <div>
+                                <div class="contact-label">Response Time</div>
+                                <div class="contact-value">Within 24 hours (business days)</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">&#127760;</div>
+                            <div>
+                                <div class="contact-label">Enterprise & Sales</div>
+                                <div class="contact-value"><a href="mailto:sales@ladx.ai">sales@ladx.ai</a></div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">&#128272;</div>
+                            <div>
+                                <div class="contact-label">Security Issues</div>
+                                <div class="contact-value"><a href="mailto:security@ladx.ai">security@ladx.ai</a></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:28px; padding:20px; background:var(--bg-tertiary); border-radius:10px;">
+                        <h4 style="font-size:14px; margin-bottom:6px;">Pro & Enterprise Support</h4>
+                        <p style="color:var(--text-secondary); font-size:13px; margin:0;">Paid plans include priority support with faster response times and dedicated channels. <a href="/#pricing">View plans</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/#features">Features</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="mailto:support@ladx.ai">Contact</a>
+        </div>
+        <p>&copy; 2026 LADX. All rights reserved.</p>
+    </footer>
+
+    <script>
+    // ============================================
+    // Knowledge Base Data
+    // ============================================
+    const KB_DATA = [
+        {
+            id: 'getting_started',
+            title: 'Getting Started',
+            description: 'Account setup, first project, and interface overview.',
+            articles: [
+                {
+                    id: 'gs1', title: 'Creating Your Account',
+                    summary: 'Sign up, verify your email, and set up your profile.',
+                    body: '<h3>Creating Your Account</h3><p>Visit the LADX web application and click <strong>Sign Up</strong>. Enter your full name, email address, and a secure password (minimum 6 characters). You will receive a confirmation email — click the link to verify your account.</p><h3>Your First Project</h3><p>After signing in, click <strong>+ New Project</strong> in the sidebar. Fill in:</p><ul><li><strong>Project Name</strong> — A descriptive title (e.g., "Water Treatment Plant Automation")</li><li><strong>Description</strong> — Brief description of what the project does</li><li><strong>CPU Model</strong> — Select your target Siemens PLC (S7-1200, S7-1500, etc.)</li><li><strong>TIA Portal Version</strong> — V17, V18, V19, or V20</li></ul><p>LADX will automatically begin the Planning stage and ask you the right questions to build your project requirements.</p>'
+                },
+                {
+                    id: 'gs2', title: 'Understanding the Interface',
+                    summary: 'Sidebar, dashboard, chat panel, and quick actions explained.',
+                    body: '<h3>Understanding the Interface</h3><p>The LADX workspace is divided into three main areas:</p><ul><li><strong>Sidebar (Left)</strong> — Lists all your projects. Click any project to open it.</li><li><strong>Project Dashboard (Center)</strong> — Shows the project pipeline, generated documents, and hardware configuration.</li><li><strong>Chat Panel (Right)</strong> — Your AI assistant. Ask questions, request code generation, or troubleshoot errors.</li></ul><h3>Quick Action Chips</h3><p>Below the chat area, quick action chips change based on your current project stage. In Planning you see "Generate FDS" and "Generate IO List". In Execution you see "Generate Code", "Convert Code", etc.</p>'
+                },
+                {
+                    id: 'gs3', title: 'Plans & Usage Limits',
+                    summary: 'Free, Pro, Enterprise, and Enterprise Plus tiers.',
+                    body: '<h3>Plans & Usage Limits</h3><p>LADX offers four tiers:</p><ul><li><strong>Free</strong> — 5 projects, 20 messages/day, basic AI model</li><li><strong>Pro ($29/mo)</strong> — 50 projects, 200 messages/day, all AI models, TIA Portal integration</li><li><strong>Enterprise ($299/mo)</strong> — Unlimited projects and messages, private LLM, team management</li><li><strong>Enterprise Plus ($2,999/mo)</strong> — On-premise deployment, dedicated account manager, custom AI fine-tuning, 24/7 support</li></ul><p>View your current usage in the header bar. Upgrade anytime from <strong>Profile → Plans</strong>.</p>'
+                },
+            ],
+        },
+        {
+            id: 'plc_programming',
+            title: 'PLC Programming',
+            description: 'SCL code generation, function blocks, data types, and best practices.',
+            articles: [
+                {
+                    id: 'plc1', title: 'SCL Code Generation',
+                    summary: 'How to generate complete SCL code from natural language.',
+                    body: '<h3>SCL Code Generation</h3><p>LADX can generate complete SCL (Structured Control Language) code for Siemens PLCs. Simply describe what you need in the chat:</p><ul><li>"Create a motor starter FB with overload protection"</li><li>"Generate a PID control loop for tank level"</li><li>"Write a recipe management system with 10 recipes"</li></ul><h3>Code Structure</h3><p>Generated code follows Siemens best practices:</p><ul><li><strong>Function Blocks (FB)</strong> — Reusable blocks with instance data blocks</li><li><strong>Functions (FC)</strong> — Stateless utility functions</li><li><strong>Data Blocks (DB)</strong> — Structured data storage</li><li><strong>Organization Blocks (OB)</strong> — Main program cycle, startup, errors</li></ul><p><strong>Important:</strong> Code generation is only available during the <strong>Execution</strong> stage of your project.</p>'
+                },
+                {
+                    id: 'plc2', title: 'Function Block Best Practices',
+                    summary: 'Design tips for robust, reusable function blocks.',
+                    body: '<h3>Function Block Best Practices</h3><p>When designing FBs in LADX:</p><ul><li>Use descriptive IN/OUT/IN_OUT/STAT variable names</li><li>Keep FBs focused on a single responsibility</li><li>Use STAT variables for internal state, not global DBs</li><li>Always include an <code>Enable</code> input and <code>Error</code>/<code>Status</code> outputs</li><li>Document your code with comments in the chat prompt</li></ul><p>LADX auto-generates variable declarations with proper data types and default values.</p>'
+                },
+                {
+                    id: 'plc3', title: 'Working with Data Types',
+                    summary: 'Elementary, complex, and system data types in S7.',
+                    body: '<h3>Working with Data Types</h3><p>LADX supports all Siemens S7 data types:</p><ul><li><strong>Elementary</strong>: BOOL, BYTE, WORD, DWORD, INT, DINT, REAL, TIME, STRING</li><li><strong>Complex</strong>: ARRAY, STRUCT, UDT (User-Defined Types)</li><li><strong>System</strong>: DATE_AND_TIME, TON, TOF, CTU, CTD</li></ul><p>When requesting code, specify your preferred data types and LADX will generate type-safe code accordingly.</p>'
+                },
+            ],
+        },
+        {
+            id: 'tia_portal',
+            title: 'TIA Portal Integration',
+            description: 'Connecting, configuring, and syncing with TIA Portal.',
+            articles: [
+                {
+                    id: 'tia1', title: 'Connecting to TIA Portal',
+                    summary: 'Step-by-step guide to connect LADX to TIA Portal.',
+                    body: '<h3>Connecting to TIA Portal</h3><p>LADX connects to TIA Portal through the <strong>TIA Portal Openness API</strong> via a local bridge service.</p><h3>Prerequisites</h3><ul><li><strong>TIA Portal V17, V18, V19 or V20</strong> installed</li><li><strong>TIA Portal Openness</strong> feature installed (optional component)</li><li><strong>Administrator rights</strong> on your Windows PC</li><li>A TIA Portal project must be <strong>open</strong></li></ul><h3>Step 1 — Enable Openness</h3><p>Run the TIA Portal installer, choose <strong>Modify</strong>, and check <strong>TIA Portal Openness</strong> under Optional Components.</p><h3>Step 2 — Configure Permissions</h3><ul><li>Open TIA Portal → <code>Options → Settings → General → Openness</code></li><li>Enable <strong>"Allow access via Openness API"</strong></li><li>Add your Windows user to the <strong>Siemens TIA Openness</strong> group</li></ul><h3>Step 3 — Start the LADX Bridge</h3><p>Start the bridge service from the LADX installation folder (default port: 8080).</p><h3>Step 4 — Connect from LADX</h3><p>Click the <strong>TIA Portal Status</strong> indicator in the header bar, then click <strong>Connect</strong>.</p>'
+                },
+                {
+                    id: 'tia2', title: 'When TIA Portal Shows Offline',
+                    summary: 'Common causes and fixes for connection issues.',
+                    body: '<h3>When TIA Portal Shows Offline</h3><p>If the TIA Portal status shows "Offline" in LADX, check these common causes:</p><ul><li><strong>TIA Portal not running</strong> — Open TIA Portal and open a project first</li><li><strong>Openness not installed</strong> — Re-run the TIA Portal installer and add Openness</li><li><strong>Bridge not started</strong> — Start the LADX Bridge service</li><li><strong>Permission denied</strong> — Add your user to the Siemens TIA Openness group</li><li><strong>Firewall blocking</strong> — Allow the bridge through Windows Firewall</li><li><strong>Wrong TIA version</strong> — Ensure your TIA Portal version matches your project settings</li><li><strong>Project not open</strong> — A project must be open in TIA Portal, not just the start screen</li></ul><h3>Quick Checklist</h3><p>1. TIA Portal running with project open? 2. Openness installed? 3. Bridge service running? 4. User in Openness group? 5. Firewall allows connection?</p>'
+                },
+                {
+                    id: 'tia3', title: 'TIA Portal Settings You Need to Change',
+                    summary: 'Required TIA Portal configuration for LADX integration.',
+                    body: '<h3>TIA Portal Settings</h3><p>For optimal integration with LADX, configure these TIA Portal settings:</p><ul><li><strong>Openness API</strong> — Must be enabled under Options → Settings → General → Openness</li><li><strong>Project Language</strong> — Set to SCL (Structured Control Language) for best compatibility</li><li><strong>Hardware Configuration</strong> — Must match the CPU model selected in your LADX project</li><li><strong>Network Configuration</strong> — Ensure PROFINET/Ethernet settings match your target PLC</li><li><strong>Tag Naming</strong> — Use consistent naming conventions that LADX can understand</li></ul>'
+                },
+                {
+                    id: 'tia4', title: 'Live Sync and Deployment',
+                    summary: 'Browse, upload, compile, and download to PLC.',
+                    body: '<h3>Live Sync and Deployment</h3><p>Once connected, LADX can perform these actions via TIA Portal:</p><ul><li><strong>Browse Project</strong> — View all blocks, tags, and configurations</li><li><strong>Import Code</strong> — Send generated SCL code directly into your TIA project</li><li><strong>Compile</strong> — Trigger compilation from LADX to check for errors</li><li><strong>Download to PLC</strong> — Push the compiled program to your target PLC</li></ul><h3>Safety Notes</h3><ul><li>Always review generated code before downloading to a live PLC</li><li>Use simulation mode first when available</li><li>Never download to a running production system without proper safety procedures</li></ul>'
+                },
+            ],
+        },
+        {
+            id: 'project_pipeline',
+            title: 'Project Pipeline',
+            description: 'The 4-stage workflow: Planning, Execution, Testing, Completed.',
+            articles: [
+                {
+                    id: 'pp1', title: 'Planning Stage',
+                    summary: 'How the AI gathers requirements and builds your FDS.',
+                    body: '<h3>Planning Stage</h3><p>The Planning stage is where LADX collects all the information needed for your project. The AI will ask you about:</p><ul><li>Process description and control philosophy</li><li>Input/output requirements (sensors, actuators)</li><li>Safety interlocks and emergency procedures</li><li>Communication protocols (PROFINET, Modbus, etc.)</li><li>HMI requirements and alarm management</li></ul><p><strong>What you can do:</strong> Upload an existing FDS, generate a new FDS, generate IO lists, ask questions about PLC concepts.</p><p><strong>What is blocked:</strong> Code generation, code conversion, FAT/SAT creation — these are only available in later stages.</p>'
+                },
+                {
+                    id: 'pp2', title: 'Execution Stage',
+                    summary: 'Code generation, tag lists, and TIA Portal integration.',
+                    body: '<h3>Execution Stage</h3><p>Once planning is complete and you advance to Execution, all code generation tools become available:</p><ul><li>Generate SCL function blocks, functions, and data blocks</li><li>Generate ladder logic diagrams</li><li>Create tag lists for your project</li><li>Convert code between platforms</li><li>Import code directly into TIA Portal</li></ul><p><strong>Tip:</strong> Make sure TIA Portal is connected before attempting to import code. The TIA Portal status indicator in the header should show "Connected".</p>'
+                },
+                {
+                    id: 'pp3', title: 'Testing & Completion',
+                    summary: 'FAT/SAT documents and project handover.',
+                    body: '<h3>Testing Stage</h3><p>The Testing stage helps you validate your project:</p><ul><li>Generate FAT (Factory Acceptance Test) documents</li><li>Generate SAT (Site Acceptance Test) procedures</li><li>Create commissioning checklists</li><li>Troubleshoot issues found during testing</li></ul><h3>Completed Stage</h3><p>When testing is done, advance to Completed for a full project overview. This stage provides:</p><ul><li>Complete project summary with all deliverables</li><li>Links to all generated documents (FDS, IO list, code, tests)</li><li>Project statistics and history</li></ul><p>The Completed stage is read-only — no new code or documents can be generated.</p>'
+                },
+            ],
+        },
+        {
+            id: 'troubleshooting',
+            title: 'Troubleshooting',
+            description: 'Common errors, connection issues, and how to fix them.',
+            articles: [
+                {
+                    id: 'ts1', title: 'AI Not Responding',
+                    summary: 'What to do when the chat seems stuck.',
+                    body: '<h3>AI Not Responding</h3><p>If the AI assistant is not responding to your messages:</p><ul><li><strong>Check your internet connection</strong> — LADX requires a stable connection</li><li><strong>Check usage limits</strong> — Free tier has 20 messages/day. Check the header bar for remaining quota</li><li><strong>Refresh the page</strong> — Sometimes a simple refresh resolves connection issues</li><li><strong>Check server status</strong> — The AI service may be temporarily down for maintenance</li><li><strong>Clear browser cache</strong> — Old cached files can cause issues</li></ul><p>If the problem persists, submit a support ticket with your browser console logs.</p>'
+                },
+                {
+                    id: 'ts2', title: 'Code Generation Errors',
+                    summary: 'Handling failed code generation and compilation errors.',
+                    body: '<h3>Code Generation Errors</h3><p>If code generation fails or produces errors:</p><ul><li><strong>"Stage not allowed"</strong> — Code generation is only available in the Execution stage. Advance your project from Planning first.</li><li><strong>Incomplete output</strong> — Try being more specific in your prompt. Include data types, variable names, and expected behavior.</li><li><strong>Compilation errors</strong> — If imported code fails to compile in TIA Portal, describe the error message to LADX and it will help fix it.</li><li><strong>Wrong platform</strong> — Ensure your project CPU model matches your actual hardware.</li></ul>'
+                },
+                {
+                    id: 'ts3', title: 'Login & Account Issues',
+                    summary: 'Password reset, email verification, and access problems.',
+                    body: '<h3>Login & Account Issues</h3><ul><li><strong>Forgot password</strong> — Click "Forgot Password" on the login screen. A reset link will be sent to your email.</li><li><strong>Email not verified</strong> — Check your spam folder. Click the confirmation banner in the app to resend.</li><li><strong>Account locked</strong> — After multiple failed login attempts, wait 15 minutes and try again.</li><li><strong>Can\'t access Pro features</strong> — Make sure your subscription is active. Check Profile → Plans.</li></ul>'
+                },
+            ],
+        },
+        {
+            id: 'desktop_app',
+            title: 'Desktop App',
+            description: 'Installing and using the LADX Desktop App for Windows.',
+            articles: [
+                {
+                    id: 'da1', title: 'Installing the Desktop App',
+                    summary: 'System requirements and installation steps.',
+                    body: '<h3>Installing the Desktop App</h3><p>The LADX Desktop App for Windows provides the full experience with direct TIA Portal integration and improved performance.</p><h3>System Requirements</h3><ul><li>Windows 10 or later (64-bit)</li><li>4 GB RAM minimum (8 GB recommended)</li><li>500 MB free disk space</li><li>Internet connection for AI features</li><li>TIA Portal V17+ (for integration features)</li></ul><h3>Installation</h3><p>Download the installer from the LADX website or the desktop app banner on the home page. Run the installer and follow the on-screen instructions. The app will be available in your Start menu.</p><p><em>Note: The desktop app is currently in development. Check back soon for the download link.</em></p>'
+                },
+                {
+                    id: 'da2', title: 'Desktop vs Web Version',
+                    summary: 'Key differences between desktop and browser versions.',
+                    body: '<h3>Desktop vs Web Version</h3><p>Both versions share the same core features, but the desktop app offers some advantages:</p><ul><li><strong>TIA Portal Integration</strong> — Direct local connection without a bridge service</li><li><strong>Offline Mode</strong> — Work on project documentation without internet (AI features require connection)</li><li><strong>Performance</strong> — Faster file handling and code generation UI</li><li><strong>System Tray</strong> — Quick access from the Windows taskbar</li><li><strong>Auto-Updates</strong> — The app updates itself automatically</li></ul><p>Your account, projects, and data sync seamlessly between both versions.</p>'
+                },
+            ],
+        },
+    ];
+
+    // ============================================
+    // KB Rendering
+    // ============================================
+    let currentCategory = null;
+    let currentArticle = null;
+
+    function renderCategories(filter) {
+        const filtered = filter
+            ? KB_DATA.filter(cat =>
+                cat.title.toLowerCase().includes(filter) ||
+                cat.description.toLowerCase().includes(filter) ||
+                cat.articles.some(a => a.title.toLowerCase().includes(filter) || a.summary.toLowerCase().includes(filter))
+              )
+            : KB_DATA;
+
+        let html = '<div class="kb-categories">';
+        filtered.forEach(cat => {
+            html += `<div class="kb-cat-card" onclick="openCategory('${cat.id}')">
+                <h3>${cat.title}</h3>
+                <p>${cat.description}</p>
+                <div class="kb-cat-count">${cat.articles.length} article${cat.articles.length !== 1 ? 's' : ''}</div>
+            </div>`;
+        });
+        html += '</div>';
+
+        if (filtered.length === 0) {
+            html = '<div style="text-align:center; padding:40px; color:var(--text-secondary);">No matching articles found.</div>';
+        }
+
+        document.getElementById('kbView').innerHTML = html;
+    }
+
+    function openCategory(catId) {
+        const cat = KB_DATA.find(c => c.id === catId);
+        if (!cat) return;
+        currentCategory = cat;
+        currentArticle = null;
+
+        let html = '<div class="kb-articles-header">';
+        html += '<button class="kb-back-btn" onclick="goBackToCategories()">&larr; Back</button>';
+        html += `<h2>${cat.title}</h2></div>`;
+
+        cat.articles.forEach(art => {
+            html += `<div class="kb-article-item" onclick="openArticle('${cat.id}','${art.id}')">
+                <h4>${art.title}</h4>
+                <p>${art.summary}</p>
+            </div>`;
+        });
+
+        document.getElementById('kbView').innerHTML = html;
+    }
+
+    function openArticle(catId, artId) {
+        const cat = KB_DATA.find(c => c.id === catId);
+        if (!cat) return;
+        const art = cat.articles.find(a => a.id === artId);
+        if (!art) return;
+        currentArticle = art;
+
+        let html = '<div class="kb-articles-header">';
+        html += `<button class="kb-back-btn" onclick="openCategory('${catId}')">&larr; Back to ${cat.title}</button>`;
+        html += `<h2>${art.title}</h2></div>`;
+        html += `<div class="kb-article-detail">${art.body}</div>`;
+
+        document.getElementById('kbView').innerHTML = html;
+    }
+
+    function goBackToCategories() {
+        currentCategory = null;
+        currentArticle = null;
+        document.getElementById('kbSearch').value = '';
+        renderCategories();
+    }
+
+    function filterArticles(query) {
+        const q = query.toLowerCase().trim();
+        if (currentCategory && !currentArticle) {
+            // Filter within category
+            openCategory(currentCategory.id);
+            return;
+        }
+        currentCategory = null;
+        currentArticle = null;
+        renderCategories(q || null);
+    }
+
+    // ============================================
+    // Tabs
+    // ============================================
+    function switchTab(tab) {
+        document.querySelectorAll('.kb-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.kb-panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    // ============================================
+    // Tickets
+    // ============================================
+    function submitTicket() {
+        const subject = document.getElementById('ticketSubject').value.trim();
+        const priority = document.getElementById('ticketPriority').value;
+        const message = document.getElementById('ticketMessage').value.trim();
+
+        if (!subject || !message) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        const ticket = {
+            id: 'TKT-' + Date.now().toString(36).toUpperCase(),
+            subject, priority, message,
+            status: 'open',
+            created: new Date().toISOString(),
+        };
+
+        const tickets = JSON.parse(localStorage.getItem('ladx_tickets') || '[]');
+        tickets.unshift(ticket);
+        localStorage.setItem('ladx_tickets', JSON.stringify(tickets));
+
+        document.getElementById('ticketSubject').value = '';
+        document.getElementById('ticketMessage').value = '';
+        renderTickets();
+        alert('Ticket ' + ticket.id + ' submitted successfully!');
+    }
+
+    function renderTickets() {
+        const tickets = JSON.parse(localStorage.getItem('ladx_tickets') || '[]');
+        const container = document.getElementById('ticketList');
+
+        if (tickets.length === 0) {
+            container.innerHTML = '<div class="no-tickets">No tickets submitted yet.</div>';
+            return;
+        }
+
+        container.innerHTML = '<h4 style="font-size:14px; margin:20px 0 12px;">Your Tickets</h4>' +
+            tickets.slice(0, 10).map(t => `
+                <div class="ticket-item">
+                    <div>
+                        <div class="ticket-id">${t.id}</div>
+                        <div class="ticket-subject">${t.subject}</div>
+                    </div>
+                    <span class="ticket-status ${t.status}">${t.status}</span>
+                </div>
+            `).join('');
+    }
+
+    // ============================================
+    // Auth-aware buttons
+    // ============================================
+    (function() {
+        const token = localStorage.getItem('ladx_token');
+        const user = localStorage.getItem('ladx_user');
+        const isLoggedIn = !!(token && user);
+
+        if (isLoggedIn) {
+            let name = 'Account';
+            try { const u = JSON.parse(user); name = u.full_name || u.username || u.email.split('@')[0]; } catch(e) {}
+
+            const navAuth = document.getElementById('navAuthBtn');
+            const navCta = document.getElementById('navCtaBtn');
+
+            if (navAuth) { navAuth.textContent = name; navAuth.href = '/app'; }
+            if (navCta) {
+                navCta.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-1px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download';
+                navCta.href = '#';
+                navCta.onclick = function(e) { e.preventDefault(); alert('Desktop app download coming soon!'); };
+            }
+        }
+    })();
+
+    // ============================================
+    // Init
+    // ============================================
+    renderCategories();
+    renderTickets();
+    </script>
+
+</body>
+</html>

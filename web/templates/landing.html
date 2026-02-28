@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LADX - Your AI Partner for PLC Programming</title>
+    <meta name="description" content="LADX is an AI-powered PLC programming assistant. Generate Siemens SCL code, ladder logic, and project documentation with TIA Portal integration.">
+    <link rel="icon" type="image/png" href="/static/LADX-icon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-tertiary: #242734;
+            --text-primary: #e4e6ef;
+            --text-secondary: #9ca0b0;
+            --accent: #3fbfb7;
+            --accent-rgb: 63,191,183;
+            --accent-hover: #33a89f;
+            --accent-glow: rgba(63, 191, 183, 0.15);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --border: #2d3044;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            height: 36px;
+            width: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-btn {
+            background: var(--accent);
+            color: #ffffff !important;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .nav-btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            padding: 160px 40px 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent), #6ee7b7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 620px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .hero-btn-primary {
+            background: var(--accent);
+            color: #ffffff !important;
+            border: none;
+        }
+
+        .hero-btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.25);
+        }
+
+        .hero-btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .hero-btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ========== FEATURES ========== */
+        .section {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto 56px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px 28px;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(var(--accent-rgb), 0.4);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            display: none;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ========== PIPELINE ========== */
+        .pipeline-section {
+            padding: 80px 40px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pipeline-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pipeline-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            position: relative;
+            margin-top: 56px;
+        }
+
+        .pipeline-step {
+            text-align: center;
+            position: relative;
+            padding: 0 16px;
+        }
+
+        .pipeline-step::after {
+            content: '';
+            position: absolute;
+            top: 28px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+
+        .pipeline-num {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pipeline-step h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-step p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ========== PRICING ========== */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card.popular {
+            border-color: var(--accent);
+            position: relative;
+        }
+
+        .pricing-card.popular::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pricing-tier {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .pricing-price {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .pricing-price span {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .pricing-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-features {
+            list-style: none;
+            flex: 1;
+            margin-bottom: 28px;
+        }
+
+        .pricing-features li {
+            padding: 6px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '\2713';
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .pricing-btn {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .pricing-btn-primary {
+            background: var(--accent);
+            color: #ffffff !important;
+        }
+
+        .pricing-btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .pricing-btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .pricing-btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ========== DESKTOP APP BANNER ========== */
+        .desktop-banner {
+            padding: 0 40px;
+            margin-top: -40px;
+            margin-bottom: 20px;
+        }
+
+        .desktop-banner-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.12), rgba(52, 211, 153, 0.08));
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            border-radius: 14px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .desktop-banner-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(var(--accent-rgb), 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .desktop-banner-text {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .desktop-banner-text strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .desktop-banner-text span {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .desktop-banner-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 24px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #ffffff !important;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border: none;
+            cursor: pointer;
+        }
+
+        .desktop-banner-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .desktop-banner {
+                padding: 0 20px;
+                margin-top: -20px;
+            }
+            .desktop-banner-inner {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+            .desktop-banner-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        /* ========== MOBILE MENU ========== */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 20px;
+                flex-wrap: wrap;
+            }
+            .nav-toggle {
+                display: flex;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 12px;
+                padding-top: 16px;
+                border-top: 1px solid var(--border);
+                margin-top: 12px;
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .nav-links a {
+                display: block;
+                text-align: center;
+                padding: 8px 0;
+            }
+            .nav-links .nav-btn,
+            .nav-links .nav-btn-outline {
+                width: 100%;
+                text-align: center;
+            }
+            .hero {
+                padding: 120px 20px 60px;
+            }
+            .hero h1 {
+                font-size: 34px;
+            }
+            .hero p {
+                font-size: 15px;
+            }
+            .section {
+                padding: 60px 20px;
+            }
+            .pipeline-section {
+                padding: 60px 20px;
+            }
+            .pipeline-steps {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .pipeline-step::after {
+                display: none;
+            }
+            .section-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-logo-link"><img src="/static/LADX-logo.png" alt="LADX" class="nav-logo"></a>
+        <button class="nav-toggle" id="navToggle" onclick="this.classList.toggle('active'); document.getElementById('navLinks').classList.toggle('open');">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="#features">Features</a>
+            <a href="#pipeline">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="/support">Support</a>
+            <a href="/app" class="nav-btn-outline" id="navAuthBtn">Sign In</a>
+            <a href="/app#signup" class="nav-btn" id="navCtaBtn">Get Started Free</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            AI-Powered PLC Programming
+        </div>
+        <h1>Your AI Partner for<br><span>PLC Programming</span></h1>
+        <p>Generate Siemens SCL code, ladder logic, and complete project documentation. LADX integrates directly with TIA Portal to streamline your automation workflow from planning to commissioning.</p>
+        <div class="hero-buttons">
+            <a href="/app#signup" class="hero-btn hero-btn-primary" id="heroCtaBtn">Get Started Free</a>
+            <a href="#features" class="hero-btn hero-btn-secondary">See Features</a>
+        </div>
+    </section>
+
+    <!-- Desktop App Banner -->
+    <section class="desktop-banner">
+        <div class="desktop-banner-inner">
+            <div class="desktop-banner-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+            </div>
+            <div class="desktop-banner-text">
+                <strong>LADX Desktop App for Windows</strong>
+                <span>Get the full experience with TIA Portal integration, offline mode, and faster performance.</span>
+            </div>
+            <a href="#" class="desktop-banner-btn" onclick="alert('Desktop app download coming soon!'); return false;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download for Windows
+            </a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <h2 class="section-title">Built for Automation Engineers</h2>
+        <p class="section-subtitle">Everything you need to design, program, test, and deploy PLC projects faster than ever.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#9881;</div>
+                <h3>AI Code Generation</h3>
+                <p>Generate complete Siemens SCL function blocks, functions, and data blocks from natural language descriptions. Follows IEC 61131-3 standards.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128268;</div>
+                <h3>TIA Portal Integration</h3>
+                <p>Connect directly to TIA Portal via the Openness API. Import generated code, compile, and download to your PLC without leaving LADX.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128196;</div>
+                <h3>Auto Documentation</h3>
+                <p>Automatically generate FDS documents, IO lists, tag lists, FAT and SAT test procedures from your project requirements.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128203;</div>
+                <h3>4-Stage Pipeline</h3>
+                <p>Follow a structured workflow: Planning, Execution, Testing, and Completion. Each stage is guided by AI to ensure nothing is missed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128295;</div>
+                <h3>PLC Troubleshooting</h3>
+                <p>Describe error codes, LED patterns, or faulty behavior. LADX diagnoses the root cause and provides step-by-step repair instructions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128260;</div>
+                <h3>Code Conversion</h3>
+                <p>Convert between Siemens SCL and Allen-Bradley Structured Text. Handles data type mapping, timer differences, and structural changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section class="pipeline-section" id="pipeline">
+        <div class="pipeline-inner">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">A structured 4-stage pipeline guides every project from requirements to commissioning.</p>
+
+            <div class="pipeline-steps">
+                <div class="pipeline-step">
+                    <div class="pipeline-num">1</div>
+                    <h4>Planning</h4>
+                    <p>Define your process, inputs, outputs, safety requirements, and control sequences. LADX asks the right questions to capture every detail.</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="pipeline-num">2</div>
+                    <h4>Execution</h4>
+                    <p>Generate complete PLC code — SCL function blocks, ladder logic, tag lists — all following IEC 61131-3 standards and best practices.</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="pipeline-num">3</div>
+                    <h4>Testing</h4>
+                    <p>Create FAT and SAT documents, test procedures, and commissioning checklists. LADX helps validate every function and interlock.</p>
+                </div>
+                <div class="pipeline-step">
+                    <div class="pipeline-num">4</div>
+                    <h4>Completed</h4>
+                    <p>Review a complete project overview with all deliverables: FDS, IO list, PLC code, test documents — ready for handover.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+        <h2 class="section-title">Choose Your Plan</h2>
+        <p class="section-subtitle">Start free and upgrade as your projects grow.</p>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-tier">Free</div>
+                <div class="pricing-price">$0 <span>/ month</span></div>
+                <div class="pricing-desc">Perfect for exploring LADX and small projects.</div>
+                <ul class="pricing-features">
+                    <li>5 projects</li>
+                    <li>20 messages per day</li>
+                    <li>SCL code generation</li>
+                    <li>FDS & IO list generation</li>
+                    <li>Basic troubleshooting</li>
+                </ul>
+                <a href="/app#signup" class="pricing-btn pricing-btn-outline">Get Started</a>
+            </div>
+            <div class="pricing-card popular">
+                <div class="pricing-tier">Pro</div>
+                <div class="pricing-price">$29 <span>/ month</span></div>
+                <div class="pricing-desc">For professional automation engineers and teams.</div>
+                <ul class="pricing-features">
+                    <li>50 projects</li>
+                    <li>200 messages per day</li>
+                    <li>All code generation features</li>
+                    <li>Code conversion (Siemens / AB)</li>
+                    <li>TIA Portal integration</li>
+                    <li>FAT & SAT generation</li>
+                    <li>Chat export</li>
+                </ul>
+                <a href="/app#signup" class="pricing-btn pricing-btn-primary">Start Pro Trial</a>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tier">Enterprise</div>
+                <div class="pricing-price">$299 <span>/ month</span></div>
+                <div class="pricing-desc">For teams and departments scaling automation.</div>
+                <ul class="pricing-features">
+                    <li>Unlimited projects & messages</li>
+                    <li>Private LLM deployment</li>
+                    <li>TIA Portal live sync</li>
+                    <li>Priority support & SLA</li>
+                    <li>Team management (up to 10 users)</li>
+                    <li>Custom integrations</li>
+                </ul>
+                <a href="/app#signup" class="pricing-btn pricing-btn-outline">Start Enterprise Trial</a>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tier">Enterprise Plus</div>
+                <div class="pricing-price">$2,999 <span>/ month</span></div>
+                <div class="pricing-desc">Full-scale deployment for large organizations.</div>
+                <ul class="pricing-features">
+                    <li>Everything in Enterprise</li>
+                    <li>Unlimited team members</li>
+                    <li>On-premise / air-gapped deployment</li>
+                    <li>Dedicated account manager</li>
+                    <li>Custom AI model fine-tuning</li>
+                    <li>Advanced audit & compliance logs</li>
+                    <li>White-label option</li>
+                    <li>24/7 premium support</li>
+                </ul>
+                <a href="mailto:support@ladx.ai" class="pricing-btn pricing-btn-outline">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/support">Support</a>
+            <a href="mailto:support@ladx.ai">Contact Support</a>
+            <a href="/app">Sign In</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+        </div>
+        <p>&copy; 2026 LADX. All rights reserved. &nbsp;|&nbsp; <a href="mailto:support@ladx.ai">support@ladx.ai</a></p>
+    </footer>
+
+    <script>
+        // Auth-aware buttons: swap Sign In → Account, Get Started → Download
+        (function() {
+            const token = localStorage.getItem('ladx_token');
+            const user = localStorage.getItem('ladx_user');
+            const isLoggedIn = !!(token && user);
+
+            const navAuth = document.getElementById('navAuthBtn');
+            const navCta = document.getElementById('navCtaBtn');
+            const heroCta = document.getElementById('heroCtaBtn');
+
+            if (isLoggedIn) {
+                // Parse user for display name
+                let name = 'Account';
+                try {
+                    const u = JSON.parse(user);
+                    name = u.full_name || u.username || u.email.split('@')[0];
+                } catch(e) {}
+
+                // Nav: Sign In → My Account
+                if (navAuth) {
+                    navAuth.textContent = name;
+                    navAuth.href = '/app';
+                    navAuth.title = 'Go to your dashboard';
+                }
+
+                // Nav CTA: Get Started → Download
+                if (navCta) {
+                    navCta.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-1px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Download';
+                    navCta.href = '#';
+                    navCta.onclick = function(e) { e.preventDefault(); alert('Desktop app download coming soon!'); };
+                }
+
+                // Hero CTA: Get Started → Download Desktop App
+                if (heroCta) {
+                    heroCta.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:-2px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Download Desktop App';
+                    heroCta.href = '#';
+                    heroCta.onclick = function(e) { e.preventDefault(); alert('Desktop app download coming soon!'); };
+                }
+            }
+        })();
+    </script>
+
+</body>
+</html>

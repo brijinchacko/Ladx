@@ -905,10 +905,41 @@ class PLCAgent:
     Supports per-user private LLM configuration.
     """
 
-    def __init__(self, private_llm_config: dict = None):
+    # Stage-gated tool access: which tools are allowed in each stage
+    STAGE_TOOLS = {
+        "planning": {
+            "allow": ["troubleshoot_plc", "explain_plc_code", "tia_project_status"],
+            "deny": ["generate_plc_code", "generate_ladder_diagram", "convert_plc_code",
+                     "generate_tag_list", "save_code_to_file", "send_to_tia_portal",
+                     "tia_import_program", "tia_compile", "tia_download"],
+        },
+        "execution": {
+            "allow": ["generate_plc_code", "generate_ladder_diagram", "convert_plc_code",
+                      "generate_tag_list", "save_code_to_file", "send_to_tia_portal",
+                      "tia_create_project", "tia_configure_hardware", "tia_import_program",
+                      "tia_compile", "tia_download", "tia_go_online", "tia_project_status",
+                      "troubleshoot_plc", "explain_plc_code"],
+            "deny": [],
+        },
+        "testing": {
+            "allow": ["troubleshoot_plc", "explain_plc_code", "tia_project_status",
+                      "tia_go_online", "tia_compile"],
+            "deny": ["generate_plc_code", "generate_ladder_diagram", "convert_plc_code",
+                     "generate_tag_list", "save_code_to_file", "tia_import_program"],
+        },
+        "completed": {
+            "allow": ["explain_plc_code", "tia_project_status"],
+            "deny": ["generate_plc_code", "generate_ladder_diagram", "convert_plc_code",
+                     "generate_tag_list", "save_code_to_file", "send_to_tia_portal",
+                     "tia_import_program", "tia_compile", "tia_download"],
+        },
+    }
+
+    def __init__(self, private_llm_config: dict = None, current_stage: str = "planning"):
         self.conversation_history = []
         self.system_prompt = get_system_prompt()
         self.model_override = None  # Set per-request to override AI_MODEL
+        self.current_stage = current_stage
 
         # Private LLM: create a dedicated client if the user has their own key
         self._private_config = private_llm_config or {}
@@ -929,6 +960,14 @@ class PLCAgent:
     def _client(self):
         """Return the private client if configured, otherwise the default global client."""
         return self._private_client or client
+
+    def _get_stage_tools(self):
+        """Return filtered tools list based on current project stage."""
+        stage_config = self.STAGE_TOOLS.get(self.current_stage)
+        if not stage_config or not stage_config.get("deny"):
+            return TOOLS  # No restrictions
+        denied = set(stage_config["deny"])
+        return [t for t in TOOLS if t["function"]["name"] not in denied]
 
     @property
     def active_model(self):
@@ -961,13 +1000,14 @@ class PLCAgent:
 
         self._status_cb("Thinking...")
 
-        # Call OpenRouter with tools
+        # Call OpenRouter with stage-filtered tools
+        stage_tools = self._get_stage_tools()
         try:
             response = self._client.chat.completions.create(
                 model=self.active_model,
                 max_tokens=MAX_TOKENS,
                 messages=messages,
-                tools=TOOLS,
+                tools=stage_tools,
                 tool_choice="auto",
                 extra_headers={
                     "HTTP-Referer": "https://ladx.dev",

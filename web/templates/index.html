@@ -456,6 +456,130 @@
         .sidebar-user-dropdown-item:hover { background: var(--bg-tertiary); }
         .sidebar-user-dropdown-item.danger { color: var(--danger); }
 
+        /* Language Submenu */
+        .sidebar-lang-submenu {
+            display: none;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+        }
+        .sidebar-lang-submenu.show { display: block; }
+        .lang-option {
+            padding: 9px 16px 9px 28px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.15s;
+        }
+        .lang-option:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .lang-option.active { color: var(--accent); font-weight: 600; }
+
+        /* Help & Support Page */
+        .help-hero {
+            text-align: center; padding: 32px 0 24px; margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .help-hero h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+        .help-hero p { color: var(--text-secondary); font-size: 14px; }
+        .help-search {
+            margin: 16px auto 0; max-width: 480px; position: relative;
+        }
+        .help-search input {
+            width: 100%; padding: 12px 16px 12px 40px;
+            background: var(--bg-tertiary); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text-primary); font-size: 14px; outline: none;
+        }
+        .help-search input:focus { border-color: var(--accent); }
+        .help-search-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-secondary); font-size: 14px; pointer-events: none;
+        }
+        .help-tabs {
+            display: flex; gap: 4px; margin-bottom: 24px;
+            border-bottom: 1px solid var(--border); padding-bottom: 0;
+        }
+        .help-tab {
+            padding: 10px 18px; font-size: 13px; font-weight: 500;
+            color: var(--text-secondary); cursor: pointer; border: none; background: none;
+            border-bottom: 2px solid transparent; transition: all 0.2s;
+        }
+        .help-tab:hover { color: var(--text-primary); }
+        .help-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .help-section { display: none; }
+        .help-section.active { display: block; }
+
+        /* Knowledge Base */
+        .kb-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kb-category-card {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; cursor: pointer; transition: all 0.2s;
+        }
+        .kb-category-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .kb-cat-icon { display: none; }
+        .kb-cat-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .kb-cat-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .kb-cat-count { font-size: 11px; color: var(--accent); margin-top: 8px; }
+
+        .kb-article-list { display: flex; flex-direction: column; gap: 8px; }
+        .kb-article-item {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px;
+            padding: 14px 18px; cursor: pointer; transition: all 0.15s;
+        }
+        .kb-article-item:hover { border-color: var(--accent); }
+        .kb-article-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .kb-article-preview { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .kb-back-btn {
+            background: none; border: none; color: var(--accent); cursor: pointer;
+            font-size: 13px; margin-bottom: 16px; padding: 0; display: flex; align-items: center; gap: 4px;
+        }
+        .kb-back-btn:hover { text-decoration: underline; }
+        .kb-article-body { line-height: 1.8; font-size: 14px; color: var(--text-primary); }
+        .kb-article-body h3 { font-size: 16px; margin: 20px 0 8px; color: var(--text-primary); }
+        .kb-article-body p { margin-bottom: 12px; }
+        .kb-article-body ul { margin: 8px 0 12px 20px; }
+        .kb-article-body li { margin-bottom: 6px; font-size: 13px; }
+        .kb-article-body code {
+            background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
+            font-family: 'SF Mono', monospace; font-size: 12px;
+        }
+
+        /* Contact & Tickets */
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 800px) { .contact-grid { grid-template-columns: 1fr; } }
+        .contact-card {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px;
+        }
+        .contact-card h3 { font-size: 16px; margin-bottom: 4px; }
+        .contact-card p { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+        .contact-form-group { margin-bottom: 14px; }
+        .contact-form-label { font-size: 12px; font-weight: 500; margin-bottom: 4px; display: block; color: var(--text-secondary); }
+        .contact-form-input, .contact-form-textarea, .contact-form-select {
+            width: 100%; padding: 10px 12px; background: var(--bg-tertiary);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);
+            font-size: 13px; outline: none; font-family: inherit;
+        }
+        .contact-form-input:focus, .contact-form-textarea:focus, .contact-form-select:focus { border-color: var(--accent); }
+        .contact-form-textarea { min-height: 100px; resize: vertical; }
+        .contact-form-select option { background: var(--bg-secondary); }
+        .contact-submit-btn {
+            background: var(--accent); border: none; color: #fff; padding: 10px 20px;
+            border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s; width: 100%;
+        }
+        .contact-submit-btn:hover { background: var(--accent-hover); }
+
+        .ticket-item {
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px;
+            padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px;
+        }
+        .ticket-status { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+        .ticket-status.open { background: rgba(52,211,153,0.15); color: var(--success); }
+        .ticket-status.pending { background: rgba(251,191,36,0.15); color: var(--warning); }
+        .ticket-status.closed { background: rgba(156,160,176,0.15); color: var(--text-secondary); }
+        .ticket-info { flex: 1; }
+        .ticket-subject { font-size: 14px; font-weight: 500; }
+        .ticket-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
         .sidebar-user-dropdown-icon {
             font-size: 15px;
             width: 20px;
@@ -519,14 +643,19 @@
 
         /* Chat Area */
         .chat-container {
-            width: 380px;
+            flex: 1;
             min-width: 300px;
-            max-width: 600px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            flex-shrink: 0;
             position: relative;
+        }
+        /* When dashboard is visible, constrain chat to a side panel */
+        .chat-container.side-panel {
+            flex: none;
+            width: 380px;
+            max-width: 600px;
+            flex-shrink: 0;
         }
 
         /* ---- Mini Puzzle Widget ---- */
@@ -591,7 +720,7 @@
         }
 
         .message {
-            max-width: 85%;
+            max-width: min(85%, 700px);
             padding: 12px 16px;
             border-radius: 12px;
             line-height: 1.6;
@@ -641,10 +770,11 @@
 
         .typing-indicator {
             display: none;
-            position: sticky;
-            bottom: 0;
-            z-index: 10;
-            margin: auto;
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
             width: 90%;
             max-width: 280px;
             background: var(--bg-secondary);
@@ -719,6 +849,9 @@
             justify-content: center;
             gap: 14px;
             color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .welcome-logo { height: 80px; width: auto; margin-bottom: 4px; }
@@ -760,10 +893,45 @@
 
         .example-prompt:hover { border-color: var(--accent); color: var(--text-primary); }
 
+        /* Stage Badge */
+        .stage-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            margin: 0 auto 4px;
+            max-width: 700px;
+            width: 100%;
+        }
+        .stage-badge-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .stage-badge-text {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stage-badge[data-stage="completed"] .stage-badge-dot { background: var(--success); }
+        .stage-badge[data-stage="completed"] .stage-badge-text { color: var(--success); }
+        .stage-badge[data-stage="testing"] .stage-badge-dot { background: var(--warning); }
+        .stage-badge[data-stage="testing"] .stage-badge-text { color: var(--warning); }
+
         /* Quick Actions (inside chat) */
         .quick-actions {
             display: flex; gap: 6px; flex-wrap: wrap;
             padding: 0 20px 8px;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .quick-action-chip {
@@ -786,6 +954,10 @@
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
+        }
+        .input-area .input-card {
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         .input-card {
@@ -1942,7 +2114,7 @@
         }
         .llm-provider-card:hover { border-color: var(--accent); }
         .llm-provider-card.selected { border-color: var(--accent); background: rgba(99,102,241,0.1); }
-        .llm-provider-icon { font-size: 20px; margin-bottom: 4px; }
+        .llm-provider-icon { display: none; }
         .llm-fields { transition: max-height 0.3s, opacity 0.3s; overflow: hidden; }
         .llm-fields.collapsed { max-height: 0; opacity: 0; }
         .llm-fields.expanded { max-height: 500px; opacity: 1; }
@@ -2543,9 +2715,19 @@
                         <div class="sidebar-user-dropdown-item" id="sidebarUserEmail" style="font-size:11px;color:var(--text-secondary);cursor:default;">user@email.com</div>
                         <div class="sidebar-user-dropdown-item" onclick="switchView('profile'); toggleSidebarMenu();">Profile</div>
                         <div class="sidebar-user-dropdown-item" onclick="switchView('settings'); toggleSidebarMenu();">Settings</div>
-                        <div class="sidebar-user-dropdown-item" onclick="toggleSidebarMenu();">Language</div>
-                        <div class="sidebar-user-dropdown-item" onclick="toggleSidebarMenu();">Get Help</div>
-                        <div class="sidebar-user-dropdown-item" onclick="switchView('profile'); toggleSidebarMenu();">Plans</div>
+                        <div class="sidebar-user-dropdown-item sidebar-lang-item" onclick="toggleLangSubmenu(event);">
+                            <span data-i18n="menu_language">Language</span>
+                            <span style="margin-left:auto;font-size:10px;color:var(--text-secondary);" id="currentLangFlag">EN</span>
+                        </div>
+                        <div class="sidebar-lang-submenu" id="langSubmenu">
+                            <div class="lang-option" onclick="setLanguage('en')"><span>🇬🇧</span> English</div>
+                            <div class="lang-option" onclick="setLanguage('de')"><span>🇩🇪</span> Deutsch</div>
+                            <div class="lang-option" onclick="setLanguage('es')"><span>🇪🇸</span> Español</div>
+                            <div class="lang-option" onclick="setLanguage('it')"><span>🇮🇹</span> Italiano</div>
+                            <div class="lang-option" onclick="setLanguage('hi')"><span>🇮🇳</span> हिन्दी</div>
+                        </div>
+                        <div class="sidebar-user-dropdown-item" onclick="switchView('help'); toggleSidebarMenu();" data-i18n="menu_help">Help & Support</div>
+                        <div class="sidebar-user-dropdown-item" onclick="switchView('profile'); toggleSidebarMenu();" data-i18n="menu_plans">Plans</div>
                         <div class="sidebar-user-dropdown-item danger" onclick="logout();">Sign Out</div>
                     </div>
                 </div>
@@ -2599,25 +2781,26 @@
                         <div class="welcome-tip" id="welcomeTip"></div>
                     </div>
 
-                    <!-- Typing / Status indicator (floats in middle of chat) -->
-                    <div class="typing-indicator" id="typingIndicator">
-                        <div class="typing-spinner"></div>
-                        <span class="typing-status-text" id="typingStatusText">Analyzing your request...</span>
-                        <div class="typing-dots">
-                            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                        </div>
-                        <span class="typing-fun-text" id="typingFunText"></span>
-                    </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="quick-actions" id="quickActions">
-                    <span class="quick-action-chip" onclick="quickAction('generate')">Generate Code</span>
-                    <span class="quick-action-chip" onclick="quickAction('troubleshoot')">Troubleshoot</span>
-                    <span class="quick-action-chip" onclick="quickAction('convert')" id="convertChip">Convert Code</span>
-                    <span class="quick-action-chip" onclick="quickAction('explain')">Explain Code</span>
-                    <span class="quick-action-chip" onclick="quickAction('taglist')">Tag List</span>
+                <!-- Typing / Status indicator (floats above input area) -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-spinner"></div>
+                    <span class="typing-status-text" id="typingStatusText">Analyzing your request...</span>
+                    <div class="typing-dots">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                    <span class="typing-fun-text" id="typingFunText"></span>
                 </div>
+
+                <!-- Stage Badge -->
+                <div class="stage-badge" id="stageBadge" style="display:none;">
+                    <span class="stage-badge-dot"></span>
+                    <span class="stage-badge-text" id="stageBadgeText">Planning</span>
+                </div>
+
+                <!-- Quick Actions (stage-gated) -->
+                <div class="quick-actions" id="quickActions"></div>
 
                 <!-- Input Area -->
                 <div class="input-area">
@@ -2657,6 +2840,11 @@
             <!-- ========== SETTINGS VIEW ========== -->
             <div class="dashboard-container" id="settingsContainer">
                 <div id="settingsContent"></div>
+            </div>
+
+            <!-- ========== HELP & SUPPORT VIEW ========== -->
+            <div class="dashboard-container" id="helpContainer">
+                <div id="helpContent"></div>
             </div>
 
         </div>
@@ -3079,9 +3267,8 @@
             currentConversationId = null;
             localStorage.removeItem('ladx_token');
             localStorage.removeItem('ladx_user');
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('appContainer').classList.remove('active');
-            document.getElementById('confirmBanner').classList.remove('active');
+            // Redirect to public landing page
+            window.location.href = '/';
         }
 
         // ===========================================
@@ -3126,15 +3313,10 @@
             badge.className = `tier-badge tier-${tier}`;
 
             // Feature gating
-            const convertChip = document.getElementById('convertChip');
             const exportBtn = document.getElementById('exportBtn');
             if (tier === 'free') {
-                convertChip.classList.add('locked');
-                convertChip.title = 'Upgrade to Pro to convert code';
                 exportBtn.style.display = 'none';
             } else {
-                convertChip.classList.remove('locked');
-                convertChip.title = '';
                 exportBtn.style.display = '';
             }
         }
@@ -3200,8 +3382,9 @@
             switchView('chat');
             // Load full dashboard into the left panel
             await loadDashboard();
-            // Show the dashboard panel
+            // Show the dashboard panel and constrain chat to side panel
             document.getElementById('projectDashPanel').classList.add('active');
+            document.querySelector('.chat-container').classList.add('side-panel');
         }
 
         async function loadConversation(id) {
@@ -3241,6 +3424,9 @@
                     addMessage(msg.content, msg.role);
                 });
 
+                // Update stage-gated chips
+                renderStageChips();
+
                 // Highlight in sidebar
                 document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.conversation-item').forEach(el => {
@@ -3255,8 +3441,9 @@
             currentConversationId = null;
             currentProject = null;
 
-            // Hide project dashboard panel
+            // Hide project dashboard panel, expand chat to full width
             document.getElementById('projectDashPanel').classList.remove('active');
+            document.querySelector('.chat-container').classList.remove('side-panel');
 
             // Reset chat area
             chatMessages.innerHTML = '';
@@ -3267,6 +3454,7 @@
 
             // Remove active state from sidebar items
             document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+            renderStageChips();
             userInput.focus();
         }
 
@@ -3346,6 +3534,7 @@
         // Start tips on load (if welcome screen is visible)
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(startWelcomeTips, 500);
+            initLanguage();
         });
 
         // ---- Typing indicator with rotating fun facts ----
@@ -3524,6 +3713,7 @@
                     if (dashboardData.project && currentProject) {
                         currentProject.current_stage = dashboardData.project.current_stage;
                         currentProject.message_count = dashboardData.stats?.total_messages || currentProject.message_count;
+                        renderStageChips();
                     }
                 }
             } catch (e) { /* silent background refresh */ }
@@ -3532,6 +3722,55 @@
         function useExample(el) {
             userInput.value = el.textContent.trim();
             userInput.focus();
+        }
+
+        // Stage-gated chip definitions
+        const STAGE_CHIPS = {
+            planning: [
+                { action: 'fds', label: 'Generate FDS' },
+                { action: 'iolist', label: 'Generate IO List' },
+                { action: 'troubleshoot', label: 'Troubleshoot' },
+                { action: 'explain', label: 'Explain Code' },
+            ],
+            execution: [
+                { action: 'generate', label: 'Generate Code' },
+                { action: 'troubleshoot', label: 'Troubleshoot' },
+                { action: 'convert', label: 'Convert Code' },
+                { action: 'explain', label: 'Explain Code' },
+                { action: 'taglist', label: 'Tag List' },
+            ],
+            testing: [
+                { action: 'fat', label: 'Generate FAT' },
+                { action: 'sat', label: 'Generate SAT' },
+                { action: 'troubleshoot', label: 'Troubleshoot' },
+                { action: 'explain', label: 'Explain Code' },
+            ],
+            completed: [
+                { action: 'explain', label: 'Explain Code' },
+            ],
+        };
+
+        function renderStageChips() {
+            const container = document.getElementById('quickActions');
+            const badge = document.getElementById('stageBadge');
+            if (!container) return;
+
+            const stage = (currentProject && currentProject.current_stage) || 'planning';
+
+            // Update stage badge
+            if (currentProject) {
+                badge.style.display = 'flex';
+                badge.setAttribute('data-stage', stage);
+                document.getElementById('stageBadgeText').textContent =
+                    (STAGE_NAMES[stage] || 'Planning') + ' Stage';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            const chips = STAGE_CHIPS[stage] || STAGE_CHIPS.planning;
+            container.innerHTML = chips.map(c =>
+                `<span class="quick-action-chip" onclick="quickAction('${c.action}')">${c.label}</span>`
+            ).join('');
         }
 
         function quickAction(action) {
@@ -3547,6 +3786,10 @@
                 convert: 'Convert this code from Siemens SCL to Allen-Bradley ST:\n\n[paste code here]',
                 explain: 'Explain what this PLC code does:\n\n[paste code here]',
                 taglist: 'Generate a tag list for: [describe your system]',
+                fds: 'Generate the Functional Design Specification for this project',
+                iolist: 'Generate the IO List for this project',
+                fat: 'Generate a Factory Acceptance Test document for this project',
+                sat: 'Generate a Site Acceptance Test document for this project',
             };
             userInput.value = prompts[action] || '';
             userInput.focus();
@@ -3746,6 +3989,7 @@
                 // Load dashboard for new project
                 await loadDashboard();
                 document.getElementById('projectDashPanel').classList.add('active');
+                document.querySelector('.chat-container').classList.add('side-panel');
 
                 // Auto-generate FDS and IO List in background
                 autoGenerateDocs(data.id);
@@ -3863,12 +4107,14 @@
             const dashPanel = document.getElementById('projectDashPanel');
             const profileEl = document.getElementById('profileContainer');
             const settingsEl = document.getElementById('settingsContainer');
+            const helpEl = document.getElementById('helpContainer');
 
             // Hide all views
             chatEl.style.display = 'none';
             dashPanel.style.display = 'none';
             profileEl.classList.remove('active');
             settingsEl.classList.remove('active');
+            helpEl.classList.remove('active');
 
             if (view === 'profile') {
                 profileEl.classList.add('active');
@@ -3876,6 +4122,9 @@
             } else if (view === 'settings') {
                 settingsEl.classList.add('active');
                 loadSettingsPage();
+            } else if (view === 'help') {
+                helpEl.classList.add('active');
+                loadHelpPage();
             } else {
                 // Default: show project dashboard (left) + chat (right)
                 chatEl.style.display = 'flex';
@@ -3883,6 +4132,9 @@
                 if (currentConversationId) {
                     dashPanel.style.display = 'block';
                     dashPanel.classList.add('active');
+                    chatEl.classList.add('side-panel');
+                } else {
+                    chatEl.classList.remove('side-panel');
                 }
             }
         }
@@ -4227,6 +4479,7 @@
                 }
                 const data = await res.json();
                 if (currentProject) currentProject.current_stage = data.current_stage;
+                renderStageChips();
                 await refreshDashboardBackground();
                 await loadConversations();  // Refresh sidebar stage indicators
             } catch (e) {
@@ -4905,6 +5158,490 @@
         }
 
         // ===========================================
+        // i18n — Multi-language support
+        // ===========================================
+        const TRANSLATIONS = {
+            en: {
+                menu_language: 'Language', menu_help: 'Help & Support', menu_plans: 'Plans',
+                welcome_greeting: 'Hello{name}, how can I help you?',
+                welcome_subtitle: 'Your AI partner for Siemens PLC programming — TIA Portal, SCL, and automation.',
+                new_project: '+ New Project', projects: 'Projects', sign_out: 'Sign Out',
+                export: 'Export', generate_code: 'Generate Code', troubleshoot: 'Troubleshoot',
+                convert_code: 'Convert Code', explain_code: 'Explain Code', tag_list: 'Tag List',
+                input_placeholder: 'Describe what you need...',
+                help_title: 'Help & Support', help_subtitle: 'Find answers, browse guides, or contact our team.',
+                help_search_placeholder: 'Search knowledge base...',
+                tab_knowledge_base: 'Knowledge Base', tab_contact: 'Contact & Tickets',
+                kb_getting_started: 'Getting Started', kb_getting_started_desc: 'Set up your account, create your first project, and learn the basics.',
+                kb_plc_programming: 'PLC Programming', kb_plc_programming_desc: 'SCL code generation, function blocks, data blocks, and OBs.',
+                kb_tia_portal: 'TIA Portal Integration', kb_tia_portal_desc: 'Connect LADX to TIA Portal for live project sync and deployment.',
+                kb_documents: 'Document Generation', kb_documents_desc: 'Auto-generate FDS, IO lists, PLC code, FAT and SAT documents.',
+                kb_ai_models: 'AI & Models', kb_ai_models_desc: 'Configure default or private LLM, choose models, and manage API keys.',
+                kb_troubleshooting: 'Troubleshooting', kb_troubleshooting_desc: 'Common errors, connectivity issues, and debugging tips.',
+                contact_email_title: 'Send us a message', contact_email_desc: 'Our engineering support team typically responds within 24 hours.',
+                contact_subject: 'Subject', contact_message: 'Message', contact_priority: 'Priority',
+                contact_send: 'Send Message',
+                ticket_title: 'My Support Tickets', ticket_desc: 'Track the status of your open and resolved tickets.',
+                ticket_none: 'No tickets yet. Submit a message and it will appear here.',
+                priority_low: 'Low', priority_medium: 'Medium', priority_high: 'High', priority_critical: 'Critical',
+            },
+            de: {
+                menu_language: 'Sprache', menu_help: 'Hilfe & Support', menu_plans: 'Tarife',
+                welcome_greeting: 'Hallo{name}, wie kann ich Ihnen helfen?',
+                welcome_subtitle: 'Ihr KI-Partner für Siemens SPS-Programmierung — TIA Portal, SCL und Automatisierung.',
+                new_project: '+ Neues Projekt', projects: 'Projekte', sign_out: 'Abmelden',
+                export: 'Exportieren', generate_code: 'Code generieren', troubleshoot: 'Fehlersuche',
+                convert_code: 'Code konvertieren', explain_code: 'Code erklären', tag_list: 'Tag-Liste',
+                input_placeholder: 'Beschreiben Sie, was Sie brauchen...',
+                help_title: 'Hilfe & Support', help_subtitle: 'Antworten finden, Anleitungen durchsuchen oder unser Team kontaktieren.',
+                help_search_placeholder: 'Wissensdatenbank durchsuchen...',
+                tab_knowledge_base: 'Wissensdatenbank', tab_contact: 'Kontakt & Tickets',
+                kb_getting_started: 'Erste Schritte', kb_getting_started_desc: 'Konto einrichten, erstes Projekt erstellen und die Grundlagen lernen.',
+                kb_plc_programming: 'SPS-Programmierung', kb_plc_programming_desc: 'SCL-Code-Generierung, Funktionsbausteine, Datenbausteine und OBs.',
+                kb_tia_portal: 'TIA Portal Integration', kb_tia_portal_desc: 'LADX mit TIA Portal verbinden für Live-Synchronisierung.',
+                kb_documents: 'Dokumentenerstellung', kb_documents_desc: 'FDS, IO-Listen, SPS-Code, FAT- und SAT-Dokumente automatisch erstellen.',
+                kb_ai_models: 'KI & Modelle', kb_ai_models_desc: 'Standard- oder privates LLM konfigurieren und API-Schlüssel verwalten.',
+                kb_troubleshooting: 'Fehlerbehebung', kb_troubleshooting_desc: 'Häufige Fehler, Verbindungsprobleme und Debugging-Tipps.',
+                contact_email_title: 'Nachricht senden', contact_email_desc: 'Unser Support-Team antwortet in der Regel innerhalb von 24 Stunden.',
+                contact_subject: 'Betreff', contact_message: 'Nachricht', contact_priority: 'Priorität',
+                contact_send: 'Nachricht senden',
+                ticket_title: 'Meine Support-Tickets', ticket_desc: 'Status Ihrer offenen und gelösten Tickets verfolgen.',
+                ticket_none: 'Noch keine Tickets. Senden Sie eine Nachricht und sie erscheint hier.',
+                priority_low: 'Niedrig', priority_medium: 'Mittel', priority_high: 'Hoch', priority_critical: 'Kritisch',
+            },
+            es: {
+                menu_language: 'Idioma', menu_help: 'Ayuda y Soporte', menu_plans: 'Planes',
+                welcome_greeting: 'Hola{name}, ¿cómo puedo ayudarte?',
+                welcome_subtitle: 'Tu compañero de IA para programación de PLC Siemens — TIA Portal, SCL y automatización.',
+                new_project: '+ Nuevo Proyecto', projects: 'Proyectos', sign_out: 'Cerrar sesión',
+                export: 'Exportar', generate_code: 'Generar Código', troubleshoot: 'Solucionar',
+                convert_code: 'Convertir Código', explain_code: 'Explicar Código', tag_list: 'Lista de Tags',
+                input_placeholder: 'Describe lo que necesitas...',
+                help_title: 'Ayuda y Soporte', help_subtitle: 'Encuentra respuestas, consulta guías o contacta a nuestro equipo.',
+                help_search_placeholder: 'Buscar en la base de conocimientos...',
+                tab_knowledge_base: 'Base de Conocimientos', tab_contact: 'Contacto y Tickets',
+                kb_getting_started: 'Primeros Pasos', kb_getting_started_desc: 'Configura tu cuenta, crea tu primer proyecto y aprende lo básico.',
+                kb_plc_programming: 'Programación PLC', kb_plc_programming_desc: 'Generación de código SCL, bloques de función, bloques de datos y OBs.',
+                kb_tia_portal: 'Integración TIA Portal', kb_tia_portal_desc: 'Conecta LADX a TIA Portal para sincronización en vivo.',
+                kb_documents: 'Generación de Documentos', kb_documents_desc: 'Genera automáticamente FDS, listas de IO, código PLC, FAT y SAT.',
+                kb_ai_models: 'IA y Modelos', kb_ai_models_desc: 'Configura el LLM predeterminado o privado y gestiona claves API.',
+                kb_troubleshooting: 'Solución de Problemas', kb_troubleshooting_desc: 'Errores comunes, problemas de conectividad y consejos de depuración.',
+                contact_email_title: 'Envíanos un mensaje', contact_email_desc: 'Nuestro equipo de soporte generalmente responde en 24 horas.',
+                contact_subject: 'Asunto', contact_message: 'Mensaje', contact_priority: 'Prioridad',
+                contact_send: 'Enviar Mensaje',
+                ticket_title: 'Mis Tickets de Soporte', ticket_desc: 'Sigue el estado de tus tickets abiertos y resueltos.',
+                ticket_none: 'Aún no hay tickets. Envía un mensaje y aparecerá aquí.',
+                priority_low: 'Baja', priority_medium: 'Media', priority_high: 'Alta', priority_critical: 'Crítica',
+            },
+            it: {
+                menu_language: 'Lingua', menu_help: 'Aiuto e Supporto', menu_plans: 'Piani',
+                welcome_greeting: 'Ciao{name}, come posso aiutarti?',
+                welcome_subtitle: 'Il tuo partner IA per la programmazione PLC Siemens — TIA Portal, SCL e automazione.',
+                new_project: '+ Nuovo Progetto', projects: 'Progetti', sign_out: 'Esci',
+                export: 'Esporta', generate_code: 'Genera Codice', troubleshoot: 'Risoluzione problemi',
+                convert_code: 'Converti Codice', explain_code: 'Spiega Codice', tag_list: 'Lista Tag',
+                input_placeholder: 'Descrivi di cosa hai bisogno...',
+                help_title: 'Aiuto e Supporto', help_subtitle: 'Trova risposte, sfoglia guide o contatta il nostro team.',
+                help_search_placeholder: 'Cerca nella knowledge base...',
+                tab_knowledge_base: 'Knowledge Base', tab_contact: 'Contatti e Ticket',
+                kb_getting_started: 'Per Iniziare', kb_getting_started_desc: 'Configura il tuo account, crea il primo progetto e impara le basi.',
+                kb_plc_programming: 'Programmazione PLC', kb_plc_programming_desc: 'Generazione codice SCL, blocchi funzione, blocchi dati e OB.',
+                kb_tia_portal: 'Integrazione TIA Portal', kb_tia_portal_desc: 'Collega LADX a TIA Portal per la sincronizzazione in tempo reale.',
+                kb_documents: 'Generazione Documenti', kb_documents_desc: 'Genera automaticamente FDS, liste IO, codice PLC, documenti FAT e SAT.',
+                kb_ai_models: 'IA e Modelli', kb_ai_models_desc: 'Configura il LLM predefinito o privato e gestisci le chiavi API.',
+                kb_troubleshooting: 'Risoluzione Problemi', kb_troubleshooting_desc: 'Errori comuni, problemi di connettività e suggerimenti per il debug.',
+                contact_email_title: 'Inviaci un messaggio', contact_email_desc: 'Il nostro team di supporto risponde generalmente entro 24 ore.',
+                contact_subject: 'Oggetto', contact_message: 'Messaggio', contact_priority: 'Priorità',
+                contact_send: 'Invia Messaggio',
+                ticket_title: 'I Miei Ticket', ticket_desc: 'Monitora lo stato dei tuoi ticket aperti e risolti.',
+                ticket_none: 'Nessun ticket ancora. Invia un messaggio e apparirà qui.',
+                priority_low: 'Bassa', priority_medium: 'Media', priority_high: 'Alta', priority_critical: 'Critica',
+            },
+            hi: {
+                menu_language: 'भाषा', menu_help: 'सहायता और समर्थन', menu_plans: 'योजनाएं',
+                welcome_greeting: 'नमस्ते{name}, मैं आपकी कैसे मदद कर सकता हूं?',
+                welcome_subtitle: 'Siemens PLC प्रोग्रामिंग के लिए आपका AI साथी — TIA Portal, SCL और ऑटोमेशन।',
+                new_project: '+ नया प्रोजेक्ट', projects: 'प्रोजेक्ट', sign_out: 'लॉग आउट',
+                export: 'निर्यात', generate_code: 'कोड बनाएं', troubleshoot: 'समस्या निवारण',
+                convert_code: 'कोड रूपांतरण', explain_code: 'कोड समझाएं', tag_list: 'टैग सूची',
+                input_placeholder: 'बताएं आपको क्या चाहिए...',
+                help_title: 'सहायता और समर्थन', help_subtitle: 'उत्तर खोजें, गाइड ब्राउज़ करें या हमारी टीम से संपर्क करें।',
+                help_search_placeholder: 'ज्ञान आधार खोजें...',
+                tab_knowledge_base: 'ज्ञान आधार', tab_contact: 'संपर्क और टिकट',
+                kb_getting_started: 'शुरू करें', kb_getting_started_desc: 'अपना खाता सेट करें, पहला प्रोजेक्ट बनाएं और मूल बातें सीखें।',
+                kb_plc_programming: 'PLC प्रोग्रामिंग', kb_plc_programming_desc: 'SCL कोड जनरेशन, फंक्शन ब्लॉक, डेटा ब्लॉक और OB।',
+                kb_tia_portal: 'TIA Portal एकीकरण', kb_tia_portal_desc: 'लाइव सिंक के लिए LADX को TIA Portal से कनेक्ट करें।',
+                kb_documents: 'दस्तावेज़ निर्माण', kb_documents_desc: 'FDS, IO सूचियां, PLC कोड, FAT और SAT दस्तावेज़ स्वचालित रूप से बनाएं।',
+                kb_ai_models: 'AI और मॉडल', kb_ai_models_desc: 'डिफ़ॉल्ट या प्राइवेट LLM कॉन्फ़िगर करें और API कुंजियां प्रबंधित करें।',
+                kb_troubleshooting: 'समस्या निवारण', kb_troubleshooting_desc: 'सामान्य त्रुटियां, कनेक्टिविटी समस्याएं और डिबगिंग टिप्स।',
+                contact_email_title: 'हमें संदेश भेजें', contact_email_desc: 'हमारी सहायता टीम आमतौर पर 24 घंटे के भीतर जवाब देती है।',
+                contact_subject: 'विषय', contact_message: 'संदेश', contact_priority: 'प्राथमिकता',
+                contact_send: 'संदेश भेजें',
+                ticket_title: 'मेरे सहायता टिकट', ticket_desc: 'अपने खुले और हल किए गए टिकटों की स्थिति ट्रैक करें।',
+                ticket_none: 'अभी तक कोई टिकट नहीं। एक संदेश भेजें और यह यहां दिखाई देगा।',
+                priority_low: 'कम', priority_medium: 'मध्यम', priority_high: 'उच्च', priority_critical: 'गंभीर',
+            },
+        };
+
+        const LANG_FLAGS = { en: 'EN', de: 'DE', es: 'ES', it: 'IT', hi: 'HI' };
+        let currentLang = localStorage.getItem('ladx_lang') || 'en';
+
+        function t(key) {
+            return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || (TRANSLATIONS.en[key]) || key;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ladx_lang', lang);
+            document.getElementById('currentLangFlag').textContent = LANG_FLAGS[lang] || 'EN';
+
+            // Highlight active language
+            document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.lang-option').forEach(el => {
+                if (el.onclick && el.onclick.toString().includes(`'${lang}'`)) el.classList.add('active');
+            });
+
+            applyTranslations();
+            document.getElementById('langSubmenu').classList.remove('show');
+        }
+
+        function applyTranslations() {
+            // Welcome greeting
+            const displayName = document.getElementById('sidebarUserName').textContent;
+            const nameStr = (displayName && displayName !== 'User') ? ` ${displayName}` : '';
+            const greetEl = document.getElementById('welcomeGreeting');
+            if (greetEl) greetEl.textContent = t('welcome_greeting').replace('{name}', nameStr);
+
+            // Welcome subtitle
+            const subtitleEl = document.querySelector('.welcome p');
+            if (subtitleEl) subtitleEl.textContent = t('welcome_subtitle');
+
+            // Sidebar
+            const newProjBtn = document.querySelector('.new-chat-btn');
+            if (newProjBtn) newProjBtn.textContent = t('new_project');
+            const projTitle = document.querySelector('.sidebar-title');
+            if (projTitle) projTitle.textContent = t('projects');
+
+            // Quick actions
+            const chips = document.querySelectorAll('.quick-action-chip');
+            const chipKeys = ['generate_code', 'troubleshoot', 'convert_code', 'explain_code', 'tag_list'];
+            chips.forEach((c, i) => { if (chipKeys[i]) c.textContent = t(chipKeys[i]); });
+
+            // Input placeholder
+            const inp = document.getElementById('userInput');
+            if (inp) inp.placeholder = t('input_placeholder');
+
+            // Export button
+            const expBtn = document.getElementById('exportBtn');
+            if (expBtn) expBtn.textContent = t('export');
+
+            // Menu items with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+
+            // Sign out
+            const signOutEl = document.querySelector('.sidebar-user-dropdown-item.danger');
+            if (signOutEl) signOutEl.textContent = t('sign_out');
+
+            // Reload help page if visible
+            if (currentView === 'help') loadHelpPage();
+        }
+
+        function toggleLangSubmenu(e) {
+            e.stopPropagation();
+            document.getElementById('langSubmenu').classList.toggle('show');
+        }
+
+        // ===========================================
+        // Knowledge Base Data
+        // ===========================================
+        const KB_CATEGORIES = [
+            {
+                id: 'getting_started', icon: '🚀',
+                articles: [
+                    { id: 'gs1', titleKey: 'Creating Your Account', body: `<h3>Creating Your Account</h3><p>Visit the LADX web application and click <strong>Sign Up</strong>. Enter your full name, email address, and a secure password (minimum 6 characters). You will receive a confirmation email — click the link to verify your account.</p><h3>Your First Project</h3><p>After signing in, click <strong>+ New Project</strong> in the sidebar. Fill in:</p><ul><li><strong>Project Name</strong> — A descriptive title (e.g., "Water Treatment Plant Automation")</li><li><strong>Description</strong> — Brief description of what the project does</li><li><strong>CPU Model</strong> — Select your target Siemens PLC (S7-1200, S7-1500, etc.)</li><li><strong>TIA Portal Version</strong> — V17, V18, V19, or V20</li></ul><p>LADX will automatically generate an FDS and IO List based on your project description.</p>` },
+                    { id: 'gs2', titleKey: 'Understanding the Interface', body: `<h3>Understanding the Interface</h3><p>The LADX workspace is divided into three main areas:</p><ul><li><strong>Sidebar (Left)</strong> — Lists all your projects. Click any project to open it.</li><li><strong>Project Dashboard (Center)</strong> — Shows the project pipeline, generated documents, and hardware configuration when a project is selected.</li><li><strong>Chat Panel (Right)</strong> — Your AI assistant. Ask questions, request code generation, or troubleshoot errors.</li></ul><h3>Quick Actions</h3><p>Below the chat area, you will find quick action chips: <code>Generate Code</code>, <code>Troubleshoot</code>, <code>Convert Code</code>, <code>Explain Code</code>, and <code>Tag List</code>. Click any chip to pre-fill a prompt template.</p>` },
+                    { id: 'gs3', titleKey: 'Plans & Usage Limits', body: `<h3>Plans & Usage Limits</h3><p>LADX offers three tiers:</p><ul><li><strong>Free</strong> — 5 projects, 20 messages/day, basic AI model</li><li><strong>Pro</strong> — 50 projects, 200 messages/day, access to all AI models</li><li><strong>Enterprise</strong> — Unlimited projects and messages, private LLM support, priority support</li></ul><p>View your current usage in the header bar. Upgrade anytime from <strong>Profile → Plans</strong>.</p>` },
+                ],
+            },
+            {
+                id: 'plc_programming', icon: '⚡',
+                articles: [
+                    { id: 'plc1', titleKey: 'SCL Code Generation', body: `<h3>SCL Code Generation</h3><p>LADX can generate complete SCL (Structured Control Language) code for Siemens PLCs. Simply describe what you need in the chat:</p><ul><li>"Create a motor starter FB with overload protection"</li><li>"Generate a PID control loop for tank level"</li><li>"Write a recipe management system with 10 recipes"</li></ul><h3>Code Structure</h3><p>Generated code follows Siemens best practices:</p><ul><li><strong>Function Blocks (FB)</strong> — Reusable blocks with instance data blocks</li><li><strong>Functions (FC)</strong> — Stateless utility functions</li><li><strong>Data Blocks (DB)</strong> — Structured data storage</li><li><strong>Organization Blocks (OB)</strong> — Main program cycle, startup, errors</li></ul>` },
+                    { id: 'plc2', titleKey: 'Function Block Best Practices', body: `<h3>Function Block Best Practices</h3><p>When designing FBs in LADX:</p><ul><li>Use descriptive IN/OUT/IN_OUT/STAT variable names</li><li>Keep FBs focused on a single responsibility</li><li>Use STAT variables for internal state, not global DBs</li><li>Always include an <code>Enable</code> input and <code>Error</code>/<code>Status</code> outputs</li><li>Document your code with comments in the chat prompt</li></ul><p>LADX auto-generates variable declarations with proper data types and default values.</p>` },
+                    { id: 'plc3', titleKey: 'Working with Data Types', body: `<h3>Working with Data Types</h3><p>LADX supports all Siemens S7 data types:</p><ul><li><strong>Elementary</strong>: BOOL, BYTE, WORD, DWORD, INT, DINT, REAL, TIME, STRING</li><li><strong>Complex</strong>: ARRAY, STRUCT, UDT (User-Defined Types)</li><li><strong>System</strong>: DATE_AND_TIME, TON, TOF, CTU, CTD</li></ul><p>When requesting code, specify your preferred data types and LADX will generate type-safe code accordingly.</p>` },
+                ],
+            },
+            {
+                id: 'tia_portal', icon: '',
+                articles: [
+                    { id: 'tia1', titleKey: 'Connecting to TIA Portal', body: `<h3>Connecting to TIA Portal</h3><p>LADX connects to TIA Portal through the <strong>TIA Portal Openness API</strong> via a local bridge service. This allows LADX to read and write PLC projects directly.</p><h3>Prerequisites</h3><ul><li><strong>TIA Portal V17, V18, V19 or V20</strong> installed on the same machine running LADX</li><li><strong>TIA Portal Openness</strong> feature must be installed (it is an optional component during TIA Portal setup)</li><li><strong>Administrator rights</strong> on your Windows PC (required for Openness API access)</li><li>A TIA Portal project must be <strong>open</strong> before connecting</li></ul><h3>Step-by-Step Connection Guide</h3><p><strong>Step 1 — Enable TIA Portal Openness</strong></p><p>If Openness was not installed with TIA Portal, you can add it:</p><ul><li>Run the TIA Portal installer again and choose <strong>Modify</strong></li><li>Check the box for <strong>TIA Portal Openness</strong> under Optional Components</li><li>Complete the installation and restart TIA Portal</li></ul><p><strong>Step 2 — Configure Openness Permissions</strong></p><ul><li>Open TIA Portal and go to <code>Options → Settings → General → Openness</code></li><li>Ensure <strong>"Allow access via Openness API"</strong> is enabled</li><li>If prompted by Windows Firewall, click <strong>Allow Access</strong></li><li>Your Windows user account must be a member of the <strong>Siemens TIA Openness</strong> group — check via <code>Computer Management → Local Users and Groups → Groups</code></li></ul><p><strong>Step 3 — Start the LADX Bridge</strong></p><ul><li>The LADX Bridge is a local service that runs on your machine and mediates between LADX and TIA Portal</li><li>Start it from the LADX installation folder or as a Windows service</li><li>Default port: <strong>8080</strong> (configurable in bridge settings)</li><li>The bridge must be running before you attempt to connect from LADX</li></ul><p><strong>Step 4 — Connect from LADX</strong></p><ul><li>In the LADX header bar, click the <strong>TIA Portal Status</strong> indicator (shows "TIA Offline" when disconnected)</li><li>In the overlay panel, click <strong>Connect</strong></li><li>LADX will attempt to find a running TIA Portal instance and open project</li><li>On success, the status changes to <strong>"TIA Connected"</strong> with a green dot</li></ul>` },
+                    { id: 'tia2', titleKey: 'When TIA Portal Shows Offline', body: `<h3>When TIA Portal Shows Offline</h3><p>If the header bar shows <strong>"TIA Offline"</strong> with a red dot, it means LADX cannot communicate with TIA Portal. Here is how to diagnose and fix it:</p><h3>Common Causes and Fixes</h3><p><strong>1. TIA Portal is not running</strong></p><ul><li>Open TIA Portal on your machine and load a project</li><li>The project must be fully open (not just the Start screen)</li></ul><p><strong>2. Openness API is not installed</strong></p><ul><li>Go to <code>Control Panel → Programs → Siemens</code> and check if "TIA Portal Openness" appears</li><li>If not, re-run the TIA Portal installer and add the Openness component</li></ul><p><strong>3. Openness is disabled in TIA Portal settings</strong></p><ul><li>In TIA Portal: <code>Options → Settings → General → Openness</code></li><li>Make sure "Allow access via Openness API" is <strong>checked</strong></li></ul><p><strong>4. Windows user is not in the Openness group</strong></p><ul><li>Open <code>Computer Management</code> (right-click Start → Computer Management)</li><li>Go to <code>Local Users and Groups → Groups</code></li><li>Find <strong>"Siemens TIA Openness"</strong> group</li><li>Add your Windows username to this group</li><li><strong>Log out and log back in</strong> for the change to take effect</li></ul><p><strong>5. LADX Bridge service is not running</strong></p><ul><li>Check if the bridge process is active in Task Manager</li><li>Restart it from the LADX installation folder</li><li>Check the bridge log file for errors</li></ul><p><strong>6. Firewall blocking the connection</strong></p><ul><li>Windows Firewall may block the bridge port (default 8080)</li><li>Add an inbound rule: <code>Windows Defender Firewall → Advanced Settings → Inbound Rules → New Rule → Port → TCP 8080 → Allow</code></li></ul><p><strong>7. TIA Portal version mismatch</strong></p><ul><li>The LADX Bridge must match your TIA Portal version (V17/V18/V19/V20)</li><li>If you upgraded TIA Portal, update the bridge as well</li></ul><h3>Quick Checklist</h3><ul><li>TIA Portal running with a project open?</li><li>Openness component installed?</li><li>Openness enabled in TIA Portal settings?</li><li>Windows user in Siemens TIA Openness group?</li><li>LADX Bridge service running?</li><li>Firewall not blocking port 8080?</li><li>Correct TIA Portal version for your bridge?</li></ul>` },
+                    { id: 'tia3', titleKey: 'TIA Portal Settings You Need to Change', body: `<h3>TIA Portal Settings You Need to Change</h3><p>To work with LADX, a few TIA Portal settings must be configured correctly:</p><h3>1. Enable Openness API Access</h3><ul><li>Open TIA Portal</li><li>Navigate to <code>Options → Settings → General</code></li><li>Find the <strong>Openness</strong> section</li><li>Check <strong>"Allow access from external applications via Openness"</strong></li><li>Click OK and restart TIA Portal if prompted</li></ul><h3>2. Set the Correct Project Language</h3><ul><li>Go to <code>Project → Properties → General → Project Languages</code></li><li>Ensure your editing language matches the language you use in LADX prompts</li><li>This affects block comments, tag descriptions, and generated documentation</li></ul><h3>3. Hardware Configuration</h3><ul><li>Before connecting, ensure your hardware configuration is <strong>compiled without errors</strong></li><li>Go to <code>Device Configuration</code>, right-click the PLC and select <strong>Compile → Hardware (rebuild all)</strong></li><li>Fix any red errors before attempting to sync with LADX</li></ul><h3>4. User-Defined Data Types (UDTs)</h3><ul><li>If your project uses UDTs, they must be compiled before LADX can reference them</li><li>LADX will read existing UDTs when browsing your project</li></ul><h3>5. Consistent Tag Naming</h3><ul><li>LADX generates tags following IEC 61131-3 conventions</li><li>For best results, use a consistent naming convention in your TIA Portal project (e.g., <code>M_Pump01_Start</code>, <code>AI_TankLevel_LT001</code>)</li><li>Go to <code>PLC Tags</code> and review existing naming patterns</li></ul><h3>6. Network Configuration (for online access)</h3><ul><li>If LADX needs to go online with the PLC, ensure PROFINET/Ethernet settings are correct</li><li>Set the PG/PC interface in TIA Portal: <code>Online → Accessible devices → select your network adapter</code></li><li>The PLC IP address must be reachable from your machine</li></ul>` },
+                    { id: 'tia4', titleKey: 'Live Sync and Deployment', body: `<h3>Live Sync and Deployment</h3><p>Once TIA Portal is connected (green status indicator), LADX enables powerful two-way synchronization:</p><h3>Browse Project</h3><ul><li>View the complete hardware tree: PLCs, modules, IO devices</li><li>Browse software blocks: OBs, FBs, FCs, DBs with their interfaces</li><li>Read PLC tag tables with addresses, data types, and comments</li></ul><h3>Download from TIA Portal</h3><ul><li>Pull existing blocks into LADX for AI-assisted analysis</li><li>Import tag tables into your LADX project IO list</li><li>Read hardware configuration for documentation generation</li></ul><h3>Upload to TIA Portal</h3><ul><li>Push AI-generated SCL code directly into TIA Portal as new blocks</li><li>Upload tag tables generated from your IO list</li><li>LADX creates proper block structure with variable declarations</li></ul><h3>Compile and Verify</h3><ul><li>Trigger compilation from LADX and view results (errors, warnings)</li><li>Fix compilation errors in the chat — LADX reads the error messages and suggests corrections</li></ul><h3>Safety Notes</h3><ul><li>Always compile and test generated code before downloading to a live PLC</li><li>Use simulation mode (PLCSIM) for initial testing</li><li>LADX never goes online with a PLC without your explicit command</li><li>Back up your TIA Portal project before large uploads</li></ul>` },
+                ],
+            },
+            {
+                id: 'documents', icon: '📄',
+                articles: [
+                    { id: 'doc1', titleKey: 'Auto-Generated Documents', body: `<h3>Auto-Generated Documents</h3><p>When you create a new project, LADX automatically generates:</p><ul><li><strong>FDS (Functional Design Specification)</strong> — Detailed description of system functionality, interlocks, sequences, and control philosophy</li><li><strong>IO List</strong> — Complete tag list with signal types, addresses, descriptions, and engineering units</li></ul><h3>Additional Documents</h3><p>From the project dashboard, you can also generate:</p><ul><li><strong>PLC Code</strong> — Complete SCL program structure</li><li><strong>FAT (Factory Acceptance Test)</strong> — Test procedures and expected results</li><li><strong>SAT (Site Acceptance Test)</strong> — On-site commissioning test plan</li></ul><p>All documents are exported as professional .docx files with your author information.</p>` },
+                    { id: 'doc2', titleKey: 'Customizing Documents', body: `<h3>Customizing Documents</h3><p>You can refine any generated document:</p><ul><li>Click <strong>Regenerate</strong> on the document card in the dashboard</li><li>Provide additional context in the regeneration prompt</li><li>Your author info (name, title, company) from the Profile page is automatically included in document headers</li></ul><p>Documents can be downloaded individually or as part of a project export.</p>` },
+                ],
+            },
+            {
+                id: 'ai_models', icon: '🤖',
+                articles: [
+                    { id: 'ai1', titleKey: 'Choosing an AI Model', body: `<h3>Choosing an AI Model</h3><p>LADX offers several AI models via the model selector in the chat input area:</p><ul><li><strong>Auto (Free)</strong> — Automatically selects the best available free model</li><li><strong>DeepSeek V3</strong> — Excellent for code generation tasks</li><li><strong>Gemini 2.0 Flash</strong> — Fast responses, good general knowledge</li></ul><p>Pro and Enterprise users have access to GPT-4o, Claude, and other premium models.</p>` },
+                    { id: 'ai2', titleKey: 'Private LLM Configuration', body: `<h3>Private LLM Configuration</h3><p>Enterprise users can bring their own LLM API key. Go to <strong>Settings → Private LLM</strong> and:</p><ul><li>Toggle the Private LLM switch ON</li><li>Select a provider: OpenRouter, OpenAI, Anthropic, or Custom</li><li>Enter your API key</li><li>Optionally specify a custom model name or base URL</li></ul><p>When active, all AI requests use your private key instead of the LADX default model. Your API key is stored securely and never shared.</p>` },
+                ],
+            },
+            {
+                id: 'troubleshooting', icon: '🔧',
+                articles: [
+                    { id: 'ts1', titleKey: 'Common Errors', body: `<h3>Common Errors</h3><ul><li><strong>"Error code: 401"</strong> — Your API key is invalid or expired. Go to Settings and update your Private LLM key, or ensure the default LADX API key is configured.</li><li><strong>"Daily limit reached"</strong> — You have exceeded your plan's daily message limit. Upgrade your plan or wait until tomorrow.</li><li><strong>"Module not accessible"</strong> — When troubleshooting S7-1500 errors, check hardware configuration, PROFINET connections, and firmware versions.</li></ul>` },
+                    { id: 'ts2', titleKey: 'TIA Portal Connection Issues', body: `<h3>TIA Portal Connection Issues</h3><ul><li>Ensure TIA Portal is running and a project is open</li><li>Check that TIA Portal Openness is enabled: <code>Options → Settings → General → Openness</code></li><li>Verify the LADX Bridge service is running on your machine</li><li>Firewall may block the connection — allow the bridge port (default: 8080)</li><li>If connection drops, click "Reconnect" in the TIA Portal overlay</li></ul>` },
+                    { id: 'ts3', titleKey: 'Performance Tips', body: `<h3>Performance Tips</h3><ul><li>Keep conversations focused — start a new project for different topics</li><li>Use specific prompts for better AI responses</li><li>Close unused browser tabs to free memory</li><li>Clear conversation history periodically for faster loading</li><li>Use the appropriate AI model for your task — smaller models are faster for simple queries</li></ul>` },
+                ],
+            },
+        ];
+
+        // ===========================================
+        // Help & Support Page
+        // ===========================================
+        let helpTickets = JSON.parse(localStorage.getItem('ladx_tickets') || '[]');
+
+        function loadHelpPage() {
+            const container = document.getElementById('helpContent');
+            let html = '';
+
+            // Hero
+            html += `<div class="help-hero">
+                <h2>${t('help_title')}</h2>
+                <p>${t('help_subtitle')}</p>
+                <div class="help-search">
+                    <span class="help-search-icon">🔍</span>
+                    <input type="text" id="kbSearchInput" placeholder="${t('help_search_placeholder')}" oninput="filterKnowledgeBase(this.value)">
+                </div>
+            </div>`;
+
+            // Tabs
+            html += `<div class="help-tabs">
+                <button class="help-tab active" onclick="switchHelpTab('kb', this)">${t('tab_knowledge_base')}</button>
+                <button class="help-tab" onclick="switchHelpTab('contact', this)">${t('tab_contact')}</button>
+            </div>`;
+
+            // Knowledge Base Section
+            html += `<div class="help-section active" id="helpSectionKb">`;
+            html += `<div class="kb-categories" id="kbCategoriesGrid">`;
+            KB_CATEGORIES.forEach(cat => {
+                html += `<div class="kb-category-card" onclick="openKbCategory('${cat.id}')">
+                    <div class="kb-cat-icon">${cat.icon}</div>
+                    <div class="kb-cat-title">${t('kb_' + cat.id)}</div>
+                    <div class="kb-cat-desc">${t('kb_' + cat.id + '_desc')}</div>
+                    <div class="kb-cat-count">${cat.articles.length} article${cat.articles.length !== 1 ? 's' : ''}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            html += `<div id="kbArticleView" style="display:none;"></div>`;
+            html += `</div>`;
+
+            // Contact & Tickets Section
+            html += `<div class="help-section" id="helpSectionContact">`;
+            html += `<div class="contact-grid">`;
+
+            // Contact Form
+            html += `<div class="contact-card">
+                <h3>${t('contact_email_title')}</h3>
+                <p>${t('contact_email_desc')}</p>
+                <div class="contact-form-group">
+                    <label class="contact-form-label">${t('contact_subject')}</label>
+                    <input class="contact-form-input" id="contactSubject" type="text" placeholder="${t('contact_subject')}...">
+                </div>
+                <div class="contact-form-group">
+                    <label class="contact-form-label">${t('contact_priority')}</label>
+                    <select class="contact-form-select" id="contactPriority">
+                        <option value="low">${t('priority_low')}</option>
+                        <option value="medium" selected>${t('priority_medium')}</option>
+                        <option value="high">${t('priority_high')}</option>
+                        <option value="critical">${t('priority_critical')}</option>
+                    </select>
+                </div>
+                <div class="contact-form-group">
+                    <label class="contact-form-label">${t('contact_message')}</label>
+                    <textarea class="contact-form-textarea" id="contactMessage" placeholder="${t('contact_message')}..."></textarea>
+                </div>
+                <button class="contact-submit-btn" onclick="submitSupportTicket()">${t('contact_send')}</button>
+            </div>`;
+
+            // Tickets List
+            html += `<div class="contact-card">
+                <h3>${t('ticket_title')}</h3>
+                <p>${t('ticket_desc')}</p>
+                <div id="ticketsList">`;
+            if (helpTickets.length === 0) {
+                html += `<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px 0;">${t('ticket_none')}</div>`;
+            } else {
+                helpTickets.slice().reverse().forEach(tk => {
+                    html += renderTicketItem(tk);
+                });
+            }
+            html += `</div></div>`;
+
+            html += `</div>`; // contact-grid
+            html += `</div>`; // helpSectionContact
+
+            container.innerHTML = html;
+        }
+
+        function renderTicketItem(tk) {
+            const statusLabel = tk.status.charAt(0).toUpperCase() + tk.status.slice(1);
+            return `<div class="ticket-item">
+                <span class="ticket-status ${tk.status}">${statusLabel}</span>
+                <div class="ticket-info">
+                    <div class="ticket-subject">${tk.subject}</div>
+                    <div class="ticket-meta">#${tk.id} · ${tk.priority} · ${tk.date}</div>
+                </div>
+            </div>`;
+        }
+
+        function switchHelpTab(tab, btnEl) {
+            document.querySelectorAll('.help-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
+            btnEl.classList.add('active');
+            document.getElementById(tab === 'kb' ? 'helpSectionKb' : 'helpSectionContact').classList.add('active');
+        }
+
+        function openKbCategory(catId) {
+            const cat = KB_CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
+            const grid = document.getElementById('kbCategoriesGrid');
+            const view = document.getElementById('kbArticleView');
+            grid.style.display = 'none';
+            let html = `<button class="kb-back-btn" onclick="closeKbArticleView()">← ${t('tab_knowledge_base')}</button>`;
+            html += `<h3 style="margin-bottom:16px;">${t('kb_' + cat.id)}</h3>`;
+            html += `<div class="kb-article-list">`;
+            cat.articles.forEach(a => {
+                const preview = a.body.replace(/<[^>]*>/g, '').substring(0, 120) + '...';
+                html += `<div class="kb-article-item" onclick="openKbArticle('${catId}', '${a.id}')">
+                    <div class="kb-article-title">${a.titleKey}</div>
+                    <div class="kb-article-preview">${preview}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            view.innerHTML = html;
+            view.style.display = 'block';
+        }
+
+        function openKbArticle(catId, articleId) {
+            const cat = KB_CATEGORIES.find(c => c.id === catId);
+            const article = cat?.articles.find(a => a.id === articleId);
+            if (!article) return;
+            const view = document.getElementById('kbArticleView');
+            let html = `<button class="kb-back-btn" onclick="openKbCategory('${catId}')">← ${t('kb_' + catId)}</button>`;
+            html += `<div class="kb-article-body">${article.body}</div>`;
+            view.innerHTML = html;
+        }
+
+        function closeKbArticleView() {
+            document.getElementById('kbCategoriesGrid').style.display = 'grid';
+            document.getElementById('kbArticleView').style.display = 'none';
+        }
+
+        function filterKnowledgeBase(query) {
+            query = query.toLowerCase().trim();
+            if (!query) {
+                closeKbArticleView();
+                return;
+            }
+            const results = [];
+            KB_CATEGORIES.forEach(cat => {
+                cat.articles.forEach(a => {
+                    const text = (a.titleKey + ' ' + a.body.replace(/<[^>]*>/g, '')).toLowerCase();
+                    if (text.includes(query)) results.push({ cat, article: a });
+                });
+            });
+            const grid = document.getElementById('kbCategoriesGrid');
+            const view = document.getElementById('kbArticleView');
+            grid.style.display = 'none';
+            if (results.length === 0) {
+                view.innerHTML = `<div style="text-align:center;color:var(--text-secondary);padding:40px 0;font-size:14px;">No articles found for "${query}"</div>`;
+            } else {
+                let html = `<div class="kb-article-list">`;
+                results.forEach(r => {
+                    const preview = r.article.body.replace(/<[^>]*>/g, '').substring(0, 120) + '...';
+                    html += `<div class="kb-article-item" onclick="openKbArticle('${r.cat.id}', '${r.article.id}')">
+                        <div class="kb-article-title">${r.article.titleKey}</div>
+                        <div class="kb-article-preview">${preview}</div>
+                    </div>`;
+                });
+                html += `</div>`;
+                view.innerHTML = html;
+            }
+            view.style.display = 'block';
+        }
+
+        function submitSupportTicket() {
+            const subject = document.getElementById('contactSubject').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            const priority = document.getElementById('contactPriority').value;
+
+            if (!subject || !message) {
+                alert('Please fill in both subject and message.');
+                return;
+            }
+
+            const ticket = {
+                id: 'TK-' + String(helpTickets.length + 1001),
+                subject, message, priority,
+                status: 'open',
+                date: new Date().toLocaleDateString(),
+                email: document.getElementById('sidebarUserEmail')?.textContent || '',
+            };
+
+            helpTickets.push(ticket);
+            localStorage.setItem('ladx_tickets', JSON.stringify(helpTickets));
+
+            // Clear form
+            document.getElementById('contactSubject').value = '';
+            document.getElementById('contactMessage').value = '';
+            document.getElementById('contactPriority').value = 'medium';
+
+            // Update ticket list
+            const list = document.getElementById('ticketsList');
+            if (list) {
+                const emptyMsg = list.querySelector('div[style*="text-align:center"]');
+                if (emptyMsg) emptyMsg.remove();
+                list.insertAdjacentHTML('afterbegin', renderTicketItem(ticket));
+            }
+
+            // Send email notification (fire and forget)
+            try {
+                fetch('/api/support/ticket', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify(ticket),
+                }).catch(() => {});
+            } catch(e) {}
+
+            alert('Ticket submitted successfully! ID: ' + ticket.id);
+        }
+
+        // Initialize language on page load
+        function initLanguage() {
+            const saved = localStorage.getItem('ladx_lang') || 'en';
+            currentLang = saved;
+            document.getElementById('currentLangFlag').textContent = LANG_FLAGS[saved] || 'EN';
+            // Mark active language in submenu
+            document.querySelectorAll('.lang-option').forEach(el => {
+                if (el.textContent.includes(saved === 'en' ? 'English' : saved === 'de' ? 'Deutsch' : saved === 'es' ? 'Español' : saved === 'it' ? 'Italiano' : 'हिन्दी')) {
+                    el.classList.add('active');
+                }
+            });
+            if (saved !== 'en') applyTranslations();
+        }
+
+        // ===========================================
         // Industrial Mini Puzzle Game
         // ===========================================
         const PUZZLE_THEMES = [
@@ -5490,6 +6227,9 @@
                 showApp();
                 // Start TIA status polling
                 startTiaPolling();
+            } else if (window.location.pathname === '/app') {
+                // On /app without auth — show auth screen
+                document.getElementById('authScreen').style.display = 'flex';
             } else {
                 document.getElementById('authScreen').style.display = 'flex';
             }

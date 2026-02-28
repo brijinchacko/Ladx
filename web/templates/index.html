@@ -288,7 +288,7 @@
         .user-dropdown-item.danger { color: var(--danger); }
 
         /* Main Layout */
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
 
         /* Sidebar - Project List */
         .sidebar {
@@ -300,11 +300,41 @@
             flex-shrink: 0;
             overflow: hidden;
             position: relative;
+            transition: width 0.25s ease, opacity 0.25s ease;
         }
+        .sidebar.collapsed {
+            width: 0;
+            border-right: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Sidebar toggle (outside the pane) */
+        .sidebar-outer-toggle {
+            position: absolute;
+            top: 12px;
+            left: 250px;
+            z-index: 20;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 6px 6px 0;
+            width: 20px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+        }
+        .sidebar-outer-toggle:hover { color: var(--accent); border-color: var(--accent); }
+        .sidebar-outer-toggle svg { width: 12px; height: 12px; }
+        /* toggle position managed by JS */
 
         /* Project Dashboard Panel (left of chat) */
         .project-dash-panel {
-            width: 420px;
+            flex: 1;
             min-width: 320px;
             background: var(--bg-primary);
             border-right: 1px solid var(--border);
@@ -314,6 +344,33 @@
             padding: 20px;
         }
         .project-dash-panel.active { display: block; }
+
+        /* Resize handle between dashboard and chat */
+        .resize-handle {
+            width: 5px;
+            cursor: col-resize;
+            background: transparent;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        .resize-handle:hover,
+        .resize-handle.dragging {
+            background: var(--accent);
+            opacity: 0.4;
+        }
+        .resize-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;
+            height: 40px;
+            border-radius: 2px;
+            background: var(--border);
+        }
+        .resize-handle:hover::after { background: var(--accent); }
 
         .sidebar-user-area {
             margin-top: auto;
@@ -459,7 +516,15 @@
         .platform-select option { background: var(--bg-secondary); }
 
         /* Chat Area */
-        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-container {
+            width: 380px;
+            min-width: 300px;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
 
         .chat-messages {
             flex: 1;
@@ -598,47 +663,68 @@
         .quick-action-chip:hover { border-color: var(--accent); color: var(--text-primary); }
         .quick-action-chip.locked { opacity: 0.4; cursor: not-allowed; }
 
-        /* Input Area */
+        /* Input Area — unified card */
         .input-area {
-            padding: 12px 20px;
+            padding: 10px 14px;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
         }
 
-        .input-wrapper { display: flex; gap: 8px; align-items: flex-end; }
-
-        .input-field {
-            flex: 1;
+        .input-card {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
+            border-radius: 14px;
+            padding: 8px 10px 6px;
+            transition: border-color 0.2s;
+        }
+        .input-card:focus-within { border-color: var(--accent); }
+
+        .input-field {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 4px 6px;
             color: var(--text-primary);
             font-size: 14px;
             font-family: inherit;
             resize: none;
-            min-height: 48px;
-            max-height: 200px;
+            min-height: 36px;
+            max-height: 160px;
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        .input-field:focus { border-color: var(--accent); }
         .input-field::placeholder { color: var(--text-secondary); }
+
+        .input-bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding-top: 4px;
+        }
+
+        .input-bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
         .send-btn {
             background: var(--accent);
             border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: background 0.2s;
-            white-space: nowrap;
+            flex-shrink: 0;
+            color: white;
         }
+        .send-btn svg { width: 16px; height: 16px; }
 
         .send-btn:hover { background: var(--accent-hover); }
         .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -1269,46 +1355,34 @@
         }
 
         /* ========== MODEL SELECTOR (inside input area) ========== */
-        .model-selector-wrap {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 0 0;
-        }
-
         .model-select {
-            background: var(--bg-tertiary);
+            background: transparent;
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 4px 8px;
+            padding: 3px 6px;
             color: var(--text-secondary);
-            font-size: 11px;
+            font-size: 10px;
             font-family: inherit;
             cursor: pointer;
             outline: none;
             transition: border-color 0.2s;
+            max-width: 140px;
         }
-
         .model-select:focus { border-color: var(--accent); }
-
-        .model-label {
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
 
         /* ========== CHAT ATTACH BTN ========== */
         .chat-attach-btn {
-            background: var(--bg-tertiary);
+            background: transparent;
             border: 1px solid var(--border);
-            border-radius: 10px;
-            width: 40px;
-            height: 40px;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: var(--text-secondary);
-            font-size: 20px;
+            font-size: 16px;
             transition: all 0.2s;
             flex-shrink: 0;
         }
@@ -2300,12 +2374,22 @@
                 </div>
             </div>
 
+            <!-- Sidebar Toggle (outside pane) -->
+            <button class="sidebar-outer-toggle" id="sidebarOuterToggle" onclick="toggleSidebar()" title="Toggle sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+
             <!-- Project Dashboard Panel (always visible when project selected) -->
             <div class="project-dash-panel" id="projectDashPanel">
                 <div id="projDashContent">
                     <div class="proj-dash-empty">Select a project to view its dashboard.</div>
                 </div>
             </div>
+
+            <!-- Resize Handle (drag to resize dashboard / chat) -->
+            <div class="resize-handle" id="resizeHandle"></div>
 
             <!-- Chat Area -->
             <div class="chat-container">
@@ -2341,24 +2425,30 @@
 
                 <!-- Input Area -->
                 <div class="input-area">
-                    <div class="input-wrapper">
-                        <button class="chat-attach-btn" title="Attach document" onclick="document.getElementById('chatFileUpload').click()">+</button>
-                        <input type="file" id="chatFileUpload" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.stl,.xml,.json" onchange="uploadDocument(this)">
+                    <input type="file" id="chatFileUpload" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.csv,.stl,.xml,.json" onchange="uploadDocument(this)">
+                    <div class="input-card">
                         <textarea class="input-field" id="userInput"
-                                  placeholder="Describe what you need... (Shift+Enter for new line)"
+                                  placeholder="Describe what you need..."
                                   rows="1" onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
-                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
-                    </div>
-                    <div class="model-selector-wrap">
-                        <span class="model-label">Model:</span>
-                        <select class="model-select" id="modelSelect">
-                            <option value="openrouter/auto">Auto (Free)</option>
-                            <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
-                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</option>
-                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
-                            <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B</option>
-                            <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1</option>
-                        </select>
+                        <div class="input-bottom-row">
+                            <div class="input-bottom-left">
+                                <button class="chat-attach-btn" title="Attach document" onclick="document.getElementById('chatFileUpload').click()">+</button>
+                                <select class="model-select" id="modelSelect">
+                                    <option value="openrouter/auto">Auto (Free)</option>
+                                    <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
+                                    <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</option>
+                                    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+                                    <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B</option>
+                                    <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1</option>
+                                </select>
+                            </div>
+                            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3030,7 +3120,7 @@
 
             isWaiting = true;
             sendBtn.disabled = true;
-            sendBtn.textContent = 'Queue';
+            sendBtn.disabled = true; // waiting state
             typingIndicator.classList.add('active');
 
             try {
@@ -3086,7 +3176,7 @@
 
             isWaiting = false;
             sendBtn.disabled = false;
-            sendBtn.textContent = 'Send';
+            sendBtn.disabled = false; // ready state
             typingIndicator.classList.remove('active');
         }
 
@@ -3175,7 +3265,57 @@
             }
         });
 
-        // (Sidebar toggle removed — sidebar always visible)
+        // ===========================================
+        // Sidebar Toggle (Outside pane)
+        // ===========================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarEl');
+            const toggleBtn = document.getElementById('sidebarOuterToggle');
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleBtn.style.left = '0';
+                toggleBtn.querySelector('svg').innerHTML = '<polyline points="9 18 15 12 9 6"/>';
+            } else {
+                toggleBtn.style.left = '250px';
+                toggleBtn.querySelector('svg').innerHTML = '<polyline points="15 18 9 12 15 6"/>';
+            }
+        }
+
+        // ===========================================
+        // Resize Handle (drag between dashboard & chat)
+        // ===========================================
+        (function initResize() {
+            const handle = document.getElementById('resizeHandle');
+            const dashPanel = document.getElementById('projectDashPanel');
+            const chatContainer = document.querySelector('.chat-container');
+            let startX, startDashW, startChatW;
+
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                handle.classList.add('dragging');
+                startX = e.clientX;
+                startDashW = dashPanel.offsetWidth;
+                startChatW = chatContainer.offsetWidth;
+
+                function onMouseMove(e) {
+                    const dx = e.clientX - startX;
+                    const newDashW = Math.max(280, startDashW + dx);
+                    const newChatW = Math.max(280, startChatW - dx);
+                    dashPanel.style.flex = 'none';
+                    dashPanel.style.width = newDashW + 'px';
+                    chatContainer.style.width = newChatW + 'px';
+                }
+
+                function onMouseUp() {
+                    handle.classList.remove('dragging');
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        })();
 
         // ===========================================
         // Theme Toggle

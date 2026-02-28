@@ -670,28 +670,44 @@ class TIAHandler:
         try:
             self._log("Compiling project...")
 
-            # Get the compilable service from the project
             from Siemens.Engineering.Compiler import ICompilable
 
             errors = []
             warnings = []
             compile_success = True
+            compiled_any = False
 
-            # Compile each device
+            # Compile each device item that supports compilation
             for device in self.project.Devices:
                 for item in device.DeviceItems:
                     compilable = item.GetService[ICompilable]()
                     if compilable:
                         self._log(f"Compiling: {item.Name}")
                         result = compilable.Compile()
+                        compiled_any = True
 
-                        # Parse compile results
-                        for msg in result.Messages:
-                            if msg.State == CompilerResult.Error:
-                                errors.append(str(msg))
+                        # Parse compile results - use string comparison for state
+                        # since enum names vary between TIA Portal versions
+                        try:
+                            for msg in result.Messages:
+                                state_str = str(msg.State).lower()
+                                msg_text = str(msg)
+                                if "error" in state_str:
+                                    errors.append(msg_text)
+                                    compile_success = False
+                                elif "warning" in state_str:
+                                    warnings.append(msg_text)
+                                self._log(f"  [{msg.State}] {msg_text}")
+                        except Exception as msg_err:
+                            self._log(f"  Result state: {result.State}")
+                            # Fallback: just check overall result state
+                            state_str = str(result.State).lower()
+                            if "error" in state_str:
                                 compile_success = False
-                            elif msg.State == CompilerResult.Warning:
-                                warnings.append(str(msg))
+                                errors.append(f"Compilation error in {item.Name}")
+
+            if not compiled_any:
+                return {"success": False, "message": "No compilable items found in project"}
 
             status = "success" if compile_success else "failed"
             self._log(f"Compilation {status}: {len(errors)} errors, {len(warnings)} warnings")

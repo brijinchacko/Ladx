@@ -16,6 +16,7 @@
             --text-primary: #e4e6ef;
             --text-secondary: #9ca0b0;
             --accent: #3fbfb7;
+            --accent-rgb: 63,191,183;
             --accent-hover: #33a89f;
             --accent-glow: rgba(63, 191, 183, 0.15);
             --success: #34d399;
@@ -529,17 +530,8 @@
         }
 
         /* ---- Mini Puzzle Widget ---- */
-        .puzzle-trigger {
-            position: absolute; top: 8px; right: 8px; z-index: 20;
-            width: 30px; height: 30px; border-radius: 8px;
-            background: var(--bg-secondary); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 14px; transition: all 0.2s;
-            opacity: 0.5;
-        }
-        .puzzle-trigger:hover { opacity: 1; border-color: var(--accent); transform: scale(1.1); }
         .puzzle-popup {
-            position: absolute; top: 44px; right: 8px; z-index: 25;
+            position: absolute; top: 8px; right: 8px; z-index: 25;
             width: 260px; background: var(--bg-secondary);
             border: 1px solid var(--border); border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -649,22 +641,27 @@
 
         .typing-indicator {
             display: none;
-            position: absolute;
-            inset: 0;
+            position: sticky;
+            bottom: 0;
             z-index: 10;
-            background: rgba(var(--bg-primary-rgb, 17,17,17), 0.85);
-            backdrop-filter: blur(6px);
+            margin: auto;
+            width: 90%;
+            max-width: 280px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 16px;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 18px;
+            gap: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
             pointer-events: none;
         }
 
         .typing-indicator.active { display: flex; }
 
         .typing-spinner {
-            width: 44px; height: 44px;
+            width: 32px; height: 32px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
@@ -673,38 +670,33 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .typing-status-text {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
             color: var(--accent);
             text-align: center;
-            animation: statusPulse 2s ease-in-out infinite;
-            max-width: 280px;
+            max-width: 240px;
             line-height: 1.4;
         }
 
         .typing-fun-text {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             text-align: center;
-            max-width: 260px;
+            max-width: 230px;
             line-height: 1.4;
+            min-height: 30px;
             animation: funFade 0.5s ease;
         }
 
-        @keyframes statusPulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
         @keyframes funFade {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .typing-dots { display: flex; gap: 5px; align-items: center; }
 
         .dot {
-            width: 6px; height: 6px;
+            width: 5px; height: 5px;
             background: var(--accent);
             border-radius: 50%;
             animation: dotPulse 1.4s ease-in-out infinite;
@@ -730,8 +722,25 @@
         }
 
         .welcome-logo { height: 80px; width: auto; margin-bottom: 4px; }
-        .welcome h2 { color: var(--text-primary); font-size: 20px; }
-        .welcome p { font-size: 13px; max-width: 500px; text-align: center; }
+        .welcome h2 { color: var(--text-primary); font-size: 20px; margin: 0; }
+        .welcome p { font-size: 13px; max-width: 500px; text-align: center; margin: 0; }
+
+        .welcome-tip {
+            margin-top: 14px;
+            padding: 10px 18px;
+            background: rgba(var(--accent-rgb, 99,102,241), 0.08);
+            border: 1px solid rgba(var(--accent-rgb, 99,102,241), 0.18);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 360px;
+            line-height: 1.5;
+            min-height: 38px;
+            animation: funFade 0.6s ease;
+        }
+        .welcome-tip strong { color: var(--accent); font-weight: 600; }
+        .welcome-tip .tip-icon { margin-right: 4px; }
 
         .example-prompts {
             display: flex; flex-wrap: wrap; gap: 8px;
@@ -2254,6 +2263,7 @@
             --text-primary: #1a1a2e;
             --text-secondary: #6b6b80;
             --accent: #2d9d8f;
+            --accent-rgb: 45,157,143;
             --accent-hover: #258a7e;
             --accent-glow: rgba(45, 157, 143, 0.12);
             --success: #22a06b;
@@ -2498,6 +2508,7 @@
                     <span class="tia-header-label" id="tiaHeaderLabel">TIA Offline</span>
                 </div>
                 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">&#9790;</button>
+                <button class="theme-toggle" onclick="togglePuzzle()" title="Industrial Puzzle" style="font-size:14px;">🧩</button>
                 <button class="header-btn" onclick="exportChat()" id="exportBtn">Export</button>
             </div>
         </div>
@@ -2559,8 +2570,7 @@
 
             <!-- Chat Area -->
             <div class="chat-container">
-                <!-- Mini Puzzle -->
-                <div class="puzzle-trigger" id="puzzleTrigger" onclick="togglePuzzle()" title="Industrial Puzzle">🧩</div>
+                <!-- Mini Puzzle (opened via header button) -->
                 <div class="puzzle-popup" id="puzzlePopup">
                     <div class="puzzle-popup-header">
                         <span class="puzzle-popup-title" id="puzzleTitle">PLC Symbol Match</span>
@@ -2585,6 +2595,18 @@
                             <div class="example-prompt" onclick="useExample(this)">Generate a PID control loop for tank level in TIA Portal</div>
                             <div class="example-prompt" onclick="useExample(this)">Explain PROFINET IO device configuration for S7-1200</div>
                         </div>
+                        <!-- Rotating industry tip on welcome screen -->
+                        <div class="welcome-tip" id="welcomeTip"></div>
+                    </div>
+
+                    <!-- Typing / Status indicator (floats in middle of chat) -->
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-spinner"></div>
+                        <span class="typing-status-text" id="typingStatusText">Analyzing your request...</span>
+                        <div class="typing-dots">
+                            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        </div>
+                        <span class="typing-fun-text" id="typingFunText"></span>
                     </div>
                 </div>
 
@@ -2595,16 +2617,6 @@
                     <span class="quick-action-chip" onclick="quickAction('convert')" id="convertChip">Convert Code</span>
                     <span class="quick-action-chip" onclick="quickAction('explain')">Explain Code</span>
                     <span class="quick-action-chip" onclick="quickAction('taglist')">Tag List</span>
-                </div>
-
-                <!-- Typing / Status indicator (centered overlay) -->
-                <div class="typing-indicator" id="typingIndicator">
-                    <div class="typing-spinner"></div>
-                    <span class="typing-status-text" id="typingStatusText">Analyzing your request...</span>
-                    <div class="typing-dots">
-                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                    </div>
-                    <span class="typing-fun-text" id="typingFunText"></span>
                 </div>
 
                 <!-- Input Area -->
@@ -3221,7 +3233,7 @@
                 chatMessages.innerHTML = '';
                 if (welcomeScreen && welcomeScreen.parentNode === chatMessages) {
                     chatMessages.appendChild(welcomeScreen);
-                    welcomeScreen.style.display = 'none';
+                    welcomeScreen.style.display = 'none'; stopWelcomeTips();
                 }
 
                 // Load messages
@@ -3250,7 +3262,7 @@
             chatMessages.innerHTML = '';
             if (welcomeScreen) {
                 chatMessages.appendChild(welcomeScreen);
-                welcomeScreen.style.display = 'flex';
+                welcomeScreen.style.display = 'flex'; startWelcomeTips();
             }
 
             // Remove active state from sidebar items
@@ -3274,7 +3286,7 @@
         }
 
         function addMessage(text, role) {
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
+            if (welcomeScreen) { welcomeScreen.style.display = 'none'; stopWelcomeTips(); }
 
             const msg = document.createElement('div');
             msg.className = `message message-${role}`;
@@ -3291,6 +3303,50 @@
             chatMessages.appendChild(msg);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        // ---- Welcome screen rotating industry tips ----
+        const WELCOME_TIPS = [
+            { icon: "💡", text: "<strong>Did you know?</strong> The first PLC was invented in 1968 by Dick Morley to replace hardwired relay logic panels." },
+            { icon: "⚡", text: "<strong>Speed matters</strong> — A Siemens S7-1500 can process a scan cycle in under 1 millisecond." },
+            { icon: "🏭", text: "<strong>Global scale</strong> — Over 30 million PLCs are deployed worldwide, running everything from factories to water treatment plants." },
+            { icon: "🔧", text: "<strong>Pro tip</strong> — Use structured function blocks (FBs) with instance DBs for reusable, modular PLC code." },
+            { icon: "📡", text: "<strong>PROFINET</strong> supports up to 256 IO devices on a single network with sub-millisecond cycle times." },
+            { icon: "🛡️", text: "<strong>Safety first</strong> — F-CPUs run two independent processors that cross-check every calculation for SIL 3 compliance." },
+            { icon: "📊", text: "<strong>IO planning</strong> — A well-structured IO list with consistent tag naming saves weeks of commissioning time." },
+            { icon: "🤖", text: "<strong>AI + PLC</strong> — LADX can generate complete SCL code, FDS documents, and IO lists from a single project description." },
+            { icon: "🔀", text: "<strong>TIA Portal</strong> integrates hardware configuration, network setup, and software development in one unified environment." },
+            { icon: "⏱️", text: "<strong>Cycle time</strong> — Keep your OB1 scan time under 10ms for most real-time control applications." },
+            { icon: "📈", text: "<strong>Trend</strong> — Edge computing in PLCs is enabling real-time analytics without cloud latency." },
+            { icon: "🌡️", text: "<strong>Analog signals</strong> — Always scale raw ADC values (0–27648) to engineering units in a dedicated FC." },
+        ];
+
+        let _welcomeTipInterval = null;
+
+        function startWelcomeTips() {
+            stopWelcomeTips();
+            const tipEl = document.getElementById('welcomeTip');
+            if (!tipEl) return;
+            let idx = Math.floor(Math.random() * WELCOME_TIPS.length);
+            const show = () => {
+                const tip = WELCOME_TIPS[idx % WELCOME_TIPS.length];
+                tipEl.style.animation = 'none';
+                void tipEl.offsetHeight;
+                tipEl.style.animation = 'funFade 0.6s ease';
+                tipEl.innerHTML = `<span class="tip-icon">${tip.icon}</span> ${tip.text}`;
+                idx++;
+            };
+            show();
+            _welcomeTipInterval = setInterval(show, 6000);
+        }
+
+        function stopWelcomeTips() {
+            if (_welcomeTipInterval) { clearInterval(_welcomeTipInterval); _welcomeTipInterval = null; }
+        }
+
+        // Start tips on load (if welcome screen is visible)
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startWelcomeTips, 500);
+        });
 
         // ---- Typing indicator with rotating fun facts ----
         let _funMsgInterval = null;

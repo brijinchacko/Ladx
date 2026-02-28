@@ -10,6 +10,7 @@
 
         :root {
             --bg-primary: #0f1117;
+            --bg-primary-rgb: 15,17,23;
             --bg-secondary: #1a1d27;
             --bg-tertiary: #242734;
             --text-primary: #e4e6ef;
@@ -533,6 +534,7 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
+            position: relative;
         }
 
         .message {
@@ -585,43 +587,72 @@
         }
 
         .typing-indicator {
-            align-self: flex-start;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            padding: 10px 16px;
-            border-radius: 12px;
             display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            background: rgba(var(--bg-primary-rgb, 17,17,17), 0.85);
+            backdrop-filter: blur(6px);
             flex-direction: column;
-            gap: 6px;
-            max-width: 90%;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            pointer-events: none;
         }
 
         .typing-indicator.active { display: flex; }
 
-        .typing-dots { display: flex; gap: 4px; align-items: center; }
+        .typing-spinner {
+            width: 44px; height: 44px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .typing-status-text {
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 500;
             color: var(--accent);
-            animation: statusFade 0.3s ease;
+            text-align: center;
+            animation: statusPulse 2s ease-in-out infinite;
+            max-width: 280px;
+            line-height: 1.4;
         }
 
-        @keyframes statusFade {
-            from { opacity: 0.4; }
-            to { opacity: 1; }
+        .typing-fun-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 260px;
+            line-height: 1.4;
+            animation: funFade 0.5s ease;
         }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes funFade {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-dots { display: flex; gap: 5px; align-items: center; }
 
         .dot {
-            width: 8px; height: 8px;
+            width: 6px; height: 6px;
             background: var(--accent);
             border-radius: 50%;
-            animation: bounce 1.4s ease-in-out infinite;
+            animation: dotPulse 1.4s ease-in-out infinite;
         }
 
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes bounce {
+        @keyframes dotPulse {
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-6px); }
         }
@@ -2156,6 +2187,7 @@
         /* ========== LIGHT MODE ========== */
         body.light-mode {
             --bg-primary: #f5f5f7;
+            --bg-primary-rgb: 245,245,247;
             --bg-secondary: #ffffff;
             --bg-tertiary: #f0f0f2;
             --text-primary: #1a1a2e;
@@ -2490,14 +2522,14 @@
                     <span class="quick-action-chip" onclick="quickAction('taglist')">Tag List</span>
                 </div>
 
-                <!-- Typing / Status indicator -->
+                <!-- Typing / Status indicator (centered overlay) -->
                 <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-spinner"></div>
+                    <span class="typing-status-text" id="typingStatusText">Analyzing your request...</span>
                     <div class="typing-dots">
                         <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                     </div>
-                    <div class="typing-status">
-                        <span class="typing-status-text" id="typingStatusText">LADX is thinking...</span>
-                    </div>
+                    <span class="typing-fun-text" id="typingFunText"></span>
                 </div>
 
                 <!-- Input Area -->
@@ -3185,6 +3217,66 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // ---- Typing indicator with rotating fun facts ----
+        let _funMsgInterval = null;
+
+        const FUN_MESSAGES_GENERAL = [
+            "PLC programs run millions of cycles without a coffee break...",
+            "The first PLC replaced 1,000 relays in a single cabinet",
+            "A typical S7-1500 can execute a scan cycle in under 1ms",
+            "Over 30 million PLCs are deployed worldwide right now",
+            "PROFINET can handle 256 devices on a single network",
+            "Safety PLCs run two processors to cross-check every calculation",
+            "The average industrial plant has 10,000+ I/O points",
+            "Ladder logic was invented in 1968 to mimic relay circuits",
+            "TIA Portal manages hardware, networking, and code in one tool",
+            "SCL is based on Pascal — structured, readable, powerful",
+            "A single S7-1500 can handle up to 128 function blocks",
+            "Industrial Ethernet runs at up to 1 Gbps in modern plants",
+            "LADX has generated thousands of lines of PLC code",
+        ];
+
+        function getProjectFunMessages() {
+            if (!currentProject) return [];
+            const msgs = [];
+            const t = currentProject.title || 'your project';
+            msgs.push(`Building the logic architecture for "${t}"...`);
+            msgs.push(`Mapping I/O signals for "${t}"...`);
+            if (currentProject.cpu_model)
+                msgs.push(`Optimizing code for ${currentProject.cpu_model} performance...`);
+            if (currentProject.network_type)
+                msgs.push(`Configuring ${currentProject.network_type} communication blocks...`);
+            if (currentProject.safety_required)
+                msgs.push(`Applying safety standards for F-CPU redundancy...`);
+            msgs.push(`Structuring function blocks for "${t}"...`);
+            return msgs;
+        }
+
+        function startFunMessages() {
+            stopFunMessages();
+            const projectMsgs = getProjectFunMessages();
+            const allMsgs = [...projectMsgs, ...FUN_MESSAGES_GENERAL];
+            let idx = 0;
+            const funEl = document.getElementById('typingFunText');
+            if (!funEl) return;
+            // Show first immediately
+            funEl.textContent = allMsgs[idx % allMsgs.length];
+            idx++;
+            _funMsgInterval = setInterval(() => {
+                funEl.style.animation = 'none';
+                void funEl.offsetHeight; // trigger reflow
+                funEl.style.animation = 'funFade 0.5s ease';
+                funEl.textContent = allMsgs[idx % allMsgs.length];
+                idx++;
+            }, 4000);
+        }
+
+        function stopFunMessages() {
+            if (_funMsgInterval) { clearInterval(_funMsgInterval); _funMsgInterval = null; }
+            const funEl = document.getElementById('typingFunText');
+            if (funEl) funEl.textContent = '';
+        }
+
         function updateTypingStatus(text) {
             const el = document.getElementById('typingStatusText');
             if (el) el.textContent = text;
@@ -3204,6 +3296,7 @@
             sendBtn.disabled = true;
             updateTypingStatus('Analyzing your request...');
             typingIndicator.classList.add('active');
+            startFunMessages();
 
             try {
                 const response = await fetch('/api/chat/stream', {
@@ -3222,6 +3315,7 @@
                     addMessage('Daily limit reached. Upgrade your plan for more.', 'system');
                     isWaiting = false;
                     sendBtn.disabled = false;
+                    stopFunMessages();
                     typingIndicator.classList.remove('active');
                     return;
                 }
@@ -3280,6 +3374,7 @@
 
             isWaiting = false;
             sendBtn.disabled = false;
+            stopFunMessages();
             typingIndicator.classList.remove('active');
         }
 
@@ -3872,6 +3967,7 @@
                 // Generate FDS first
                 updateTypingStatus('Generating FDS document...');
                 typingIndicator.classList.add('active');
+                startFunMessages();
 
                 const fdsRes = await fetch(`/api/conversations/${convoId}/generate/FDS`, {
                     method: 'POST',
@@ -3893,6 +3989,7 @@
                     addMessage('IO List generated successfully.', 'system');
                 }
 
+                stopFunMessages();
                 typingIndicator.classList.remove('active');
 
                 // Refresh dashboard to show new docs
@@ -3900,6 +3997,7 @@
 
             } catch (e) {
                 console.error('Auto-generate docs error:', e);
+                stopFunMessages();
                 typingIndicator.classList.remove('active');
             }
         }
@@ -4244,71 +4342,6 @@
                 <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
             </div>`;
 
-            // ---- Private LLM Configuration ----
-            const llmEnabled = data.use_private_llm || false;
-            const llmProvider = data.private_llm_provider || 'openrouter';
-            const llmKeySet = data.private_llm_api_key_set || false;
-            const llmKeyMasked = data.private_llm_api_key_masked || '';
-            const llmBaseUrl = data.private_llm_base_url || '';
-            const llmModel = data.private_llm_model || '';
-
-            html += `<div class="profile-section">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                    <div>
-                        <div class="profile-section-title" style="margin-bottom:2px;">Private LLM</div>
-                        <div style="font-size:12px;color:var(--text-secondary);">Use your own API key for AI conversations</div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <span class="llm-status-badge ${llmEnabled && llmKeySet ? 'active' : 'inactive'}">
-                            ${llmEnabled && llmKeySet ? '● Active' : '○ Default LLM'}
-                        </span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="llmToggle" ${llmEnabled ? 'checked' : ''} onchange="togglePrivateLLM(this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-                <div id="llmConfigFields" class="llm-fields ${llmEnabled ? 'expanded' : 'collapsed'}">
-                    <div style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Provider</div>
-                    <div class="llm-provider-grid" id="llmProviderGrid">
-                        <div class="llm-provider-card ${llmProvider === 'openrouter' ? 'selected' : ''}" onclick="selectLLMProvider('openrouter')">
-                            <div class="llm-provider-icon">🌐</div>OpenRouter
-                        </div>
-                        <div class="llm-provider-card ${llmProvider === 'openai' ? 'selected' : ''}" onclick="selectLLMProvider('openai')">
-                            <div class="llm-provider-icon">🤖</div>OpenAI
-                        </div>
-                        <div class="llm-provider-card ${llmProvider === 'anthropic' ? 'selected' : ''}" onclick="selectLLMProvider('anthropic')">
-                            <div class="llm-provider-icon">🧠</div>Anthropic
-                        </div>
-                        <div class="llm-provider-card ${llmProvider === 'custom' ? 'selected' : ''}" onclick="selectLLMProvider('custom')">
-                            <div class="llm-provider-icon">⚙️</div>Custom
-                        </div>
-                    </div>
-                    <input type="hidden" id="llmProvider" value="${llmProvider}">
-                    <div class="profile-form-grid">
-                        <div class="profile-form-group full-width">
-                            <label class="profile-form-label">API Key</label>
-                            <div style="position:relative;">
-                                <input class="profile-form-input" id="llmApiKey" type="password" value="${llmKeySet ? llmKeyMasked : ''}"
-                                    placeholder="sk-..." style="padding-right:40px;">
-                                <button onclick="toggleLLMKeyVis()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:14px;" title="Show/Hide">👁</button>
-                            </div>
-                            ${llmKeySet ? '<div style="font-size:11px;color:var(--success);margin-top:2px;">Key saved. Enter a new key to replace.</div>' : ''}
-                        </div>
-                        <div class="profile-form-group" id="llmBaseUrlGroup" style="${llmProvider === 'custom' ? '' : 'display:none'}">
-                            <label class="profile-form-label">Base URL</label>
-                            <input class="profile-form-input" id="llmBaseUrl" type="text" value="${llmBaseUrl}" placeholder="https://your-api.com/v1">
-                        </div>
-                        <div class="profile-form-group">
-                            <label class="profile-form-label">Model</label>
-                            <input class="profile-form-input" id="llmModel" type="text" value="${llmModel}"
-                                placeholder="${llmProvider === 'openai' ? 'gpt-4o' : llmProvider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'deepseek/deepseek-r1'}">
-                        </div>
-                    </div>
-                    <button class="profile-save-btn" onclick="saveLLMSettings()">Save LLM Settings</button>
-                </div>
-            </div>`;
-
             // ---- Plans ----
             const currentTier = data.tier || 'free';
             html += `<div class="profile-section">
@@ -4532,8 +4565,24 @@
         // ===========================================
         // Settings Page
         // ===========================================
-        function loadSettingsPage() {
+        async function loadSettingsPage() {
             const container = document.getElementById('settingsContent');
+            container.innerHTML = '<div class="proj-dash-empty">Loading settings...</div>';
+
+            // Fetch user profile for LLM settings
+            let llmEnabled = false, llmProvider = 'openrouter', llmKeySet = false, llmKeyMasked = '', llmBaseUrl = '', llmModel = '';
+            try {
+                const profRes = await fetch('/api/auth/profile', { headers: authHeaders() });
+                if (profRes.ok) {
+                    const profData = await profRes.json();
+                    llmEnabled = profData.use_private_llm || false;
+                    llmProvider = profData.private_llm_provider || 'openrouter';
+                    llmKeySet = profData.private_llm_api_key_set || false;
+                    llmKeyMasked = profData.private_llm_api_key_masked || '';
+                    llmBaseUrl = profData.private_llm_base_url || '';
+                    llmModel = profData.private_llm_model || '';
+                }
+            } catch(e) { console.error('Settings: failed to load LLM config', e); }
 
             // Read current settings from localStorage
             const autoSave = localStorage.getItem('ladx_autosave') !== 'false';
@@ -4581,6 +4630,64 @@
                         <div class="settings-item-desc">Highlight PLC code blocks in chat</div>
                     </div>
                     <div class="settings-toggle ${codeHighlight ? 'active' : ''}" onclick="toggleSetting(this, 'ladx_code_highlight')"></div>
+                </div>
+            </div>`;
+
+            // ---- Private LLM ----
+            html += `<div class="profile-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                    <div>
+                        <div class="profile-section-title" style="margin-bottom:2px;">Private LLM</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">Use your own API key instead of the default LADX model</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="llm-status-badge ${llmEnabled && llmKeySet ? 'active' : 'inactive'}">
+                            ${llmEnabled && llmKeySet ? '● Active' : '○ Default LLM'}
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="llmToggle" ${llmEnabled ? 'checked' : ''} onchange="togglePrivateLLM(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div id="llmConfigFields" class="llm-fields ${llmEnabled ? 'expanded' : 'collapsed'}">
+                    <div style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Provider</div>
+                    <div class="llm-provider-grid" id="llmProviderGrid">
+                        <div class="llm-provider-card ${llmProvider === 'openrouter' ? 'selected' : ''}" onclick="selectLLMProvider('openrouter')">
+                            <div class="llm-provider-icon">🌐</div>OpenRouter
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'openai' ? 'selected' : ''}" onclick="selectLLMProvider('openai')">
+                            <div class="llm-provider-icon">🤖</div>OpenAI
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'anthropic' ? 'selected' : ''}" onclick="selectLLMProvider('anthropic')">
+                            <div class="llm-provider-icon">🧠</div>Anthropic
+                        </div>
+                        <div class="llm-provider-card ${llmProvider === 'custom' ? 'selected' : ''}" onclick="selectLLMProvider('custom')">
+                            <div class="llm-provider-icon">⚙️</div>Custom
+                        </div>
+                    </div>
+                    <input type="hidden" id="llmProvider" value="${llmProvider}">
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group full-width">
+                            <label class="profile-form-label">API Key</label>
+                            <div style="position:relative;">
+                                <input class="profile-form-input" id="llmApiKey" type="password" value="${llmKeySet ? llmKeyMasked : ''}"
+                                    placeholder="sk-..." style="padding-right:40px;">
+                                <button onclick="toggleLLMKeyVis()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:14px;" title="Show/Hide">👁</button>
+                            </div>
+                            ${llmKeySet ? '<div style="font-size:11px;color:var(--success);margin-top:2px;">Key saved. Enter a new key to replace.</div>' : ''}
+                        </div>
+                        <div class="profile-form-group" id="llmBaseUrlGroup" style="${llmProvider === 'custom' ? '' : 'display:none'}">
+                            <label class="profile-form-label">Base URL</label>
+                            <input class="profile-form-input" id="llmBaseUrl" type="text" value="${llmBaseUrl}" placeholder="https://your-api.com/v1">
+                        </div>
+                        <div class="profile-form-group">
+                            <label class="profile-form-label">Model</label>
+                            <input class="profile-form-input" id="llmModel" type="text" value="${llmModel}"
+                                placeholder="${llmProvider === 'openai' ? 'gpt-4o' : llmProvider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'deepseek/deepseek-r1'}">
+                        </div>
+                    </div>
+                    <button class="profile-save-btn" onclick="saveLLMSettings()">Save LLM Settings</button>
                 </div>
             </div>`;
 

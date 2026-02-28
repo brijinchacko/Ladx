@@ -691,7 +691,23 @@ class TIAHandler:
                         try:
                             for msg in result.Messages:
                                 state_str = str(msg.State).lower()
-                                msg_text = str(msg)
+                                # Extract the actual message text
+                                msg_text = ""
+                                try:
+                                    msg_text = msg.Description
+                                except Exception:
+                                    pass
+                                if not msg_text:
+                                    try:
+                                        msg_text = msg.Text
+                                    except Exception:
+                                        pass
+                                if not msg_text:
+                                    try:
+                                        msg_text = msg.Path + ": " + str(msg.State)
+                                    except Exception:
+                                        msg_text = str(msg.State)
+
                                 if "error" in state_str:
                                     errors.append(msg_text)
                                     compile_success = False
@@ -699,8 +715,8 @@ class TIAHandler:
                                     warnings.append(msg_text)
                                 self._log(f"  [{msg.State}] {msg_text}")
                         except Exception as msg_err:
+                            self._log(f"  Result parse error: {msg_err}")
                             self._log(f"  Result state: {result.State}")
-                            # Fallback: just check overall result state
                             state_str = str(result.State).lower()
                             if "error" in state_str:
                                 compile_success = False

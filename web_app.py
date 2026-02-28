@@ -295,17 +295,26 @@ async def _tia_proxy(method: str, endpoint: str, json_data: dict = None, timeout
             else:
                 resp = await client.post(f"{TIA_BRIDGE_URL}{endpoint}", json=json_data or {}, timeout=timeout)
             return JSONResponse(resp.json())
-    except httpx.ConnectError:
+    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout, httpx.TimeoutException, OSError):
+        # Bridge not reachable - return offline status (not a 500 error)
         return JSONResponse({
             "success": False,
-            "connected": False,
+            "bridge": "offline",
+            "dll_loaded": False,
+            "tia_portal_connected": False,
+            "project_open": False,
+            "project_name": None,
             "message": f"Cannot reach TIA Bridge at {TIA_BRIDGE_URL}. Is tia_bridge_server.py running on Windows?"
         })
     except Exception as e:
         return JSONResponse({
             "success": False,
+            "bridge": "error",
+            "dll_loaded": False,
+            "tia_portal_connected": False,
+            "project_open": False,
             "message": f"Bridge error: {str(e)}"
-        }, status_code=500)
+        })
 
 
 @app.get("/api/tia/status")

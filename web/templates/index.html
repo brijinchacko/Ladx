@@ -4656,12 +4656,23 @@
             }
         }
 
-        // Poll TIA status every 5 seconds
+        // Poll TIA status - slower when offline, faster when connected
         let tiaPollingInterval = null;
+        let tiaLastState = 'offline';
         function startTiaPolling() {
             if (tiaPollingInterval) return;
-            tiaPollingInterval = setInterval(pollTiaStatus, 5000);
             pollTiaStatus(); // immediate first poll
+            scheduleTiaPoll();
+        }
+
+        function scheduleTiaPoll() {
+            if (tiaPollingInterval) clearTimeout(tiaPollingInterval);
+            // Poll every 30s when offline, 10s when bridge online, 5s when connected
+            const delay = tiaLastState === 'connected' ? 5000 : tiaLastState === 'bridge' ? 10000 : 30000;
+            tiaPollingInterval = setTimeout(async () => {
+                await pollTiaStatus();
+                scheduleTiaPoll();
+            }, delay);
         }
 
         async function pollTiaStatus() {
@@ -4669,13 +4680,17 @@
                 const res = await fetch('/api/tia/status');
                 const data = await res.json();
                 if (data.tia_portal_connected) {
+                    tiaLastState = 'connected';
                     updateTiaHeaderIndicator('connected');
                 } else if (data.dll_loaded || data.bridge === 'online') {
+                    tiaLastState = 'bridge';
                     updateTiaHeaderIndicator('bridge');
                 } else {
+                    tiaLastState = 'offline';
                     updateTiaHeaderIndicator('offline');
                 }
             } catch (e) {
+                tiaLastState = 'offline';
                 updateTiaHeaderIndicator('offline');
             }
         }
